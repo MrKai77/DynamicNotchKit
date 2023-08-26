@@ -78,12 +78,18 @@ public class DNWindow: ObservableObject {
         return true
     }
 
-    @discardableResult
-    public func toggleVisibility() -> Bool {
+    public func toggleVisibility() {
         if self.isVisible {
-            return self.hide()
+            self.hide()
         } else {
-            return self.show()
+            self.show()
+        }
+    }
+
+    public func show(for time: Double) {
+        self.show()
+        DispatchQueue.main.asyncAfter(deadline: .now() + time) {
+            self.hide()
         }
     }
 
