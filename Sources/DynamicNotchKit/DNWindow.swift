@@ -8,15 +8,15 @@
 import SwiftUI
 
 public class DNWindow: ObservableObject {
-    var content: AnyView
+    var content: AnyView        // Not private since it needs to be accessed from the SwiftUI view
     private var type: DynamicNotchType
 
     private var timer: Timer?
     private var windowController: NSWindowController?
 
-    @Published var isVisible: Bool = false
-    @Published var notchWidth: CGFloat = 0
-    @Published var notchHeight: CGFloat = 0
+    @Published public var isVisible: Bool = false
+    @Published public var notchWidth: CGFloat = 0
+    @Published public var notchHeight: CGFloat = 0
 
     private let animationDuration: Double = 0.4
 
@@ -29,6 +29,13 @@ public class DNWindow: ObservableObject {
         case expanded
         case minimal
         case compact
+    }
+
+    public func setContent<Content: View>(content: Content) {
+        self.content = AnyView(content)
+        if let windowController = self.windowController {
+            windowController.window?.contentView = NSHostingView(rootView: NotchView(dynamicNotch: self))
+        }
     }
 
     @discardableResult
@@ -52,6 +59,13 @@ public class DNWindow: ObservableObject {
         }
 
         return true
+    }
+
+    public func show(for time: Double) {
+        self.show()
+        DispatchQueue.main.asyncAfter(deadline: .now() + time) {
+            self.hide()
+        }
     }
 
     @discardableResult
@@ -86,16 +100,9 @@ public class DNWindow: ObservableObject {
         }
     }
 
-    public func show(for time: Double) {
-        self.show()
-        DispatchQueue.main.asyncAfter(deadline: .now() + time) {
-            self.hide()
-        }
-    }
-
     private func initializeWindow() {
         if let windowController = windowController {
-            windowController.window?.orderFrontRegardless()
+            windowController.window?.orderInFrontOfSpaces()
             return
         }
         guard let screen = NSScreen.screenWithMouse else { return }
@@ -113,7 +120,7 @@ public class DNWindow: ObservableObject {
         panel.level = .screenSaver
         panel.collectionBehavior = .canJoinAllSpaces
         panel.contentView = NSHostingView(rootView: NotchView(dynamicNotch: self))
-        panel.orderFrontRegardless()
+        panel.orderInFrontOfSpaces()
 
         panel.setFrame(NSRect(x: screen.frame.origin.x,
                               y: screen.frame.origin.y,

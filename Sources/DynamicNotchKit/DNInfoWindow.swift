@@ -9,33 +9,16 @@ import SwiftUI
 
 public class DNInfoWindow: DNWindow {
     public init<Content: View>(iconView: Content, title: String, description: String! = nil) {
-        var infoView: some View {
-            HStack {
-                iconView
-
-                Spacer()
-                    .frame(width: 10)
-
-                VStack(alignment: .leading) {
-                    Text(title)
-                        .font(.headline)
-
-                    if let description = description {
-                        Text(description)
-                            .foregroundStyle(.secondary)
-                            .font(.caption2)
-                    }
-                }
-
-                Spacer()
-            }
-            .frame(height: 40)
-            .padding(15)
-        }
-        super.init(type: .expanded, content:  AnyView(infoView))
+        super.init(type: .expanded, content: EmptyView())
+        self.setContent(iconView: iconView, title: title, description: description)
     }
 
     public init(image: Image! = nil, iconColor: Color = .white, title: String, description: String! = nil) {
+        super.init(type: .expanded, content: EmptyView())
+        self.setContent(image: image, iconColor: iconColor, title: title, description: description)
+    }
+
+    public func setContent(image: Image! = nil, iconColor: Color = .white, title: String, description: String! = nil) {
         let appIcon = Image(nsImage: NSApplication.shared.applicationIconImage)
 
         var infoView: some View {
@@ -72,6 +55,33 @@ public class DNInfoWindow: DNWindow {
             .frame(height: 40)
             .padding(15)
         }
-        super.init(type: .expanded, content:  AnyView(infoView))
+        super.setContent(content: infoView)
+    }
+
+    public func setContent<Content: View>(iconView: Content, title: String, description: String! = nil) {
+        var infoView: some View {
+            HStack {
+                iconView
+
+                Spacer()
+                    .frame(width: 10)
+
+                VStack(alignment: .leading) {
+                    Text(title)
+                        .font(.headline)
+
+                    if let description = description {
+                        Text(description)
+                            .foregroundStyle(.secondary)
+                            .font(.caption2)
+                    }
+                }
+
+                Spacer()
+            }
+            .frame(height: 40)
+            .padding(15)
+        }
+        super.setContent(content: infoView)
     }
 }
