@@ -8,7 +8,11 @@
 import SwiftUI
 
 struct NotchShape: Shape {
-    let topCornerRadius: CGFloat = 5
+    var topCornerRadius: CGFloat {
+        get {
+            return self.bottomCornerRadius - 5
+        }
+    }
     var bottomCornerRadius: CGFloat
     
     init(cornerRadius: CGFloat? = nil) {
@@ -39,4 +43,10 @@ struct NotchShape: Shape {
 
         return path
     }
+}
+
+#Preview {
+    NotchShape()
+        .frame(width: 200, height: 32)
+        .padding(10)
 }
