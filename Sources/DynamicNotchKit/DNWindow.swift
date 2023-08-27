@@ -12,7 +12,7 @@ public class DNWindow: ObservableObject {
     private var type: DynamicNotchType
 
     private var timer: Timer?
-    private var windowController: NSWindowController?
+    public var windowController: NSWindowController?
 
     @Published public var isVisible: Bool = false
     @Published public var notchWidth: CGFloat = 0
