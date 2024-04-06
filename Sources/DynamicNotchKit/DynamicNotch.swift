@@ -96,7 +96,7 @@ public class DynamicNotch: ObservableObject {
             windowController.window?.orderInFrontOfSpaces()
             return
         }
-        guard let screen = NSScreen.main else { return }
+        let screen = NSScreen.screens[0]
         self.refreshNotchSize(screen)
 
         let panel = NSPanel(

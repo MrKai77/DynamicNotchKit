@@ -28,10 +28,10 @@ public class DynamicNotchInfoWindow: DynamicNotch {
         )
     }
 
-    public init<Content: View>(iconView: Content, title: String, description: String! = nil) {
+    public init<Content: View>(keyView: Content, title: String, description: String! = nil) {
         super.init(content: EmptyView())
         self.setContent(
-            iconView: iconView,
+            iconView: keyView,
             title: title,
             description: description
         )
@@ -99,7 +99,7 @@ public class DynamicNotchInfoWindow: DynamicNotch {
                 Spacer()
             }
             .frame(height: 40)
-            .padding(15)
+            .padding(.top, 15)
         }
         super.setContent(content: infoView)
     }
