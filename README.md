@@ -1,2 +1,2 @@
 # DynamicNotchKit
- The MacOS notch made useful.
+Utilize then MacOS notch for enhanced user experiences.
