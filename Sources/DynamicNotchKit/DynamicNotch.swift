@@ -8,15 +8,14 @@
 import SwiftUI
 
 public class DynamicNotch: ObservableObject {
-    var content: AnyView
-
-    private var timer: Timer?
-    public var windowController: NSWindowController?
+    public var content: AnyView
+    public var windowController: NSWindowController? // In case user wants to modify the NSPanel
 
     @Published public var isVisible: Bool = false
     @Published public var notchWidth: CGFloat = 0
     @Published public var notchHeight: CGFloat = 0
 
+    private var timer: Timer?
     private let animationDuration: Double = 0.4
 
     public init<Content: View>(content: Content) {

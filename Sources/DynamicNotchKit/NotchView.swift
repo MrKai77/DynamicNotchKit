@@ -24,7 +24,8 @@ struct NotchView: View {
                     self.dynamicNotch.content
                         .blur(radius: self.dynamicNotch.isVisible ? 0 : 10)
                         .scaleEffect(self.dynamicNotch.isVisible ? 1 : 0.8)
-                        .padding(.horizontal, 15)    // Corner radius of the top of the notch
+                        .padding(.horizontal, 15)    // Small corner radius of the TOP of the notch
+                        .padding([.horizontal, .bottom], 20) // Corner at bottom of notch
                 }
                 .fixedSize()
                 .frame(minWidth: self.dynamicNotch.notchWidth)
