@@ -48,6 +48,10 @@ struct NotchView: View {
                     }
                 }
                 .shadow(color: .black.opacity(0.5), radius: self.dynamicNotch.isVisible ? 10 : 0)
+                .onHover { hovering in
+                    dynamicNotch.isMouseInside = hovering
+                    print(hovering)
+                }
 
                 Spacer()
             }

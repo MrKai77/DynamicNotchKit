@@ -11,12 +11,15 @@ public class DynamicNotch: ObservableObject {
     public var content: AnyView
     public var windowController: NSWindowController? // In case user wants to modify the NSPanel
 
+    @Published public var isMouseInside: Bool = false
     @Published public var isVisible: Bool = false
     @Published public var notchWidth: CGFloat = 0
     @Published public var notchHeight: CGFloat = 0
 
     private var timer: Timer?
     private let animationDuration: Double = 0.4
+
+    private let animation = Animation.timingCurve(0.16, 1, 0.3, 1, duration: 0.7)
 
     public init<Content: View>(content: Content) {
         self.content = AnyView(content)
@@ -39,12 +42,7 @@ public class DynamicNotch: ObservableObject {
         self.initializeWindow()
 
         DispatchQueue.main.async {
-            if #available(macOS 14.0, *) {
-                withAnimation(.spring(.bouncy(duration: self.animationDuration))) {
-                    self.isVisible = true
-                }
-            } else {
-                // TODO: Support MacOS Ventura & below
+            withAnimation(self.animation) {
                 self.isVisible = true
             }
         }
@@ -61,15 +59,18 @@ public class DynamicNotch: ObservableObject {
 
     @discardableResult
     public func hide() -> Bool {
-        if !self.isVisible {
+        guard self.isVisible else {
             return false
         }
-        if #available(macOS 14.0, *) {
-            withAnimation(.spring(.smooth(duration: self.animationDuration))) {
-                self.isVisible = false
+
+        guard !self.isMouseInside else {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                self.hide()
             }
-        } else {
-            // TODO: Support MacOS Ventura & below
+            return false
+        }
+
+        withAnimation(self.animation) {
             self.isVisible = false
         }
 
