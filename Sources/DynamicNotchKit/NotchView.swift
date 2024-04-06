@@ -29,6 +29,9 @@ struct NotchView: View {
                 }
                 .fixedSize()
                 .frame(minWidth: self.dynamicNotch.notchWidth)
+                .onHover { hovering in
+                    dynamicNotch.isMouseInside = hovering
+                }
                 .background {
                     Rectangle()
                         .foregroundStyle(.black)
@@ -48,10 +51,6 @@ struct NotchView: View {
                     }
                 }
                 .shadow(color: .black.opacity(0.5), radius: self.dynamicNotch.isVisible ? 10 : 0)
-                .onHover { hovering in
-                    dynamicNotch.isMouseInside = hovering
-                    print(hovering)
-                }
 
                 Spacer()
             }

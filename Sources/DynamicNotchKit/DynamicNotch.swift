@@ -16,6 +16,7 @@ public class DynamicNotch: ObservableObject {
     @Published public var notchWidth: CGFloat = 0
     @Published public var notchHeight: CGFloat = 0
 
+    private var hasNotch: Bool = true   // Adds support for non-notched screens
     private var timer: Timer?
     private let animationDuration: Double = 0.4
 
@@ -97,8 +98,14 @@ public class DynamicNotch: ObservableObject {
             windowController.window?.orderInFrontOfSpaces()
             return
         }
-        let screen = NSScreen.screens[0]
+        let screen = NSScreen.main!
         self.refreshNotchSize(screen)
+
+        var view: NSView = NSHostingView(rootView: NotchView(dynamicNotch: self))
+
+        if !self.hasNotch {
+            view = NSHostingView(rootView: NotchlessView(dynamicNotch: self))
+        }
 
         let panel = NSPanel(
             contentRect: .zero,
@@ -111,7 +118,7 @@ public class DynamicNotch: ObservableObject {
         panel.backgroundColor = NSColor.white.withAlphaComponent(0.00001)
         panel.level = .screenSaver
         panel.collectionBehavior = .canJoinAllSpaces
-        panel.contentView = NSHostingView(rootView: NotchView(dynamicNotch: self))
+        panel.contentView = view
         panel.orderInFrontOfSpaces()
 
         panel.setFrame(
@@ -134,10 +141,15 @@ public class DynamicNotch: ObservableObject {
     }
 
     private func refreshNotchSize(_ screen: NSScreen) {
-        let topLeftNotchpadding: CGFloat = screen.auxiliaryTopLeftArea?.width ?? 0
-        let topRightNotchpadding: CGFloat = screen.auxiliaryTopRightArea?.width ?? 0
+        if let topLeftNotchpadding: CGFloat = screen.auxiliaryTopLeftArea?.width,
+           let topRightNotchpadding: CGFloat = screen.auxiliaryTopRightArea?.width {
 
-        self.notchHeight = screen.safeAreaInsets.top
-        self.notchWidth = screen.frame.width - topLeftNotchpadding - topRightNotchpadding + 10 // 10 is for the top rounded part of the notch
+            self.notchHeight = screen.safeAreaInsets.top
+            self.notchWidth = screen.frame.width - topLeftNotchpadding - topRightNotchpadding + 10 // 10 is for the top rounded part of the notch
+
+            self.hasNotch = true
+        } else {
+            self.hasNotch = false
+        }
     }
 }
