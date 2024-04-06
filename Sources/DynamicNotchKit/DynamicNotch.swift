@@ -34,13 +34,13 @@ public class DynamicNotch: ObservableObject {
     }
 
     @discardableResult
-    public func show() -> Bool {
+    public func show(on screen: NSScreen = NSScreen.screens[0]) -> Bool {
         if self.isVisible {
             return false    // Window already exists
         }
         timer?.invalidate()
 
-        self.initializeWindow()
+        self.initializeWindow(screen: screen)
 
         DispatchQueue.main.async {
             withAnimation(self.animation) {
@@ -109,12 +109,26 @@ public class DynamicNotch: ObservableObject {
         return NSMouseInRect(NSEvent.mouseLocation, notchRect, true)
     }
 
-    private func initializeWindow() {
+    private func refreshNotchSize(_ screen: NSScreen) {
+        if let topLeftNotchpadding: CGFloat = screen.auxiliaryTopLeftArea?.width,
+           let topRightNotchpadding: CGFloat = screen.auxiliaryTopRightArea?.width {
+
+            self.notchHeight = screen.safeAreaInsets.top
+            self.notchWidth = screen.frame.width - topLeftNotchpadding - topRightNotchpadding + 10 // 10 is for the top rounded part of the notch
+            self.hasNotch = true
+        } else {
+            // here we assign the menubar height, so that the method checkIfMouseIsInNotch still works
+            self.notchHeight = screen.frame.height - screen.visibleFrame.height
+            self.notchWidth = 500
+            self.hasNotch = false
+        }
+    }
+
+    private func initializeWindow(screen: NSScreen) {
         if let windowController = windowController {
             windowController.window?.orderFrontRegardless()
             return
         }
-        let screen = NSScreen.main!
         self.refreshNotchSize(screen)
 
         var view: NSView = NSHostingView(rootView: NotchView(dynamicNotch: self))
@@ -127,8 +141,7 @@ public class DynamicNotch: ObservableObject {
             contentRect: .zero,
             styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
-            defer: true,
-            screen: NSApp.keyWindow?.screen
+            defer: true
         )
         panel.hasShadow = false
         panel.backgroundColor = NSColor.white.withAlphaComponent(0.00001)
@@ -154,21 +167,5 @@ public class DynamicNotch: ObservableObject {
         guard let windowController = windowController else { return }
         windowController.close()
         self.windowController = nil
-    }
-
-    private func refreshNotchSize(_ screen: NSScreen) {
-        if let topLeftNotchpadding: CGFloat = screen.auxiliaryTopLeftArea?.width,
-           let topRightNotchpadding: CGFloat = screen.auxiliaryTopRightArea?.width {
-
-            self.notchHeight = screen.safeAreaInsets.top
-            self.notchWidth = screen.frame.width - topLeftNotchpadding - topRightNotchpadding + 10 // 10 is for the top rounded part of the notch
-
-            self.hasNotch = true
-        } else {
-            // here we assign the menubar height, so that the method checkIfMouseIsInNotch still works
-            self.notchHeight = screen.frame.height - screen.visibleFrame.height
-            self.notchWidth = 300
-            self.hasNotch = false
-        }
     }
 }
