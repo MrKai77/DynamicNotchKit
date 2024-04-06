@@ -1,5 +1,5 @@
 //
-//  DNWindow.swift
+//  DynamicNotch.swift
 //
 //
 //  Created by Kai Azim on 2023-08-24.
@@ -7,9 +7,8 @@
 
 import SwiftUI
 
-public class DNWindow: ObservableObject {
-    var content: AnyView        // Not private since it needs to be accessed from the SwiftUI view
-    private var type: DynamicNotchType
+public class DynamicNotch: ObservableObject {
+    var content: AnyView
 
     private var timer: Timer?
     public var windowController: NSWindowController?
@@ -20,15 +19,8 @@ public class DNWindow: ObservableObject {
 
     private let animationDuration: Double = 0.4
 
-    public init<Content: View>(type: DynamicNotchType, content: Content) {
-        self.type = type
+    public init<Content: View>(content: Content) {
         self.content = AnyView(content)
-    }
-
-    public enum DynamicNotchType {
-        case expanded
-        case minimal
-        case compact
     }
 
     public func setContent<Content: View>(content: Content) {
@@ -105,7 +97,7 @@ public class DNWindow: ObservableObject {
             windowController.window?.orderInFrontOfSpaces()
             return
         }
-        guard let screen = NSScreen.screenWithMouse else { return }
+        guard let screen = NSScreen.main else { return }
         self.refreshNotchSize(screen)
 
         let panel = NSPanel(
@@ -122,10 +114,15 @@ public class DNWindow: ObservableObject {
         panel.contentView = NSHostingView(rootView: NotchView(dynamicNotch: self))
         panel.orderInFrontOfSpaces()
 
-        panel.setFrame(NSRect(x: screen.frame.origin.x,
-                              y: screen.frame.origin.y,
-                              width: screen.frame.width,
-                              height: screen.frame.height), display: false)
+        panel.setFrame(
+            NSRect(
+                x: screen.frame.origin.x,
+                y: screen.frame.origin.y,
+                width: screen.frame.width,
+                height: screen.frame.height
+            ),
+            display: false
+        )
 
         self.windowController = .init(window: panel)
     }

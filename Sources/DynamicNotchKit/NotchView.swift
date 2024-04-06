@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct NotchView: View {
-    @ObservedObject var dynamicNotch: DNWindow
+    @ObservedObject var dynamicNotch: DynamicNotch
 
     var body: some View {
         VStack(spacing: 0) {

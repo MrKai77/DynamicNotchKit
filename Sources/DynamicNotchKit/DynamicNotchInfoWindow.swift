@@ -1,5 +1,5 @@
 //
-//  DNInfoWindow.swift
+//  DynamicNotchInfoWindow.swift
 //
 //
 //  Created by Kai Azim on 2023-08-25.
@@ -7,15 +7,34 @@
 
 import SwiftUI
 
-public class DNInfoWindow: DNWindow {
-    public init<Content: View>(iconView: Content, title: String, description: String! = nil) {
-        super.init(type: .expanded, content: EmptyView())
-        self.setContent(iconView: iconView, title: title, description: description)
+public class DynamicNotchInfoWindow: DynamicNotch {
+    public init(systemImage: String, iconColor: Color = .white, title: String, description: String! = nil) {
+        super.init(content: EmptyView())
+        self.setContent(
+            image: Image(systemName: systemImage),
+            iconColor: iconColor,
+            title: title,
+            description: description
+        )
     }
 
     public init(image: Image! = nil, iconColor: Color = .white, title: String, description: String! = nil) {
-        super.init(type: .expanded, content: EmptyView())
-        self.setContent(image: image, iconColor: iconColor, title: title, description: description)
+        super.init(content: EmptyView())
+        self.setContent(
+            image: image,
+            iconColor: iconColor,
+            title: title,
+            description: description
+        )
+    }
+
+    public init<Content: View>(iconView: Content, title: String, description: String! = nil) {
+        super.init(content: EmptyView())
+        self.setContent(
+            iconView: iconView,
+            title: title,
+            description: description
+        )
     }
 
     public func setContent(image: Image! = nil, iconColor: Color = .white, title: String, description: String! = nil) {
