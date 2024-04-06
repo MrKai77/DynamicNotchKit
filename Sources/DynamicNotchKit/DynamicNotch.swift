@@ -95,7 +95,7 @@ public class DynamicNotch: ObservableObject {
 
     private func initializeWindow() {
         if let windowController = windowController {
-            windowController.window?.orderInFrontOfSpaces()
+            windowController.window?.orderFrontRegardless()
             return
         }
         let screen = NSScreen.main!
@@ -119,7 +119,7 @@ public class DynamicNotch: ObservableObject {
         panel.level = .screenSaver
         panel.collectionBehavior = .canJoinAllSpaces
         panel.contentView = view
-        panel.orderInFrontOfSpaces()
+        panel.orderFrontRegardless()
 
         panel.setFrame(
             NSRect(

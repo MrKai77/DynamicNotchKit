@@ -19,7 +19,7 @@ struct NotchView: View {
                     Spacer()
                         .frame(width: self.dynamicNotch.notchWidth + 20, height: self.dynamicNotch.notchHeight)
                         // We add an extra 20 here because the corner radius of the top increases when shown. 
-                        // (the remaining 10 has already been accounted for)
+                        // (the remaining 10 has already been accounted for in refreshNotchSize)
 
                     self.dynamicNotch.content
                         .blur(radius: self.dynamicNotch.isVisible ? 0 : 10)
