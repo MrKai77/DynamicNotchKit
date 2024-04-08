@@ -11,10 +11,10 @@ public class DynamicNotch: ObservableObject {
     public var content: AnyView
     public var windowController: NSWindowController? // In case user wants to modify the NSPanel
 
-    @Published public var isMouseInside: Bool = false
-    @Published public var isVisible: Bool = false
-    @Published public var notchWidth: CGFloat = 0
-    @Published public var notchHeight: CGFloat = 0
+    @Published var isMouseInside: Bool = false
+    @Published var isVisible: Bool = false
+    @Published var notchWidth: CGFloat = 0
+    @Published var notchHeight: CGFloat = 0
 
     private var hasNotch: Bool = true   // Adds support for non-notched screens
     private var timer: Timer?
@@ -26,6 +26,7 @@ public class DynamicNotch: ObservableObject {
         self.content = AnyView(content)
     }
 
+    // MARK: Public methods
     public func setContent<Content: View>(content: Content) {
         self.content = AnyView(content)
         if let windowController = self.windowController {
@@ -34,7 +35,7 @@ public class DynamicNotch: ObservableObject {
     }
 
     @discardableResult
-    public func show(on screen: NSScreen = NSScreen.screens[0]) -> Bool {
+    public func show(on screen: NSScreen = NSScreen.screens[0], for time: Double = 0) -> Bool {
         if self.isVisible {
             return false    // Window already exists
         }
@@ -48,14 +49,13 @@ public class DynamicNotch: ObservableObject {
             }
         }
 
-        return true
-    }
-
-    public func show(for time: Double) {
-        self.show()
-        DispatchQueue.main.asyncAfter(deadline: .now() + time) {
-            self.hide()
+        if time != 0 {
+            DispatchQueue.main.asyncAfter(deadline: .now() + time) {
+                self.hide()
+            }
         }
+
+        return true
     }
 
     @discardableResult
@@ -93,35 +93,49 @@ public class DynamicNotch: ObservableObject {
         }
     }
 
-    public func checkIfMouseIsInNotch() -> Bool {
+    public static func checkIfMouseIsInNotch() -> Bool {
         guard let screen = NSScreen.screenWithMouse else {
             return false
         }
-        self.refreshNotchSize(screen)
+        let notchSize = DynamicNotch.getNotchSize(screen: screen)
 
         let notchRect: NSRect = .init(
-            x: screen.frame.midX - (self.notchWidth / 2),
-            y: screen.frame.maxY - self.notchHeight,
-            width: self.notchWidth,
-            height: self.notchHeight
+            x: screen.frame.midX - (notchSize.width / 2),
+            y: screen.frame.maxY - notchSize.height,
+            width: notchSize.width,
+            height: notchSize.height
         )
 
         return NSMouseInRect(NSEvent.mouseLocation, notchRect, true)
     }
 
-    private func refreshNotchSize(_ screen: NSScreen) {
+    // MARK: Private methods
+    private static func getNotchSize(screen: NSScreen) -> CGSize {
         if let topLeftNotchpadding: CGFloat = screen.auxiliaryTopLeftArea?.width,
            let topRightNotchpadding: CGFloat = screen.auxiliaryTopRightArea?.width {
 
-            self.notchHeight = screen.safeAreaInsets.top
-            self.notchWidth = screen.frame.width - topLeftNotchpadding - topRightNotchpadding + 10 // 10 is for the top rounded part of the notch
-            self.hasNotch = true
+            let notchHeight = screen.safeAreaInsets.top
+            let notchWidth = screen.frame.width - topLeftNotchpadding - topRightNotchpadding + 10 // 10 is for the top rounded part of the notch
+            return .init(width: notchWidth, height: notchHeight)
         } else {
             // here we assign the menubar height, so that the method checkIfMouseIsInNotch still works
-            self.notchHeight = screen.frame.height - screen.visibleFrame.height
-            self.notchWidth = 500
+            let notchHeight = screen.frame.height - screen.visibleFrame.height
+            let notchWidth: CGFloat = 500
+            return .init(width: notchWidth, height: notchHeight)
+        }
+    }
+
+    private func refreshNotchSize(_ screen: NSScreen) {
+        if let topLeftNotchpadding: CGFloat = screen.auxiliaryTopLeftArea?.width,
+           let topRightNotchpadding: CGFloat = screen.auxiliaryTopRightArea?.width {
+            self.hasNotch = true
+        } else {
             self.hasNotch = false
         }
+
+        let notchSize = DynamicNotch.getNotchSize(screen: screen)
+        self.notchWidth = notchSize.width
+        self.notchHeight = notchSize.height
     }
 
     private func initializeWindow(screen: NSScreen) {

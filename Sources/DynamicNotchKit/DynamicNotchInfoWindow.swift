@@ -8,76 +8,37 @@
 import SwiftUI
 
 public class DynamicNotchInfoWindow: DynamicNotch {
-    public init(systemImage: String, iconColor: Color = .white, title: String, description: String! = nil) {
-        super.init(content: EmptyView())
-        self.setContent(
-            image: Image(systemName: systemImage),
-            iconColor: iconColor,
-            title: title,
-            description: description
-        )
+
+    // MARK: Initialzers
+    public init<Content: View>(iconView: Content, title: String, description: String! = nil) {
+        super.init(content: DynamicNotchInfoWindow.getView(iconView: iconView, title: title, description: description))
     }
 
-    public init(image: Image! = nil, iconColor: Color = .white, title: String, description: String! = nil) {
-        super.init(content: EmptyView())
-        self.setContent(
-            image: image,
-            iconColor: iconColor,
-            title: title,
-            description: description
-        )
+    public convenience init(image: Image! = nil, iconColor: Color = .white, title: String, description: String? = nil) {
+        let iconView = DynamicNotchInfoWindow.getIconView(image: image, iconColor: iconColor)
+        self.init(iconView: iconView, title: title, description: description)
     }
 
-    public init<Content: View>(keyView: Content, title: String, description: String! = nil) {
-        super.init(content: EmptyView())
-        self.setContent(
-            iconView: keyView,
-            title: title,
-            description: description
-        )
+    public convenience init(systemImage: String, iconColor: Color = .white, title: String, description: String? = nil) {
+        self.init(image: Image(systemName: systemImage), iconColor: iconColor, title: title, description: description )
     }
 
-    public func setContent(image: Image! = nil, iconColor: Color = .white, title: String, description: String! = nil) {
-        let appIcon = Image(nsImage: NSApplication.shared.applicationIconImage)
-
-        var infoView: some View {
-            HStack {
-                if let image = image {
-                    image
-                        .resizable()
-                        .foregroundStyle(iconColor)
-                        .padding(3)
-                        .scaledToFit()
-                } else {
-                    appIcon
-                        .resizable()
-                        .padding(-5)
-                        .scaledToFit()
-                }
-
-                Spacer()
-                    .frame(width: 10)
-
-                VStack(alignment: .leading) {
-                    Text(title)
-                        .font(.headline)
-
-                    if let description = description {
-                        Text(description)
-                            .foregroundStyle(.secondary)
-                            .font(.caption2)
-                    }
-                }
-
-                Spacer()
-            }
-            .frame(height: 40)
-            .padding([.horizontal, .bottom], 20)
-        }
-        super.setContent(content: infoView)
-    }
-
+    // MARK: Set content
     public func setContent<Content: View>(iconView: Content, title: String, description: String! = nil) {
+        super.setContent(content: DynamicNotchInfoWindow.getView(iconView: iconView, title: title, description: description))
+    }
+
+    public func setContent(image: Image! = nil, iconColor: Color = .white, title: String, description: String? = nil) {
+        let iconView = DynamicNotchInfoWindow.getIconView(image: image, iconColor: iconColor)
+        self.setContent(iconView: iconView, title: title, description: description)
+    }
+
+    public func setContent(systemImage: String, iconColor: Color = .white, title: String, description: String? = nil) {
+        self.setContent(image: Image(systemName: systemImage), iconColor: iconColor, title: title, description: description)
+    }
+
+    // MARK: Private
+    private static func getView<Content: View>(iconView: Content, title: String, description: String! = nil) -> some View {
         var infoView: some View {
             HStack {
                 iconView
@@ -101,6 +62,22 @@ public class DynamicNotchInfoWindow: DynamicNotch {
             .frame(height: 40)
             .padding([.horizontal, .bottom], 20)
         }
-        super.setContent(content: infoView)
+
+        return infoView
+    }
+
+    @ViewBuilder private static func getIconView(image: Image! = nil, iconColor: Color = .white) -> some View {
+        if let image = image {
+            image
+                .resizable()
+                .foregroundStyle(iconColor)
+                .padding(3)
+                .scaledToFit()
+        } else {
+            Image(nsImage: NSApplication.shared.applicationIconImage)
+                .resizable()
+                .padding(-5)
+                .scaledToFit()
+        }
     }
 }
