@@ -72,6 +72,7 @@ public class DynamicNotchInfoWindow: DynamicNotch {
                 Spacer()
             }
             .frame(height: 40)
+            .padding([.horizontal, .bottom], 20)
         }
         super.setContent(content: infoView)
     }
@@ -98,6 +99,7 @@ public class DynamicNotchInfoWindow: DynamicNotch {
                 Spacer()
             }
             .frame(height: 40)
+            .padding([.horizontal, .bottom], 20)
         }
         super.setContent(content: infoView)
     }

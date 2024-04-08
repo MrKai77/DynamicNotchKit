@@ -85,7 +85,7 @@ public class DynamicNotch: ObservableObject {
         return true
     }
 
-    public func toggleVisibility() {
+    public func toggle() {
         if self.isVisible {
             self.hide()
         } else {
