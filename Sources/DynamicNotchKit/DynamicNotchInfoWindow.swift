@@ -9,32 +9,71 @@ import SwiftUI
 
 public class DynamicNotchInfoWindow: DynamicNotch {
 
-    // MARK: Initialzers
+    // MARK: Initializers
+
+    /// Construct a new DynamicNotchInfoWindow with a custom icon SwiftUI view.
+    /// - Parameters:
+    ///   - iconView: A SwiftUI View
+    ///   - title: A title for your content
+    ///   - description: An optional description for your content
+    ///   - style: The popover's style. If unspecified, the style will be automatically set according to the screen.
     public init<Content: View>(iconView: Content, title: String, description: String! = nil, style: DynamicNotch.Style! = nil) {
         super.init(content: DynamicNotchInfoWindow.getView(iconView: iconView, title: title, description: description, notchStyle: style), style: style)
     }
-
-    public convenience init(image: Image! = nil, iconColor: Color = .white, title: String, description: String? = nil, style: DynamicNotch.Style! = nil) {
-        let iconView = DynamicNotchInfoWindow.getIconView(image: image, iconColor: iconColor)
+    
+    /// Construct a new DynamicNotchInfoWindow with an Image as the icon.
+    /// - Parameters:
+    ///   - image: An optional Image. If left unspecified, the application icon will be used
+    ///   - iconColor: The color of the icon
+    ///   - title: A title for your content
+    ///   - description: An optional description for your content
+    ///   - style: The popover's style. If unspecified, the style will be automatically set according to the screen.
+    public convenience init(icon: Image! = nil, iconColor: Color = .white, title: String, description: String? = nil, style: DynamicNotch.Style! = nil) {
+        let iconView = DynamicNotchInfoWindow.getIconView(icon: icon, iconColor: iconColor)
         self.init(iconView: iconView, title: title, description: description, style: style)
     }
-
+    
+    /// Construct a new DynamicNotchInfoWindow with an SF Symbol as the icon.
+    /// - Parameters:
+    ///   - systemImage: The SF Symbol's name
+    ///   - iconColor: The color of the icon
+    ///   - title: A title for your content
+    ///   - description:  An optional description for your content
+    ///   - style: The popover's style. If unspecified, the style will be automatically set according to the screen.
     public convenience init(systemImage: String, iconColor: Color = .white, title: String, description: String? = nil, style: DynamicNotch.Style! = nil) {
-        self.init(image: Image(systemName: systemImage), iconColor: iconColor, title: title, description: description, style: style)
+        self.init(icon: Image(systemName: systemImage), iconColor: iconColor, title: title, description: description, style: style)
     }
 
     // MARK: Set content
+
+    /// Set new content for the DynamicNotchInfoWindow.
+    /// - Parameters:
+    ///   - iconView: A SwiftUI View
+    ///   - title: A title for your content
+    ///   - description: An optional description for your content
     public func setContent<Content: View>(iconView: Content, title: String, description: String! = nil) {
         super.setContent(content: DynamicNotchInfoWindow.getView(iconView: iconView, title: title, description: description, notchStyle: super.notchStyle))
     }
-
-    public func setContent(image: Image! = nil, iconColor: Color = .white, title: String, description: String? = nil) {
-        let iconView = DynamicNotchInfoWindow.getIconView(image: image, iconColor: iconColor)
+    
+    /// Set new content for the DynamicNotchInfoWindow, with an Image as the icon.
+    /// - Parameters:
+    ///   - icon: An optional Image. If left unspecified, the application icon will be used
+    ///   - iconColor: The color of the icon
+    ///   - title: A title for your content
+    ///   - description: An optional description for your content
+    public func setContent(icon: Image! = nil, iconColor: Color = .white, title: String, description: String? = nil) {
+        let iconView = DynamicNotchInfoWindow.getIconView(icon: icon, iconColor: iconColor)
         self.setContent(iconView: iconView, title: title, description: description)
     }
-
+    
+    /// Set new content for the DynamicNotchInfoWindow, with an SF Symbol as the icon.
+    /// - Parameters:
+    ///   - systemImage: The SF Symbol's name
+    ///   - iconColor: The color of the icon
+    ///   - title: A title for your content
+    ///   - description: An optional description for your content
     public func setContent(systemImage: String, iconColor: Color = .white, title: String, description: String? = nil) {
-        self.setContent(image: Image(systemName: systemImage), iconColor: iconColor, title: title, description: description)
+        self.setContent(icon: Image(systemName: systemImage), iconColor: iconColor, title: title, description: description)
     }
 
     // MARK: Private
@@ -67,8 +106,8 @@ public class DynamicNotchInfoWindow: DynamicNotch {
         return infoView
     }
 
-    @ViewBuilder private static func getIconView(image: Image! = nil, iconColor: Color = .white) -> some View {
-        if let image = image {
+    @ViewBuilder private static func getIconView(icon: Image! = nil, iconColor: Color = .white) -> some View {
+        if let image = icon {
             image
                 .resizable()
                 .foregroundStyle(iconColor)

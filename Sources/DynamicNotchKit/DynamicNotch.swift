@@ -28,7 +28,11 @@ public class DynamicNotch: ObservableObject {
         case notch
         case floating
     }
-
+    
+    /// Makes a new DynamicNotch with custom content and style.
+    /// - Parameters:
+    ///   - content: A SwiftUI View
+    ///   - style: The popover's style. If unspecified, the style will be automatically set according to the screen.
     public init<Content: View>(content: Content, style: DynamicNotch.Style! = nil) {
         self.content = AnyView(content)
 
@@ -41,6 +45,9 @@ public class DynamicNotch: ObservableObject {
     }
 
     // MARK: Public methods
+    
+    /// Set this DynamicNotch's content.
+    /// - Parameter content: A SwiftUI View
     public func setContent<Content: View>(content: Content) {
         self.content = AnyView(content)
         if let windowController = self.windowController {
@@ -48,11 +55,13 @@ public class DynamicNotch: ObservableObject {
         }
     }
 
-    @discardableResult
-    public func show(on screen: NSScreen = NSScreen.screens[0], for time: Double = 0) -> Bool {
-        if self.isVisible {
-            return false    // Window already exists
-        }
+    
+    /// Show the DynamicNotch.
+    /// - Parameters:
+    ///   - screen: Screen to show on. Default is the primary screen.
+    ///   - time: Time to show in seconds. If 0, the DynamicNotch will stay visible until `hide()` is called.
+    public func show(on screen: NSScreen = NSScreen.screens[0], for time: Double = 0) {
+        if self.isVisible { return }
         timer?.invalidate()
 
         self.initializeWindow(screen: screen)
@@ -68,21 +77,17 @@ public class DynamicNotch: ObservableObject {
                 self.hide()
             }
         }
-
-        return true
     }
-
-    @discardableResult
-    public func hide() -> Bool {
-        guard self.isVisible else {
-            return false
-        }
+    
+    /// Hide the DynamicNotch.
+    public func hide() {
+        guard self.isVisible else { return }
 
         guard !self.isMouseInside else {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 self.hide()
             }
-            return false
+            return
         }
 
         withAnimation(self.animation) {
@@ -95,10 +100,9 @@ public class DynamicNotch: ObservableObject {
         ) { _ in
             self.deinitializeWindow()
         }
-
-        return true
     }
-
+    
+    /// Toggle the DynamicNotch's visibility.
     public func toggle() {
         if self.isVisible {
             self.hide()
@@ -106,7 +110,9 @@ public class DynamicNotch: ObservableObject {
             self.show()
         }
     }
-
+    
+    /// Check if the cursor is inside the screen's notch area.
+    /// - Returns: If the cursor is inside the notch area.
     public static func checkIfMouseIsInNotch() -> Bool {
         guard let screen = NSScreen.screenWithMouse else {
             return false
