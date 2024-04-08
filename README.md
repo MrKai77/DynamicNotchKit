@@ -2,10 +2,10 @@
 Utilize then MacOS notch for enhanced user experiences.
 
 ## Examples:
-![](media/output-device.gif)
+<img src="media/output-device.gif" width="500"/>
 
-![](media/battery.gif)
+<img src="media/battery.gif" width="500"/>
 
-![](media/info-panel.png)
+<img src="media/info-panel.png" width="500"/>
 
-![](media/window-management.gif)
+<img src="media/window-management.gif" width="500"/>
