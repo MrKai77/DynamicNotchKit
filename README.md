@@ -48,7 +48,7 @@ Here are the available initializers for it:
 In fact, this was used 3/4 of the examples above :D  
 The final listed intializer, which has `keyView`, can be used to show small indicators such as a circular progress bar.
 
-...I'm probably going to improve these examples later :)  
+...I'm probably going to improve these docs later :)  
 Feel free to ask questions/report issues in the `Issues` tab!
 
 # License
