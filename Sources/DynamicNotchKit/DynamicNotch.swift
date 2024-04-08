@@ -11,19 +11,33 @@ public class DynamicNotch: ObservableObject {
     public var content: AnyView
     public var windowController: NSWindowController? // In case user wants to modify the NSPanel
 
+    @Published public var isVisible: Bool = false
     @Published var isMouseInside: Bool = false
-    @Published var isVisible: Bool = false
     @Published var notchWidth: CGFloat = 0
     @Published var notchHeight: CGFloat = 0
+    @Published var notchStyle: Style = .notch
 
-    private var hasNotch: Bool = true   // Adds support for non-notched screens
     private var timer: Timer?
     private let animationDuration: Double = 0.4
 
     private let animation = Animation.timingCurve(0.16, 1, 0.3, 1, duration: 0.7)
 
-    public init<Content: View>(content: Content) {
+    // If true, DynamicNotchKit will use the .notch/.floating style according to the screen.
+    private let autoManageNotchStyle: Bool
+    public enum Style {
+        case notch
+        case floating
+    }
+
+    public init<Content: View>(content: Content, style: DynamicNotch.Style! = nil) {
         self.content = AnyView(content)
+
+        if style == nil {
+            self.autoManageNotchStyle = true
+        } else {
+            self.autoManageNotchStyle = false
+            self.notchStyle = style
+        }
     }
 
     // MARK: Public methods
@@ -126,11 +140,13 @@ public class DynamicNotch: ObservableObject {
     }
 
     private func refreshNotchSize(_ screen: NSScreen) {
-        if let topLeftNotchpadding: CGFloat = screen.auxiliaryTopLeftArea?.width,
-           let topRightNotchpadding: CGFloat = screen.auxiliaryTopRightArea?.width {
-            self.hasNotch = true
-        } else {
-            self.hasNotch = false
+        if self.autoManageNotchStyle {
+            if let topLeftNotchpadding: CGFloat = screen.auxiliaryTopLeftArea?.width,
+               let topRightNotchpadding: CGFloat = screen.auxiliaryTopRightArea?.width {
+                self.notchStyle = .notch
+            } else {
+                self.notchStyle = .floating
+            }
         }
 
         let notchSize = DynamicNotch.getNotchSize(screen: screen)
@@ -147,7 +163,7 @@ public class DynamicNotch: ObservableObject {
 
         var view: NSView = NSHostingView(rootView: NotchView(dynamicNotch: self))
 
-        if !self.hasNotch {
+        if self.notchStyle == .floating {
             view = NSHostingView(rootView: NotchlessView(dynamicNotch: self))
         }
 

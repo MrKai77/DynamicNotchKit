@@ -10,22 +10,22 @@ import SwiftUI
 public class DynamicNotchInfoWindow: DynamicNotch {
 
     // MARK: Initialzers
-    public init<Content: View>(iconView: Content, title: String, description: String! = nil) {
-        super.init(content: DynamicNotchInfoWindow.getView(iconView: iconView, title: title, description: description))
+    public init<Content: View>(iconView: Content, title: String, description: String! = nil, style: DynamicNotch.Style! = nil) {
+        super.init(content: DynamicNotchInfoWindow.getView(iconView: iconView, title: title, description: description, notchStyle: style), style: style)
     }
 
-    public convenience init(image: Image! = nil, iconColor: Color = .white, title: String, description: String? = nil) {
+    public convenience init(image: Image! = nil, iconColor: Color = .white, title: String, description: String? = nil, style: DynamicNotch.Style! = nil) {
         let iconView = DynamicNotchInfoWindow.getIconView(image: image, iconColor: iconColor)
-        self.init(iconView: iconView, title: title, description: description)
+        self.init(iconView: iconView, title: title, description: description, style: style)
     }
 
-    public convenience init(systemImage: String, iconColor: Color = .white, title: String, description: String? = nil) {
-        self.init(image: Image(systemName: systemImage), iconColor: iconColor, title: title, description: description )
+    public convenience init(systemImage: String, iconColor: Color = .white, title: String, description: String? = nil, style: DynamicNotch.Style! = nil) {
+        self.init(image: Image(systemName: systemImage), iconColor: iconColor, title: title, description: description, style: style)
     }
 
     // MARK: Set content
     public func setContent<Content: View>(iconView: Content, title: String, description: String! = nil) {
-        super.setContent(content: DynamicNotchInfoWindow.getView(iconView: iconView, title: title, description: description))
+        super.setContent(content: DynamicNotchInfoWindow.getView(iconView: iconView, title: title, description: description, notchStyle: super.notchStyle))
     }
 
     public func setContent(image: Image! = nil, iconColor: Color = .white, title: String, description: String? = nil) {
@@ -38,7 +38,7 @@ public class DynamicNotchInfoWindow: DynamicNotch {
     }
 
     // MARK: Private
-    private static func getView<Content: View>(iconView: Content, title: String, description: String! = nil) -> some View {
+    private static func getView<Content: View>(iconView: Content, title: String, description: String! = nil, notchStyle: DynamicNotch.Style) -> some View {
         var infoView: some View {
             HStack {
                 iconView
@@ -61,6 +61,7 @@ public class DynamicNotchInfoWindow: DynamicNotch {
             }
             .frame(height: 40)
             .padding([.horizontal, .bottom], 20)
+            .padding([.top], notchStyle == .floating ? 20 : 0)
         }
 
         return infoView

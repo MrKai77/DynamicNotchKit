@@ -9,7 +9,7 @@ import SwiftUI
 
 struct NotchlessView: View {
     @ObservedObject var dynamicNotch: DynamicNotch
-    @State var height: CGFloat = 0
+    @State var windowHeight: CGFloat = 0
 
     var body: some View {
         VStack(spacing: 0) {
@@ -30,17 +30,17 @@ struct NotchlessView: View {
                     }
                     .clipShape(.rect(cornerRadius: 20))
                     .shadow(color: .black.opacity(0.5), radius: self.dynamicNotch.isVisible ? 10 : 0)
-                    .padding(10)
+
+                    .padding(20)
                     .background {
                         GeometryReader { geo in
                             Color.clear
                                 .onAppear {
-                                    height = -geo.size.height
+                                    windowHeight = geo.size.height // This makes sure that the floating window FULLY slides off before disappearing
                                 }
                         }
                     }
-
-                    .offset(y: self.dynamicNotch.isVisible ? 0 : height)
+                    .offset(y: self.dynamicNotch.isVisible ? dynamicNotch.notchHeight : -windowHeight)
 
                 Spacer()
             }
