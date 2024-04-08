@@ -1,15 +1,12 @@
 # DynamicNotchKit
+
 Utilize then MacOS notch for enhanced user experiences.
 
 ## Examples:
 
-<img src="media/output-device.gif" width="500"/>
-
-<img src="media/battery.gif" width="500"/>
-
-<img src="media/info-panel.png" width="500"/>
-
-<img src="media/window-management.gif" width="500"/>
+| <img src="media/output-device.gif" width="100%"/> | <img src="media/battery.gif" width="100%"/> |
+| -------- | ------- |
+| <img src="media/info-panel.png" width="100%"/>  | <img src="media/window-management.gif" width="100%"/> |
 
 ## Usage
 
@@ -56,3 +53,8 @@ Feel free to ask questions/report issues in the `Issues` tab!
 # License
 
 This project is licensed under the [MIT license](LICENSE).
+=======
+| <img src="media/output-device.gif" width="100%"/> | <img src="media/battery.gif" width="100%"/> |
+| -------- | ------- |
+| <img src="media/info-panel.png" width="100%"/>  | <img src="media/window-management.gif" width="100%"/> |
+>>>>>>> ea9564c2662333ebb4b79b331b521d53dce94178
