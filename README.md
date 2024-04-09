@@ -1,6 +1,6 @@
 # DynamicNotchKit
 
-Utilize then MacOS notch for enhanced user experiences.
+Utilize the MacOS notch for enhanced user experiences.
 
 ## Examples:
 
