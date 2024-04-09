@@ -45,9 +45,11 @@ notch.show(for: 2)
 ```
 
 This will result in a popover as so:
+
 <img src="media/demo.gif" width="50%"/>
 
 Furthermore, there is a `.floating` style, which will be **automatically** used on Macs without a notch:
+
 <img src="media/demo-floating.gif" width="50%"/>
 
 This style exists in `DynamicNotch`, meaning that this package supports all Macs :)
