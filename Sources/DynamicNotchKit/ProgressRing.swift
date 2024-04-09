@@ -8,7 +8,7 @@
 import SwiftUI
 
 @available(macOS 13.0, *)
-/// An animated circular progress ring. Made to be used with DynamicNotchInfoWindow.
+/// An animated circular progress ring. Made to be used with DynamicNotchInfo.
 public struct ProgressRing: View {
     @State var isLoaded = false
 

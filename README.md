@@ -20,6 +20,9 @@ dynamicNotch.show(for: 2)
 
 Where `ContentView` is a View.
 
+This will result in a window as so:
+<img src=“media/demo.gif" width=“50%"/>
+
 Notice the `show(for: 2)`. This will make it show for 2 seconds, then hide again. In DynamicNotch, you can either:
 - `show()`
 - `show(for: seconds)`
@@ -45,10 +48,10 @@ Here are the available initializers for it:
 - `DynamicNotchInfoWindow(image: Image! = nil, iconColor: Color = .white, title: String, description: String! = nil)`
 - `DynamicNotchInfoWindow(keyView: Content, title: String, description: String! = nil)`
 
-In fact, this was used 3/4 of the examples above :D  
+In fact, this was used 3/4 of the examples above :D
 The final listed intializer, which has `keyView`, can be used to show small indicators such as a circular progress bar.
 
-...I'm probably going to improve these docs later :)  
+...I'm probably going to improve these docs later :)
 Feel free to ask questions/report issues in the `Issues` tab!
 
 # License
