@@ -26,8 +26,8 @@ dynamicNotch.show(for: 2)
 
 Where `ContentView` is a View.
 
-This will result in a window as so:
-<img src=“media/demo.gif" width=“50%"/>
+This will result in a window as so:  
+<img src="media/demo.gif" width="50%"/>
 
 Notice the `show(for: 2)`. This will make it show for 2 seconds, on the primary display, then hide again.  
 The available methods to set the DynamicNotch's visibility are:
