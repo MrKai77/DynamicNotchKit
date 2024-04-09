@@ -8,6 +8,12 @@ Utilize then MacOS notch for enhanced user experiences.
 | -------- | ------- |
 | <img src="media/info-panel.png" width="100%"/>  | <img src="media/window-management.gif" width="100%"/> |
 
+## Installation
+
+Compatibility: **macOS 12+**
+
+Add `https://github.com/MrKai77/DynamicNotchKit` in the [“Swift Package Manager” tab in Xcode](https://developer.apple.com/documentation/xcode/adding_package_dependencies_to_your_app).
+
 ## Usage
 
 It's really easy! All the UI is handled by SwiftUI. That means, that you can use your existing views *directly* in DynamicNotchKit!
@@ -23,36 +29,16 @@ Where `ContentView` is a View.
 This will result in a window as so:
 <img src=“media/demo.gif" width=“50%"/>
 
-Notice the `show(for: 2)`. This will make it show for 2 seconds, then hide again. In DynamicNotch, you can either:
-- `show()`
-- `show(for: seconds)`
+Notice the `show(for: 2)`. This will make it show for 2 seconds, on the primary display, then hide again.  
+The available methods to set the DynamicNotch's visibility are:
+- `show(on screen: NSScreen = NSScreen.screens[0], for time: Double = 0)`
 - `hide()`
 - `toggle()`
 
-to control the visibility of the dropdown.
+Anyways, there are much more methods available, which I haven't listed here. I have added much more detailed documentation to each available public method, so if you are curious, please check there!
 
-### DynamicNotchInfoWindow
-
-In addition, there is also a `DynamicNotchInfoWindow`, which is a fine-tuned version of the DynamicNotch, specifically made to show general information:
-```swift
-let notch = DynamicNotchInfoWindow(
-    systemImage: "figure",
-    title: "Figure",
-    description: "Looks like a person"
-)
-notch.show(for: 2)
-```
-
-Here are the available initializers for it:
-- `DynamicNotchInfoWindow(systemImage: String, iconColor: Color = .white, title: String, description: String! = nil)`
-- `DynamicNotchInfoWindow(image: Image! = nil, iconColor: Color = .white, title: String, description: String! = nil)`
-- `DynamicNotchInfoWindow(keyView: Content, title: String, description: String! = nil)`
-
-In fact, this was used 3/4 of the examples above :D
-The final listed intializer, which has `keyView`, can be used to show small indicators such as a circular progress bar.
-
-...I'm probably going to improve these docs later :)
-Feel free to ask questions/report issues in the `Issues` tab!
+...I'm probably going to improve these docs later :)  
+Feel free to ask questions/report issues in the Issues tab!
 
 # License
 
