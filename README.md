@@ -26,7 +26,7 @@ dynamicNotch.show(for: 2)
 
 Where `ContentView` is a View.
 
-Notice the `show(for: 2)`. This will make it show for 2 seconds on the primary display, then hide it again.
+Notice the `show(for: 2)`. This will cause the popover to be displayed on the primary screen for two seconds before hiding itself automatically.
 The available methods to set the DynamicNotch's visibility are:
 - `show(on screen: NSScreen = NSScreen.screens[0], for time: Double = 0)`
 - `hide()`
@@ -55,9 +55,8 @@ Furthermore, there is a `.floating` style, which will **automatically** be used 
 <img src="media/demo-floating.gif" width="50%"/>
 
 In fact, `DynamicNotchInfo` was used 3/4 of the examples above :D
-The first listed intializer, which has `iconView`, can be used to show small indicators such as a circular progress bar.
 
-Anyways, there are more methods available, which I haven't listed here, as this package is still in development. In addition, I have added much more detailed documentation to each available public method, so if you are curious, please check there for more usage information!
+Anyways, there are more methods available, which I haven't listed here, as this package is still in development. I have also added much more detailed documentation to each available public method in the code, so if you are curious, please check there for more usage information!
 
 ...I'm probably going to improve these docs later :)
 
