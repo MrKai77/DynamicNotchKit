@@ -32,7 +32,9 @@ The available methods to set the DynamicNotch's visibility are:
 - `hide()`
 - `toggle()`
 
-### DynamicNotchInfo
+DynamicNotchKit also supports Macs without a notch, meaning that this package supports _all_ Mac styles! You will see an example of that below.
+
+## DynamicNotchInfo
 
 In addition, there is also a `DynamicNotchInfo`, which is a fine-tuned version of the DynamicNotch specifically tailored to show general information:
 ```swift
@@ -48,23 +50,17 @@ This will result in a popover as so:
 
 <img src="media/demo.gif" width="50%"/>
 
-Furthermore, there is a `.floating` style, which will be **automatically** used on Macs without a notch:
+Furthermore, there is a `.floating` style, which will **automatically** be used on Macs without a notch:
 
 <img src="media/demo-floating.gif" width="50%"/>
 
-This style exists in `DynamicNotch`, meaning that this package supports all Macs :)
-
-Here are the available initializers for it:
-- `DynamicNotchInfo(iconView: Content, title: String, description: String! = nil, style: DynamicNotch.Style! = nil)`
-- `DynamicNotchInfo(icon: Image! = nil, iconColor: Color = .white, title: String, description: String? = nil, style: DynamicNotch.Style! = nil)`
-- `DynamicNotchInfo(systemImage: String, iconColor: Color = .white, title: String, description: String? = nil, style: DynamicNotch.Style! = nil)`
-
-In fact, this was used 3/4 of the examples above :D
+In fact, `DynamicNotchInfo` was used 3/4 of the examples above :D
 The first listed intializer, which has `iconView`, can be used to show small indicators such as a circular progress bar.
 
 Anyways, there are more methods available, which I haven't listed here, as this package is still in development. In addition, I have added much more detailed documentation to each available public method, so if you are curious, please check there for more usage information!
 
 ...I'm probably going to improve these docs later :)
+
 Feel free to ask questions/report issues in the Issues tab!
 
 # License
