@@ -47,6 +47,10 @@ public class DynamicNotch: ObservableObject {
         } else {
             self.autoManageNotchStyle = false
             self.notchStyle = style
+
+            if style == .floating {
+                self.content = AnyView(content.padding([.bottom, .horizontal], 20))
+            }
         }
     }
 
