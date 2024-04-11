@@ -143,22 +143,21 @@ public class DynamicNotch: ObservableObject {
             let notchHeight = screen.safeAreaInsets.top
             let notchWidth = screen.frame.width - topLeftNotchpadding - topRightNotchpadding + 10 // 10 is for the top rounded part of the notch
             return .init(width: notchWidth, height: notchHeight)
-        } else {
-            // here we assign the menubar height, so that the method checkIfMouseIsInNotch still works
-            let notchHeight = screen.frame.height - screen.visibleFrame.height
-            let notchWidth: CGFloat = 500
-            return .init(width: notchWidth, height: notchHeight)
         }
+
+        // here we assign the menubar height, so that the method checkIfMouseIsInNotch still works
+        let notchHeight = screen.frame.height - screen.visibleFrame.height
+        let notchWidth: CGFloat = 220
+        return .init(width: notchWidth, height: notchHeight)
     }
 
     private func refreshNotchSize(_ screen: NSScreen) {
-        if self.autoManageNotchStyle {
-            if let topLeftNotchpadding: CGFloat = screen.auxiliaryTopLeftArea?.width,
-               let topRightNotchpadding: CGFloat = screen.auxiliaryTopRightArea?.width {
-                self.notchStyle = .notch
-            } else {
-                self.notchStyle = .floating
-            }
+        if self.autoManageNotchStyle,
+           let topLeftNotchpadding: CGFloat = screen.auxiliaryTopLeftArea?.width,
+           let topRightNotchpadding: CGFloat = screen.auxiliaryTopRightArea?.width {
+            self.notchStyle = .notch
+        } else {
+            self.notchStyle = .floating
         }
 
         let notchSize = DynamicNotch.getNotchSize(screen: screen)
