@@ -20,7 +20,13 @@ public class DynamicNotch: ObservableObject {
     private var timer: Timer?
     private let animationDuration: Double = 0.4
 
-    private let animation = Animation.timingCurve(0.16, 1, 0.3, 1, duration: 0.7)
+    private var animation: Animation {
+        if #available(macOS 14.0, *), notchStyle == .notch {
+            return Animation.spring(.bouncy(duration: 0.4))
+        } else {
+            return Animation.timingCurve(0.16, 1, 0.3, 1, duration: 0.7)
+        }
+    }
 
     // If true, DynamicNotchKit will use the .notch/.floating style according to the screen.
     private let autoManageNotchStyle: Bool
