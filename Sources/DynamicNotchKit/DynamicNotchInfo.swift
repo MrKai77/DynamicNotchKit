@@ -101,7 +101,7 @@ public class DynamicNotchInfo: DynamicNotch {
                 Spacer()
             }
             .frame(height: 40)
-            .padding([.horizontal, .bottom], 20)
+            .padding([.horizontal, notchStyle == .floating ? .vertical : .bottom], 20)
         }
 
         return infoView

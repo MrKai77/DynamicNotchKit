@@ -17,7 +17,6 @@ struct NotchlessView: View {
                 Spacer()
 
                 self.dynamicNotch.content
-                    .padding(.top, 20)
                     .fixedSize()
                     .onHover { hovering in
                         dynamicNotch.isMouseInside = hovering
