@@ -11,6 +11,8 @@ struct NotchView: View {
     @ObservedObject var dynamicNotch: DynamicNotch
     @State var notchSize: NSSize = .zero
 
+    @State private var isInfo: Bool = false
+
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
@@ -27,6 +29,7 @@ struct NotchView: View {
                         .scaleEffect(self.dynamicNotch.isVisible ? 1 : 0.8)
                         .padding(.horizontal, 15)    // Small corner radius of the TOP of the notch
                         .frame(minHeight: 20)
+                        .padding(.top, self.isInfo ? -20 : 0)
                 }
                 .fixedSize()
                 .frame(minWidth: self.notchSize.width)
@@ -62,6 +65,10 @@ struct NotchView: View {
                 width: self.dynamicNotch.notchWidth,
                 height: self.dynamicNotch.notchHeight
             )
+
+            if self.dynamicNotch as? DynamicNotchInfo != nil {
+                self.isInfo = true
+            }
         }
     }
 }
