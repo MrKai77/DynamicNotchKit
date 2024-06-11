@@ -183,7 +183,7 @@ public class DynamicNotch: ObservableObject {
             defer: true
         )
         panel.hasShadow = false
-        panel.backgroundColor = NSColor.white.withAlphaComponent(0.00001)
+        panel.backgroundColor = .clear
         panel.level = .screenSaver
         panel.collectionBehavior = .canJoinAllSpaces
         panel.contentView = view
