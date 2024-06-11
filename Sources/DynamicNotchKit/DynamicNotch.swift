@@ -126,9 +126,9 @@ public class DynamicNotch: ObservableObject {
 
         let notchRect: NSRect = .init(
             x: screen.frame.midX - (notchSize.width / 2),
-            y: screen.frame.maxY - notchSize.height,
+            y: screen.frame.maxY - notchSize.height + 1,
             width: notchSize.width,
-            height: notchSize.height
+            height: notchSize.height + 1
         )
 
         return NSMouseInRect(NSEvent.mouseLocation, notchRect, true)
@@ -145,9 +145,9 @@ public class DynamicNotch: ObservableObject {
         }
 
         // here we assign the menubar height, so that the method checkIfMouseIsInNotch still works
-        let notchHeight = screen.frame.height - screen.visibleFrame.height
-        let notchWidth: CGFloat = 220
-        return .init(width: notchWidth, height: notchHeight)
+        let menuBarHeight = screen.frame.maxY - screen.visibleFrame.maxY
+        let notchWidth: CGFloat = 300
+        return .init(width: notchWidth, height: menuBarHeight)
     }
 
     private func refreshNotchSize(_ screen: NSScreen) {
