@@ -16,7 +16,7 @@ struct NotchlessView: View {
             HStack(spacing: 0) {
                 Spacer()
 
-                self.dynamicNotch.content
+                dynamicNotch.content
                     .fixedSize()
                     .onHover { hovering in
                         dynamicNotch.isMouseInside = hovering
@@ -29,8 +29,7 @@ struct NotchlessView: View {
                             }
                     }
                     .clipShape(.rect(cornerRadius: 20))
-                    .shadow(color: .black.opacity(0.5), radius: self.dynamicNotch.isVisible ? 10 : 0)
-
+                    .shadow(color: .black.opacity(0.5), radius: dynamicNotch.isVisible ? 10 : 0)
                     .padding(20)
                     .background {
                         GeometryReader { geo in
@@ -40,7 +39,7 @@ struct NotchlessView: View {
                                 }
                         }
                     }
-                    .offset(y: self.dynamicNotch.isVisible ? dynamicNotch.notchHeight : -windowHeight)
+                    .offset(y: dynamicNotch.isVisible ? dynamicNotch.notchHeight : -windowHeight)
 
                 Spacer()
             }

@@ -9,7 +9,6 @@ import SwiftUI
 
 // BETA
 public class DynamicNotchInfo: DynamicNotch {
-
     // MARK: Initializers
 
     /// Construct a new DynamicNotchInfoWindow with a custom icon SwiftUI view.
@@ -18,11 +17,11 @@ public class DynamicNotchInfo: DynamicNotch {
     ///   - title: A title for your content
     ///   - description: An optional description for your content
     ///   - style: The popover's style. If unspecified, the style will be automatically set according to the screen.
-    public init<Content: View>(iconView: Content, title: String, description: String! = nil, style: DynamicNotch.Style! = nil) {
+    public init(iconView: some View, title: String, description: String! = nil, style: DynamicNotch.Style! = nil) {
         super.init(content: EmptyView(), style: style) // It is required to initialize the class first here so that dynamicNotch.notchStyle is not nil.
-        self.setContent(iconView: iconView, title: title, description: description)
+        setContent(iconView: iconView, title: title, description: description)
     }
-    
+
     /// Construct a new DynamicNotchInfoWindow with an Image as the icon.
     /// - Parameters:
     ///   - image: An optional Image. If left unspecified, the application icon will be used
@@ -34,7 +33,7 @@ public class DynamicNotchInfo: DynamicNotch {
         let iconView = DynamicNotchInfo.getIconView(icon: icon, iconColor: iconColor)
         self.init(iconView: iconView, title: title, description: description, style: style)
     }
-    
+
     /// Construct a new DynamicNotchInfoWindow with an SF Symbol as the icon.
     /// - Parameters:
     ///   - systemImage: The SF Symbol's name
@@ -53,10 +52,10 @@ public class DynamicNotchInfo: DynamicNotch {
     ///   - iconView: A SwiftUI View
     ///   - title: A title for your content
     ///   - description: An optional description for your content
-    public func setContent<Content: View>(iconView: Content, title: String, description: String! = nil) {
+    public func setContent(iconView: some View, title: String, description: String! = nil) {
         super.setContent(content: DynamicNotchInfo.getView(iconView: iconView, title: title, description: description, notchStyle: super.notchStyle))
     }
-    
+
     /// Set new content for the DynamicNotchInfoWindow, with an Image as the icon.
     /// - Parameters:
     ///   - icon: An optional Image. If left unspecified, the application icon will be used
@@ -65,9 +64,9 @@ public class DynamicNotchInfo: DynamicNotch {
     ///   - description: An optional description for your content
     public func setContent(icon: Image! = nil, iconColor: Color = .white, title: String, description: String? = nil) {
         let iconView = DynamicNotchInfo.getIconView(icon: icon, iconColor: iconColor)
-        self.setContent(iconView: iconView, title: title, description: description)
+        setContent(iconView: iconView, title: title, description: description)
     }
-    
+
     /// Set new content for the DynamicNotchInfoWindow, with an SF Symbol as the icon.
     /// - Parameters:
     ///   - systemImage: The SF Symbol's name
@@ -75,11 +74,12 @@ public class DynamicNotchInfo: DynamicNotch {
     ///   - title: A title for your content
     ///   - description: An optional description for your content
     public func setContent(systemImage: String, iconColor: Color = .white, title: String, description: String? = nil) {
-        self.setContent(icon: Image(systemName: systemImage), iconColor: iconColor, title: title, description: description)
+        setContent(icon: Image(systemName: systemImage), iconColor: iconColor, title: title, description: description)
     }
 
     // MARK: Private
-    private static func getView<Content: View>(iconView: Content, title: String, description: String! = nil, notchStyle: DynamicNotch.Style) -> some View {
+
+    private static func getView(iconView: some View, title: String, description: String! = nil, notchStyle _: DynamicNotch.Style) -> some View {
         var infoView: some View {
             HStack {
                 iconView
@@ -91,7 +91,7 @@ public class DynamicNotchInfo: DynamicNotch {
                     Text(title)
                         .font(.headline)
 
-                    if let description = description {
+                    if let description {
                         Text(description)
                             .foregroundStyle(.secondary)
                             .font(.caption2)

@@ -1,6 +1,6 @@
 //
 //  VisualEffectView.swift
-//  
+//
 //
 //  Created by Kai Azim on 2024-04-06.
 //
@@ -11,7 +11,7 @@ struct VisualEffectView: NSViewRepresentable {
     let material: NSVisualEffectView.Material
     let blendingMode: NSVisualEffectView.BlendingMode
 
-    func makeNSView(context: Context) -> NSVisualEffectView {
+    func makeNSView(context _: Context) -> NSVisualEffectView {
         let visualEffectView = NSVisualEffectView()
         visualEffectView.material = material
         visualEffectView.blendingMode = blendingMode
@@ -20,7 +20,7 @@ struct VisualEffectView: NSViewRepresentable {
         return visualEffectView
     }
 
-    func updateNSView(_ visualEffectView: NSVisualEffectView, context: Context) {
+    func updateNSView(_ visualEffectView: NSVisualEffectView, context _: Context) {
         visualEffectView.material = material
         visualEffectView.blendingMode = blendingMode
     }
