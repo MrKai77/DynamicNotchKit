@@ -16,7 +16,7 @@ struct NotchShape: Shape {
 
     init(cornerRadius: CGFloat? = nil) {
         if cornerRadius == nil {
-            self.bottomCornerRadius = 10
+            self.bottomCornerRadius = 11
         } else {
             self.bottomCornerRadius = cornerRadius!
         }

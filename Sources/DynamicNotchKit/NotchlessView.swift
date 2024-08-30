@@ -7,8 +7,8 @@
 
 import SwiftUI
 
-struct NotchlessView: View {
-    @ObservedObject var dynamicNotch: DynamicNotch
+struct NotchlessView<Content>: View where Content: View {
+    @ObservedObject var dynamicNotch: DynamicNotch<Content>
     @State var windowHeight: CGFloat = 0
 
     var body: some View {
@@ -16,8 +16,14 @@ struct NotchlessView: View {
             HStack(spacing: 0) {
                 Spacer()
 
-                dynamicNotch.content
+                dynamicNotch.content()
+                    .id(dynamicNotch.contentID)
+                    .safeAreaInset(edge: .top, spacing: 0) { Color.clear.frame(height: 15) }
+                    .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: 15) }
+                    .safeAreaInset(edge: .leading, spacing: 0) { Color.clear.frame(width: 15) }
+                    .safeAreaInset(edge: .trailing, spacing: 0) { Color.clear.frame(width: 15) }
                     .fixedSize()
+
                     .onHover { hovering in
                         dynamicNotch.isMouseInside = hovering
                     }
@@ -40,6 +46,7 @@ struct NotchlessView: View {
                         }
                     }
                     .offset(y: dynamicNotch.isVisible ? dynamicNotch.notchHeight : -windowHeight)
+                    .transition(.blur.animation(.smooth))
 
                 Spacer()
             }

@@ -15,4 +15,31 @@ extension NSScreen {
 
         return screenWithMouse
     }
+
+    var hasNotch: Bool {
+        auxiliaryTopLeftArea?.width != nil && auxiliaryTopRightArea?.width != nil
+    }
+
+    var notchSize: NSSize? {
+        guard
+            let topLeftNotchpadding: CGFloat = auxiliaryTopLeftArea?.width,
+            let topRightNotchpadding: CGFloat = auxiliaryTopRightArea?.width
+        else {
+            return nil
+        }
+
+        let notchHeight = safeAreaInsets.top
+        let notchWidth = frame.width - topLeftNotchpadding - topRightNotchpadding + 10 // 10 is for the top rounded part of the notch, created by DynamicNotchKit
+        return .init(width: notchWidth, height: notchHeight)
+    }
+
+    var notchFrame: NSRect? {
+        guard let notchSize else { return nil }
+        return .init(
+            x: frame.midX - (notchSize.width / 2),
+            y: frame.maxY - notchSize.height,
+            width: notchSize.width,
+            height: notchSize.height
+        )
+    }
 }
