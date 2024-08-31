@@ -29,6 +29,7 @@ struct NotchView<Content>: View where Content: View {
 
                         .blur(radius: dynamicNotch.isVisible ? 0 : 10)
                         .scaleEffect(dynamicNotch.isVisible ? 1 : 0.8)
+                        .offset(y: dynamicNotch.isVisible ? 0 : 5)
                         .padding(.horizontal, 15) // Small corner radius of the TOP of the notch
                         .transition(.blur.animation(.smooth))
                 }
