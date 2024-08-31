@@ -13,6 +13,7 @@ Utilize the MacOS notch for enhanced user experiences.
 Compatibility: **macOS 12+**
 
 Add `https://github.com/MrKai77/DynamicNotchKit` in the [“Swift Package Manager” tab in Xcode](https://developer.apple.com/documentation/xcode/adding_package_dependencies_to_your_app).
+Please tag it at `v1.0.0`, otherwise the documentation on this README will not work.
 
 ## Usage
 
