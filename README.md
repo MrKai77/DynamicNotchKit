@@ -1,7 +1,5 @@
 # DynamicNotchKit
 
-Utilize the MacOS notch for enhanced user experiences.
-
 ## Examples:
 
 | <img src="media/output-device.gif" width="100%"/> | <img src="media/battery.gif" width="100%"/> |
