@@ -1,6 +1,6 @@
 //
 //  DynamicNotch.swift
-//
+//  DynamicNotchKit
 //
 //  Created by Kai Azim on 2023-08-24.
 //
