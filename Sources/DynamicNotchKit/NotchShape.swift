@@ -1,6 +1,6 @@
 //
 //  NotchShape.swift
-//
+//  DynamicNotchKit
 //
 //  Created by Kai Azim on 2023-08-24.
 //
@@ -16,7 +16,7 @@ struct NotchShape: Shape {
 
     init(cornerRadius: CGFloat? = nil) {
         if cornerRadius == nil {
-            self.bottomCornerRadius = 10
+            self.bottomCornerRadius = 11
         } else {
             self.bottomCornerRadius = cornerRadius!
         }
