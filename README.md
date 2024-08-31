@@ -13,7 +13,6 @@ Utilize the MacOS notch for enhanced user experiences.
 Compatibility: **macOS 12+**
 
 Add `https://github.com/MrKai77/DynamicNotchKit` in the [“Swift Package Manager” tab in Xcode](https://developer.apple.com/documentation/xcode/adding_package_dependencies_to_your_app).
-Please tag it at `v1.0.0`, otherwise the documentation on this README will not work.
 
 ## Usage
 
@@ -21,7 +20,9 @@ It's really easy! All the UI is handled by SwiftUI. That means, that you can use
 
 Here's an example:
 ```swift
-let dynamicNotch = DynamicNotch(content: ContentView())
+let dynamicNotch = DynamicNotch {
+    ContentView()
+}
 dynamicNotch.show(for: 2)
 ```
 
@@ -40,7 +41,7 @@ DynamicNotchKit also supports Macs without a notch, meaning that this package su
 In addition, there is also a `DynamicNotchInfo`, which is a fine-tuned version of the DynamicNotch specifically tailored to show general information:
 ```swift
 let notch = DynamicNotchInfo(
-    systemImage: "figure",
+    icon: Image(systemName: "figure"),
     title: "Figure",
     description: "Looks like a person"
 )
