@@ -16,7 +16,7 @@ public class DynamicNotch<Content>: ObservableObject where Content: View {
 
     // Content Properties
     @Published var content: () -> Content
-    @Published var contentID: UUID = .init()
+    @Published var contentID: UUID
     @Published var isVisible: Bool = false // Used to animate the fading in/out of the user's view
 
     // Notch Size
@@ -26,6 +26,7 @@ public class DynamicNotch<Content>: ObservableObject where Content: View {
     // Notch Closing Properties
     @Published var isMouseInside: Bool = false // If the mouse is inside, the notch will not auto-hide
     private var timer: Timer?
+    var workItem: DispatchWorkItem?
     private var subscription: AnyCancellable?
 
     // Notch Style
@@ -50,7 +51,8 @@ public class DynamicNotch<Content>: ObservableObject where Content: View {
     /// - Parameters:
     ///   - content: A SwiftUI View
     ///   - style: The popover's style. If unspecified, the style will be automatically set according to the screen.
-    public init(style: DynamicNotch.Style = .auto, @ViewBuilder content: @escaping () -> Content) {
+    public init(contentID: UUID = .init(), style: DynamicNotch.Style = .auto, @ViewBuilder content: @escaping () -> Content) {
+        self.contentID = contentID
         self.content = content
         self.notchStyle = style
         self.subscription = NotificationCenter.default
@@ -68,9 +70,9 @@ public extension DynamicNotch {
 
     /// Set this DynamicNotch's content.
     /// - Parameter content: A SwiftUI View
-    func setContent(content: @escaping () -> Content) {
+    func setContent(contentID: UUID = .init(), content: @escaping () -> Content) {
         self.content = content
-        contentID = .init()
+        self.contentID = .init()
     }
 
     /// Show the DynamicNotch.
@@ -90,9 +92,10 @@ public extension DynamicNotch {
         }
 
         if time != 0 {
-            DispatchQueue.main.asyncAfter(deadline: .now() + time) {
-                self.hide()
-            }
+            self.workItem?.cancel()
+            let workItem = DispatchWorkItem { self.hide() }
+            self.workItem = workItem
+            DispatchQueue.main.asyncAfter(deadline: .now() + time, execute: workItem)
         }
     }
 
