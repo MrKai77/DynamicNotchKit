@@ -25,6 +25,7 @@ public class DynamicNotch<Content>: ObservableObject where Content: View {
     // Notch Closing Properties
     @Published var isMouseInside: Bool = false // If the mouse is inside, the notch will not auto-hide
     private var timer: Timer?
+    var workItem: DispatchWorkItem?
 
     // Notch Style
     private var notchStyle: Style = .notch
@@ -82,9 +83,10 @@ public extension DynamicNotch {
         }
 
         if time != 0 {
-            DispatchQueue.main.asyncAfter(deadline: .now() + time) {
-                self.hide()
-            }
+            self.workItem?.cancel()
+            let workItem = DispatchWorkItem { self.hide() }
+            self.workItem = workItem
+            DispatchQueue.main.asyncAfter(deadline: .now() + time, execute: workItem)
         }
     }
 
