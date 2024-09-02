@@ -15,7 +15,7 @@ public class DynamicNotch<Content>: ObservableObject where Content: View {
 
     // Content Properties
     @Published var content: () -> Content
-    @Published var contentID: UUID = .init()
+    @Published var contentID: UUID
     @Published var isVisible: Bool = false // Used to animate the fading in/out of the user's view
 
     // Notch Size
@@ -48,7 +48,8 @@ public class DynamicNotch<Content>: ObservableObject where Content: View {
     /// - Parameters:
     ///   - content: A SwiftUI View
     ///   - style: The popover's style. If unspecified, the style will be automatically set according to the screen.
-    public init(style: DynamicNotch.Style = .auto, @ViewBuilder content: @escaping () -> Content) {
+    public init(contentID: UUID = .init(), style: DynamicNotch.Style = .auto, @ViewBuilder content: @escaping () -> Content) {
+        self.contentID = contentID
         self.content = content
         self.notchStyle = style
     }
@@ -60,9 +61,9 @@ public extension DynamicNotch {
 
     /// Set this DynamicNotch's content.
     /// - Parameter content: A SwiftUI View
-    func setContent(content: @escaping () -> Content) {
+    func setContent(contentID: UUID = .init(), content: @escaping () -> Content) {
         self.content = content
-        contentID = .init()
+        self.contentID = .init()
     }
 
     /// Show the DynamicNotch.
