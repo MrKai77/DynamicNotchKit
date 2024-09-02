@@ -5,6 +5,7 @@
 //  Created by Kai Azim on 2023-08-24.
 //
 
+import Combine
 import SwiftUI
 
 // MARK: - DynamicNotch
@@ -26,6 +27,7 @@ public class DynamicNotch<Content>: ObservableObject where Content: View {
     @Published var isMouseInside: Bool = false // If the mouse is inside, the notch will not auto-hide
     private var timer: Timer?
     var workItem: DispatchWorkItem?
+    private var subscription: AnyCancellable?
 
     // Notch Style
     private var notchStyle: Style = .notch
@@ -53,6 +55,12 @@ public class DynamicNotch<Content>: ObservableObject where Content: View {
         self.contentID = contentID
         self.content = content
         self.notchStyle = style
+        self.subscription = NotificationCenter.default
+            .publisher(for: NSApplication.didChangeScreenParametersNotification)
+            .sink { [weak self] _ in
+                guard let self, let screen = NSScreen.screens.first else { return }
+                initializeWindow(screen: screen)
+            }
     }
 }
 
