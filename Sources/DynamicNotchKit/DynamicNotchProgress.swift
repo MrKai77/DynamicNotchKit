@@ -110,7 +110,7 @@ public extension DynamicNotchProgress {
         }
     }
 
-    public struct ProgressRing: View {
+    struct ProgressRing: View {
         @Binding var target: CGFloat
         let color: Color
         let thickness: CGFloat
