@@ -37,12 +37,7 @@ public class DynamicNotchInfo {
     private let publisher: DynamicNotchInfoPublisher
 
     public init(contentID: UUID = .init(), icon: Image! = nil, title: String, description: String? = nil, iconColor: Color = .white, textColor: Color? = nil, style: DynamicNotch<InfoView>.Style = .auto) {
-        let textColor: Color = if let textColor {
-            textColor
-        } else {
-            .white
-        }
-        let publisher = DynamicNotchInfoPublisher(icon: icon, iconColor: iconColor, title: title, description: description, textColor: textColor)
+        let publisher = DynamicNotchInfoPublisher(icon: icon, iconColor: iconColor, title: title, description: description, textColor: textColor ?? .white)
         self.publisher = publisher
         internalDynamicNotch = DynamicNotch(contentID: contentID, style: style) {
             InfoView(publisher: publisher)
