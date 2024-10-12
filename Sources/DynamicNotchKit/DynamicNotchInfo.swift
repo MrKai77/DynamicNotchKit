@@ -14,32 +14,32 @@ internal final class DynamicNotchInfoPublisher<IconView>: ObservableObject where
     @Published var description: String?
 
     init(icon: Image?, iconColor: Color, title: String, description: String? = nil) where IconView == Image {
-        self.iconView = icon ?? nil
+        self.iconView = icon
         self.iconColor = iconColor
         self.title = title
         self.description = description
     }
 
-    init(iconView: IconView?, title: String, description: String? = nil) {
-        self.iconView = iconView
-        self.iconColor = .clear
+    init(title: String, description: String? = nil, iconView: (() -> IconView)?) {
         self.title = title
         self.description = description
+        self.iconColor = .clear
+        self.iconView = iconView?()
     }
 
     @MainActor
     func publish(icon: Image?, iconColor: Color, title: String, description: String?) where IconView == Image {
-        self.iconView = icon
-        self.iconColor = iconColor
         self.title = title
         self.description = description
+        self.iconView = icon
+        self.iconColor = iconColor
     }
 
     @MainActor
     func publish(icon: IconView?, title: String, description: String?) {
-        self.iconView = icon
         self.title = title
         self.description = description
+        self.iconView = iconView
     }
 }
 
@@ -55,8 +55,8 @@ public class DynamicNotchInfo<IconView> where IconView: View {
         }
     }
 
-    public init(contentID: UUID = .init(), iconView: IconView, title: String, description: String? = nil, style: DynamicNotch<InfoView>.Style = .auto) {
-        let publisher = DynamicNotchInfoPublisher<IconView>(iconView: iconView, title: title, description: description)
+    public init(contentID: UUID = .init(), title: String, description: String? = nil, style: DynamicNotch<InfoView>.Style = .auto, iconView: (() -> IconView)? = nil) {
+        let publisher = DynamicNotchInfoPublisher<IconView>(title: title, description: description, iconView: iconView)
         self.publisher = publisher
         internalDynamicNotch = DynamicNotch(contentID: contentID, style: style) {
             InfoView(publisher: publisher)
@@ -71,7 +71,7 @@ public class DynamicNotchInfo<IconView> where IconView: View {
     }
 
     @MainActor
-    public func setContent(contentID: UUID = .init(), iconView: IconView? = nil, title: String, description: String? = nil) {
+    public func setContent(contentID: UUID = .init(), title: String, description: String? = nil, iconView: IconView? = nil) {
         withAnimation {
             publisher.publish(icon: iconView, title: title, description: description)
         }
