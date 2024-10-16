@@ -107,13 +107,13 @@ public extension DynamicNotchProgress {
                 if let description {
                     Text(description)
                         .font(.caption2)
-                        .foregroundStyle(textColor)
+                        .foregroundStyle(textColor.opacity(0.8))
                 }
             }
         }
     }
 
-    public struct ProgressRing: View {
+    struct ProgressRing: View {
         @Binding var target: CGFloat
         let color: Color
         let thickness: CGFloat
