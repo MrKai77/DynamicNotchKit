@@ -110,10 +110,10 @@ public extension DynamicNotch {
     }
 
     /// Hide the DynamicNotch.
-    func hide() {
+    func hide(ignoreMouse: Bool = false) {
         guard isVisible else { return }
 
-        guard !isMouseInside else {
+        if !ignoreMouse, isMouseInside {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 self.hide()
             }
