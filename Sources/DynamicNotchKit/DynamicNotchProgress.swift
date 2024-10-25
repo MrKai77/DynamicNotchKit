@@ -10,27 +10,27 @@ import SwiftUI
 public class DynamicNotchProgress {
     private var internalDynamicNotch: DynamicNotch<InfoView>
 
-    public init(progress: Binding<CGFloat>, title: String, description: String? = nil, progressText: Bool = false, progressBarColor: Color = .white, style: DynamicNotch<InfoView>.Style = .auto) {
+    public init(progress: Binding<CGFloat>, title: String, description: String? = nil, progressText: Bool = false, progressBarColor: Color = .white, textColor: Color = .white, style: DynamicNotch<InfoView>.Style = .auto) {
         internalDynamicNotch = DynamicNotch(style: style) {
-            InfoView(progress: progress, progressBarColor: progressBarColor, title: title, description: description, numberOverlay: progressText)
+            InfoView(progress: progress, progressBarColor: progressBarColor, title: title, description: description, textColor: textColor, numberOverlay: progressText)
         }
     }
 
-    public func setContent(progress: Binding<CGFloat>, title: String, description: String? = nil, progressText: Bool = false, progressBarColor: Color = .white) {
+    public func setContent(progress: Binding<CGFloat>, title: String, description: String? = nil, progressText: Bool = false, progressBarColor: Color = .white, textColor: Color = .white) {
         internalDynamicNotch.setContent {
-            InfoView(progress: progress, progressBarColor: progressBarColor, title: title, description: description, numberOverlay: progressText)
+            InfoView(progress: progress, progressBarColor: progressBarColor, title: title, description: description, textColor: textColor, numberOverlay: progressText)
         }
     }
 
-    public init(progress: Binding<CGFloat>, title: String, description: String? = nil, iconOverlay: Image! = nil, progressBarColor: Color = .white, style: DynamicNotch<InfoView>.Style = .auto) {
+    public init(progress: Binding<CGFloat>, title: String, description: String? = nil, iconOverlay: Image! = nil, progressBarColor: Color = .white, textColor: Color = .white, style: DynamicNotch<InfoView>.Style = .auto) {
         internalDynamicNotch = DynamicNotch(style: style) {
-            InfoView(progress: progress, progressBarColor: progressBarColor, title: title, description: description, iconOverlay: iconOverlay)
+            InfoView(progress: progress, progressBarColor: progressBarColor, title: title, description: description, textColor: textColor, iconOverlay: iconOverlay)
         }
     }
 
-    public func setContent(progress: Binding<CGFloat>, title: String, description: String? = nil, iconOverlay: Image! = nil, progressBarColor: Color = .white) {
+    public func setContent(progress: Binding<CGFloat>, title: String, description: String? = nil, iconOverlay: Image! = nil, progressBarColor: Color = .white, textColor: Color = .white) {
         internalDynamicNotch.setContent {
-            InfoView(progress: progress, progressBarColor: progressBarColor, title: title, description: description, iconOverlay: iconOverlay)
+            InfoView(progress: progress, progressBarColor: progressBarColor, title: title, description: description, textColor: textColor, iconOverlay: iconOverlay)
         }
     }
 
@@ -54,15 +54,17 @@ public extension DynamicNotchProgress {
 
         let title: String
         let description: String?
+        let textColor: Color
 
         let numberOverlay: Bool?
         let iconOverlay: Image?
 
-        init(progress: Binding<CGFloat>, progressBarColor: Color, title: String, description: String? = nil, numberOverlay: Bool? = nil, iconOverlay: Image? = nil) {
+        init(progress: Binding<CGFloat>, progressBarColor: Color, title: String, description: String? = nil, textColor: Color, numberOverlay: Bool? = nil, iconOverlay: Image? = nil) {
             _progress = progress
             self.progressBarColor = progressBarColor
             self.title = title
             self.description = description
+            self.textColor = textColor
             self.numberOverlay = numberOverlay
             self.iconOverlay = iconOverlay
         }
@@ -75,13 +77,13 @@ public extension DynamicNotchProgress {
                             if #available(macOS 13.0, *) {
                                 Text("\(Int(progress * 100))%")
                                     .font(.caption)
-                                    .foregroundStyle(.secondary)
+                                    .foregroundStyle(textColor)
                                     .contentTransition(.numericText()) // .numericText() is only available on macOS 13+
                                     .animation(.smooth, value: progress)
                             } else {
                                 Text("\(Int(progress * 100))%")
                                     .font(.caption)
-                                    .foregroundStyle(.secondary)
+                                    .foregroundStyle(textColor)
                             }
                         }
 
@@ -100,11 +102,12 @@ public extension DynamicNotchProgress {
             VStack(alignment: .leading) {
                 Text(title)
                     .font(.headline)
+                    .foregroundStyle(textColor)
 
                 if let description {
                     Text(description)
-                        .foregroundStyle(.secondary)
                         .font(.caption2)
+                        .foregroundStyle(textColor.opacity(0.8))
                 }
             }
         }
