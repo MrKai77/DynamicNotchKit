@@ -37,8 +37,12 @@ public class DynamicNotch<Content>: ObservableObject where Content: View {
         case auto
     }
 
-    // Animation
-    private var maxAnimationDuration: Double = 0.8 // This is a timer to deinit the window after closing
+    // This is a timer to de-init the window after closing
+    public enum AnimationDuration: Double {
+        case none = 0
+        case short = 0.125
+        case long = 0.8
+    }
     var animation: Animation {
         if #available(macOS 14.0, *), notchStyle == .notch {
             Animation.spring(.bouncy(duration: 0.4))
@@ -110,7 +114,7 @@ public extension DynamicNotch {
     }
 
     /// Hide the DynamicNotch.
-    func hide(ignoreMouse: Bool = false) {
+    func hide(ignoreMouse: Bool = false, duration: AnimationDuration = .long) {
         guard isVisible else { return }
 
         if !ignoreMouse, isMouseInside {
@@ -124,10 +128,7 @@ public extension DynamicNotch {
             self.isVisible = false
         }
 
-        timer = Timer.scheduledTimer(
-            withTimeInterval: maxAnimationDuration,
-            repeats: false
-        ) { _ in
+        timer = Timer.scheduledTimer(withTimeInterval: duration.rawValue, repeats: false) { _ in
             self.deinitializeWindow()
         }
     }
@@ -190,18 +191,13 @@ extension DynamicNotch {
             }
         }()
 
-        let panel = NSPanel(
+        let panel = DynamicNotchPanel(
             contentRect: .zero,
             styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
             defer: true
         )
-        panel.hasShadow = false
-        panel.backgroundColor = .clear
-        panel.level = .screenSaver
-        panel.collectionBehavior = .canJoinAllSpaces
         panel.contentView = view
-        panel.orderFrontRegardless()
         panel.setFrame(screen.frame, display: false)
 
         windowController = .init(window: panel)
