@@ -1,11 +1,8 @@
 //
-// SwiftUIView.swift
+// DynamicNotchPanel.swift
 // DynamicNotchKit
 //
-// Created by Huy D. on 11/1/24
-// mjn2max.github.io 😜
-//
-// Copyright © 2024. All rights reserved.
+// Created by <Huy D.> on 2024-11-01.
 //
 
 import AppKit
@@ -17,14 +14,9 @@ class DynamicNotchPanel: NSPanel {
         self.backgroundColor = .clear
         self.level = .screenSaver
         self.collectionBehavior = .canJoinAllSpaces
-        self.orderFrontRegardless()
     }
 
     override var canBecomeKey: Bool {
-        true
-    }
-
-    override var canBecomeMain: Bool {
         true
     }
 }
