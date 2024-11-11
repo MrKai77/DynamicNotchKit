@@ -37,8 +37,7 @@ public class DynamicNotch<Content>: ObservableObject where Content: View {
         case auto
     }
 
-    // Animation
-    private var maxAnimationDuration: Double = 0.8 // This is a timer to deinit the window after closing
+    private var maxAnimationDuration: Double = 0.8 // This is a timer to de-init the window after closing
     var animation: Animation {
         if #available(macOS 14.0, *), notchStyle == .notch {
             Animation.spring(.bouncy(duration: 0.4))
@@ -124,10 +123,7 @@ public extension DynamicNotch {
             self.isVisible = false
         }
 
-        timer = Timer.scheduledTimer(
-            withTimeInterval: maxAnimationDuration,
-            repeats: false
-        ) { _ in
+        timer = Timer.scheduledTimer(withTimeInterval: maxAnimationDuration, repeats: false) { _ in
             self.deinitializeWindow()
         }
     }
@@ -190,16 +186,12 @@ extension DynamicNotch {
             }
         }()
 
-        let panel = NSPanel(
+        let panel = DynamicNotchPanel(
             contentRect: .zero,
             styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
             defer: true
         )
-        panel.hasShadow = false
-        panel.backgroundColor = .clear
-        panel.level = .screenSaver
-        panel.collectionBehavior = .canJoinAllSpaces
         panel.contentView = view
         panel.orderFrontRegardless()
         panel.setFrame(screen.frame, display: false)
