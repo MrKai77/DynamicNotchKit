@@ -10,7 +10,7 @@ import SwiftUI
 public class DynamicNotchProgress {
     private var internalDynamicNotch: DynamicNotch<InfoView>
 
-    public init(progress: Binding<CGFloat>, title: String, description: String? = nil, progressText: Bool = false, progressBarColor: Color = .white, textColor: Color = .white, style: DynamicNotch<InfoView>.Style = .auto) {
+    public init(progress: Binding<CGFloat>, title: String, description: String? = nil, progressText: Bool = false, progressBarColor: Color = .white, textColor: Color = .white, style: DynamicNotchStyle = .auto) {
         internalDynamicNotch = DynamicNotch(style: style) {
             InfoView(progress: progress, progressBarColor: progressBarColor, title: title, description: description, textColor: textColor, numberOverlay: progressText)
         }
@@ -22,7 +22,7 @@ public class DynamicNotchProgress {
         }
     }
 
-    public init(progress: Binding<CGFloat>, title: String, description: String? = nil, iconOverlay: Image! = nil, progressBarColor: Color = .white, textColor: Color = .white, style: DynamicNotch<InfoView>.Style = .auto) {
+    public init(progress: Binding<CGFloat>, title: String, description: String? = nil, iconOverlay: Image! = nil, progressBarColor: Color = .white, textColor: Color = .white, style: DynamicNotchStyle = .auto) {
         internalDynamicNotch = DynamicNotch(style: style) {
             InfoView(progress: progress, progressBarColor: progressBarColor, title: title, description: description, textColor: textColor, iconOverlay: iconOverlay)
         }
@@ -59,7 +59,15 @@ public extension DynamicNotchProgress {
         let numberOverlay: Bool?
         let iconOverlay: Image?
 
-        init(progress: Binding<CGFloat>, progressBarColor: Color, title: String, description: String? = nil, textColor: Color, numberOverlay: Bool? = nil, iconOverlay: Image? = nil) {
+        init(
+            progress: Binding<CGFloat>,
+            progressBarColor: Color,
+            title: String,
+            description: String? = nil,
+            textColor: Color,
+            numberOverlay: Bool? = nil,
+            iconOverlay: Image? = nil
+        ) {
             _progress = progress
             self.progressBarColor = progressBarColor
             self.title = title

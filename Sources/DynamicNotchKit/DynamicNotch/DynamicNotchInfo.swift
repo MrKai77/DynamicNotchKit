@@ -51,7 +51,7 @@ public class DynamicNotchInfo<IconView> where IconView: View {
     private var internalDynamicNotch: DynamicNotch<InfoView>
     private let publisher: DynamicNotchInfoPublisher<IconView>
 
-    public init(contentID: UUID = .init(), icon: Image! = nil, title: String, description: String? = nil, iconColor: Color = .white, textColor: Color = .white, style: DynamicNotch<InfoView>.Style = .auto) where IconView == Image {
+    public init(contentID: UUID = .init(), icon: Image! = nil, title: String, description: String? = nil, iconColor: Color = .white, textColor: Color = .white, style: DynamicNotchStyle = .auto) where IconView == Image {
         let publisher = DynamicNotchInfoPublisher(icon: icon, iconColor: iconColor, title: title, description: description, textColor: textColor)
         self.publisher = publisher
         internalDynamicNotch = DynamicNotch(contentID: contentID, style: style) {
@@ -59,7 +59,7 @@ public class DynamicNotchInfo<IconView> where IconView: View {
         }
     }
 
-    public init(contentID: UUID = .init(), title: String, description: String? = nil, textColor: Color = .white, style: DynamicNotch<InfoView>.Style = .auto, iconView: (() -> IconView)? = nil) {
+    public init(contentID: UUID = .init(), title: String, description: String? = nil, textColor: Color = .white, style: DynamicNotchStyle = .auto, iconView: (() -> IconView)? = nil) {
         let publisher = DynamicNotchInfoPublisher<IconView>(title: title, description: description, textColor: textColor, iconView: iconView)
         self.publisher = publisher
         internalDynamicNotch = DynamicNotch(contentID: contentID, style: style) {

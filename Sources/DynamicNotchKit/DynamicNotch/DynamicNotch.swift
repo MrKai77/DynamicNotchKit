@@ -8,6 +8,14 @@
 import Combine
 import SwiftUI
 
+// MARK: - DynamicNotchStyle
+
+public enum DynamicNotchStyle: Int {
+    case notch
+    case floating
+    case auto
+}
+
 // MARK: - DynamicNotch
 
 public class DynamicNotch<Content>: ObservableObject where Content: View {
@@ -30,12 +38,7 @@ public class DynamicNotch<Content>: ObservableObject where Content: View {
     private var subscription: AnyCancellable?
 
     // Notch Style
-    private var notchStyle: Style = .notch
-    public enum Style {
-        case notch
-        case floating
-        case auto
-    }
+    private var notchStyle: DynamicNotchStyle = .notch
 
     private var maxAnimationDuration: Double = 0.8 // This is a timer to de-init the window after closing
     var animation: Animation {
@@ -50,7 +53,7 @@ public class DynamicNotch<Content>: ObservableObject where Content: View {
     /// - Parameters:
     ///   - content: A SwiftUI View
     ///   - style: The popover's style. If unspecified, the style will be automatically set according to the screen.
-    public init(contentID: UUID = .init(), style: DynamicNotch.Style = .auto, @ViewBuilder content: @escaping () -> Content) {
+    public init(contentID: UUID = .init(), style: DynamicNotchStyle = .auto, @ViewBuilder content: @escaping () -> Content) {
         self.contentID = contentID
         self.content = content
         self.notchStyle = style
