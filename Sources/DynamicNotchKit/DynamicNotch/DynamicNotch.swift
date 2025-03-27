@@ -222,7 +222,23 @@ extension DynamicNotch {
         )
         panel.contentView = view
         panel.orderFrontRegardless()
-        panel.setFrame(screen.frame, display: false)
+
+        let size = NSSize(
+            width: screen.frame.width / 2,
+            height: screen.frame.height / 2
+        )
+        let origin = NSPoint(
+            x: screen.frame.midX - (size.width / 2),
+            y: screen.frame.maxY - size.height
+        )
+
+        panel.setFrame(
+            NSRect(
+                origin: origin,
+                size: size
+            ),
+            display: false
+        )
 
         windowController = .init(window: panel)
     }
