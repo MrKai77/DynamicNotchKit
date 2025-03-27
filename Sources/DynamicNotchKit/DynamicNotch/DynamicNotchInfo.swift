@@ -7,81 +7,70 @@
 
 import SwiftUI
 
-internal final class DynamicNotchInfoPublisher<IconView>: ObservableObject where IconView: View {
-    @Published var iconView: IconView?
-    @Published var iconColor: Color
-    @Published var title: String
-    @Published var description: String?
-    @Published var textColor: Color
+public enum DynamicNotchInfoIcon {
+    case image(image: Image, color: Color? = nil)
+    case systemImage(systemName: String, color: Color? = nil)
+    case view(view: AnyView)
+    case appIcon
+    case none
 
-    init(icon: Image?, iconColor: Color, title: String, description: String? = nil, textColor: Color) where IconView == Image {
-        self.iconView = icon
-        self.iconColor = iconColor
-        self.title = title
-        self.description = description
-        self.textColor = textColor
-    }
-
-    init(title: String, description: String? = nil, textColor: Color, iconView: (() -> IconView)?) {
-        self.title = title
-        self.description = description
-        self.textColor = textColor
-        self.iconColor = .clear
-        self.iconView = iconView?()
-    }
-
-    @MainActor
-    func publish(icon: Image?, iconColor: Color, title: String, description: String?, textColor: Color) where IconView == Image {
-        self.iconView = icon
-        self.iconColor = iconColor
-        self.title = title
-        self.description = description
-        self.textColor = textColor
-    }
-
-    @MainActor
-    func publish(icon: IconView?, title: String, description: String?) {
-        self.title = title
-        self.description = description
-        self.iconView = iconView
+    @ViewBuilder
+    func view(notchStyle: DynamicNotchStyle) -> some View {
+        switch self {
+        case .image(let image, let color):
+            image
+                .resizable()
+                .foregroundStyle(color ?? (notchStyle == .notch ? .white : .primary))
+                .padding(3)
+                .scaledToFit()
+        case .systemImage(let systemName, let color):
+            Image(systemName: systemName)
+                .resizable()
+                .foregroundStyle(color ?? (notchStyle == .notch ? .white : .primary))
+                .padding(3)
+                .scaledToFit()
+        case .view(let view):
+            view
+        case .appIcon:
+            Image(nsImage: NSApplication.shared.applicationIconImage)
+                .resizable()
+                .padding(-5)
+                .scaledToFit()
+        case .none:
+            EmptyView()
+                .frame(width: 0, height: 0)
+        }
     }
 }
 
-public class DynamicNotchInfo<IconView> where IconView: View {
-    private var internalDynamicNotch: DynamicNotch<InfoView>
-    private let publisher: DynamicNotchInfoPublisher<IconView>
+public class DynamicNotchInfo<IconView>: ObservableObject where IconView: View {
+    private var internalDynamicNotch: DynamicNotch<InfoView>!
 
-    public init(contentID: UUID = .init(), icon: Image! = nil, title: String, description: String? = nil, iconColor: Color = .white, textColor: Color = .white, style: DynamicNotchStyle = .auto) where IconView == Image {
-        let publisher = DynamicNotchInfoPublisher(icon: icon, iconColor: iconColor, title: title, description: description, textColor: textColor)
-        self.publisher = publisher
+    @Published public var icon: DynamicNotchInfoIcon
+    @Published public var title: String
+    @Published public var description: String?
+    @Published public var textColor: Color?
+
+    public init(
+        contentID: UUID = .init(),
+        icon: DynamicNotchInfoIcon,
+        title: String,
+        description: String? = nil,
+        style: DynamicNotchStyle = .auto
+    ) where IconView == Image {
+        self.icon = icon
+        self.title = title
+        self.description = description
+
         internalDynamicNotch = DynamicNotch(contentID: contentID, style: style) {
-            InfoView(publisher: publisher)
+            InfoView(dynamicNotch: self)
         }
     }
 
-    public init(contentID: UUID = .init(), title: String, description: String? = nil, textColor: Color = .white, style: DynamicNotchStyle = .auto, iconView: (() -> IconView)? = nil) {
-        let publisher = DynamicNotchInfoPublisher<IconView>(title: title, description: description, textColor: textColor, iconView: iconView)
-        self.publisher = publisher
-        internalDynamicNotch = DynamicNotch(contentID: contentID, style: style) {
-            InfoView(publisher: publisher)
-        }
-    }
-
-    @MainActor
-    public func setContent(contentID: UUID = .init(), icon: Image? = nil, title: String, description: String? = nil, iconColor: Color = .white, textColor: Color = .white) where IconView == Image {
-        withAnimation {
-            publisher.publish(icon: icon, iconColor: iconColor, title: title, description: description, textColor: textColor)
-        }
-    }
-
-    @MainActor
-    public func setContent(contentID: UUID = .init(), title: String, description: String? = nil, iconView: IconView? = nil) {
-        withAnimation {
-            publisher.publish(icon: iconView, title: title, description: description)
-        }
-    }
-
-    public func show(on screen: NSScreen = NSScreen.screens[0], for time: Double = 0) {
+    public func show(
+        on screen: NSScreen = NSScreen.screens[0],
+        for time: Double = 0
+    ) {
         internalDynamicNotch.show(on: screen, for: time)
     }
 
@@ -94,76 +83,37 @@ public class DynamicNotchInfo<IconView> where IconView: View {
     }
 }
 
-public extension DynamicNotchInfo {
+extension DynamicNotchInfo {
     struct InfoView: View {
-        private var publisher: DynamicNotchInfoPublisher<IconView>
+        @Environment(\.notchStyle) private var notchStyle
+        @ObservedObject var dynamicNotch: DynamicNotchInfo<IconView>
 
-        init(publisher: DynamicNotchInfoPublisher<IconView>) {
-            self.publisher = publisher
+        init(dynamicNotch: DynamicNotchInfo<IconView>) {
+            self.dynamicNotch = dynamicNotch
         }
 
         public var body: some View {
             HStack(spacing: 10) {
-                InfoImageView(publisher: publisher)
-                InfoTextView(publisher: publisher)
+                dynamicNotch.icon.view(notchStyle: notchStyle)
+                textView()
                 Spacer(minLength: 0)
             }
             .frame(height: 40)
         }
-    }
 
-    struct InfoImageView: View {
-        @ObservedObject private var publisher: DynamicNotchInfoPublisher<IconView>
-
-        init(publisher: DynamicNotchInfoPublisher<IconView>) {
-            self.publisher = publisher
-        }
-
-        public var body: some View {
-            if let image = publisher.iconView as? Image {
-                image
-                    .resizable()
-                    .foregroundStyle(publisher.iconColor)
-                    .padding(3)
-                    .scaledToFit()
-            } else if let iconView = publisher.iconView {
-                iconView
-            } else {
-                Image(nsImage: NSApplication.shared.applicationIconImage)
-                    .resizable()
-                    .padding(-5)
-                    .scaledToFit()
-            }
-        }
-    }
-
-    struct InfoTextView: View {
-        @ObservedObject private var publisher: DynamicNotchInfoPublisher<IconView>
-
-        init(publisher: DynamicNotchInfoPublisher<IconView>) {
-            self.publisher = publisher
-        }
-
-        public var body: some View {
-            VStack(alignment: .leading, spacing: publisher.description != nil ? nil : 0) {
-                Text(publisher.title)
+        @ViewBuilder
+        func textView() -> some View {
+            VStack(alignment: .leading, spacing: dynamicNotch.description != nil ? nil : 0) {
+                Text(dynamicNotch.title)
                     .font(.headline)
-                    .foregroundStyle(publisher.textColor)
-                Text(publisher.description ?? "")
-                    .font(.caption2)
-                    .foregroundStyle(publisher.textColor.opacity(0.8))
-                    .opacity(publisher.description != nil ? 1 : 0)
-                    .frame(maxHeight: publisher.description != nil ? nil : 0)
-            }
-        }
-    }
-}
+                    .foregroundStyle(dynamicNotch.textColor ?? (notchStyle == .notch ? .white : .primary))
 
-struct DynamicNotchInfo_Previews: PreviewProvider {
-    static let publisher = DynamicNotchInfoPublisher(icon: nil, iconColor: .blue, title: "testing", textColor: .black)
-    static var previews: some View {
-        VStack {
-            DynamicNotchInfo.InfoView(publisher: publisher)
+                if let description = dynamicNotch.description {
+                    Text(description)
+                        .font(.caption2)
+                        .foregroundStyle(dynamicNotch.textColor?.opacity(0.5) ?? (notchStyle == .notch ? .white.opacity(0.5) : .secondary))
+                }
+            }
         }
     }
 }
