@@ -78,6 +78,6 @@ struct NotchView<Content>: View where Content: View {
             }
             Spacer()
         }
-        .environment(\.notchStyle, dynamicNotch.notchStyle)
+        .environment(\.notchStyle, dynamicNotch.notchStyle.isNotch ? dynamicNotch.notchStyle : .notch)
     }
 }

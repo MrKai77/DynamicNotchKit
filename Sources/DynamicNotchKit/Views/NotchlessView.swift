@@ -57,6 +57,6 @@ struct NotchlessView<Content>: View where Content: View {
             }
             Spacer()
         }
-        .environment(\.notchStyle, dynamicNotch.notchStyle)
+        .environment(\.notchStyle, dynamicNotch.notchStyle.isFloating ? dynamicNotch.notchStyle : .floating)
     }
 }
