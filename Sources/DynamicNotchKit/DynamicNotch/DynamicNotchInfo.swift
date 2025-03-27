@@ -17,8 +17,9 @@ public enum DynamicNotchInfoIcon {
 
     /// A view to display in the DynamicNotchInfo.
     ///
-    /// Please note that we currently use `AnyView` (a type-erased view) to allow for any view to be passed in. This means that you will need to wrap your view in `AnyView` when using this case.
-    case view(view: AnyView)
+    /// It is recommended to use `DynamicNotchInfoIcon.view()` instead of this case for a more concise syntax.
+    /// Please note that we currently use `AnyView` (a type-erased view) to allow for any view to be passed in.
+    case customView(view: AnyView)
 
     /// The app icon to display in the DynamicNotchInfo.
     case appIcon
@@ -26,8 +27,13 @@ public enum DynamicNotchInfoIcon {
     /// No icon to display in the DynamicNotchInfo.
     case none
 
+    ///
+    static func view<Content: View>(content: () -> Content) -> DynamicNotchInfoIcon {
+        .customView(view: AnyView(content()))
+    }
+
     @ViewBuilder
-    func view(notchStyle: DynamicNotchStyle) -> some View {
+    func iconView(notchStyle: DynamicNotchStyle) -> some View {
         switch self {
         case let .image(image):
             image
@@ -40,7 +46,7 @@ public enum DynamicNotchInfoIcon {
                 .foregroundStyle(color ?? (notchStyle == .notch ? .white : .primary))
                 .padding(3)
                 .scaledToFit()
-        case let .view(view):
+        case let .customView(view):
             view
         case .appIcon:
             Image(nsImage: NSApplication.shared.applicationIconImage)
@@ -121,7 +127,7 @@ extension DynamicNotchInfo {
 
         public var body: some View {
             HStack(spacing: 10) {
-                dynamicNotch.icon.view(notchStyle: notchStyle)
+                dynamicNotch.icon.iconView(notchStyle: notchStyle)
                 textView()
                 Spacer(minLength: 0)
             }
