@@ -27,12 +27,12 @@ public class DynamicNotchProgress: ObservableObject {
         self.progress = progress
         self.title = title
         self.description = description
-        self.internalDynamicNotch = DynamicNotch(style: style) {
+        self.internalDynamicNotch = DynamicNotch(contentID: contentID, style: style) {
             InfoView(dynamicNotch: self)
         }
     }
 
-    public func setProgressBarOverlay<Content>(_ overlay: @escaping () -> Content) where Content: View {
+    public func setProgressBarOverlay(_ overlay: @escaping () -> some View) {
         progressBarOverlay = { AnyView(overlay()) }
     }
 

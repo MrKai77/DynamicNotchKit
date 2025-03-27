@@ -8,7 +8,7 @@
 import SwiftUI
 
 // This transition is used to animate the blur effect
-private struct BlurModifier: ViewModifier {
+struct BlurModifier: ViewModifier {
     public let isIdentity: Bool
     public var intensity: CGFloat
 

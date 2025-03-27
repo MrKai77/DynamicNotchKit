@@ -8,8 +8,18 @@
 import AppKit
 
 class DynamicNotchPanel: NSPanel {
-    override init(contentRect: NSRect, styleMask style: NSWindow.StyleMask, backing backingStoreType: NSWindow.BackingStoreType, defer flag: Bool) {
-        super.init(contentRect: contentRect, styleMask: style, backing: backingStoreType, defer: flag)
+    override init(
+        contentRect: NSRect,
+        styleMask style: NSWindow.StyleMask,
+        backing backingStoreType: NSWindow.BackingStoreType,
+        defer flag: Bool
+    ) {
+        super.init(
+            contentRect: contentRect,
+            styleMask: style,
+            backing: backingStoreType,
+            defer: flag
+        )
         self.hasShadow = false
         self.backgroundColor = .clear
         self.level = .screenSaver

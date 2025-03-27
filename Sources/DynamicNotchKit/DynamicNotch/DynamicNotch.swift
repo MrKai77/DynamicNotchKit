@@ -19,7 +19,6 @@ public enum DynamicNotchStyle: Int {
 // MARK: - DynamicNotch
 
 public class DynamicNotch<Content>: ObservableObject where Content: View {
-
     public var windowController: NSWindowController? // Make public in case user wants to modify the NSPanel
 
     // Content Properties
@@ -53,7 +52,11 @@ public class DynamicNotch<Content>: ObservableObject where Content: View {
     /// - Parameters:
     ///   - content: A SwiftUI View
     ///   - style: The popover's style. If unspecified, the style will be automatically set according to the screen.
-    public init(contentID: UUID = .init(), style: DynamicNotchStyle = .auto, @ViewBuilder content: @escaping () -> Content) {
+    public init(
+        contentID: UUID = .init(),
+        style: DynamicNotchStyle = .auto,
+        @ViewBuilder content: @escaping () -> Content
+    ) {
         self.contentID = contentID
         self.content = content
         self.notchStyle = style
@@ -69,19 +72,24 @@ public class DynamicNotch<Content>: ObservableObject where Content: View {
 // MARK: - Public
 
 public extension DynamicNotch {
-
     /// Set this DynamicNotch's content.
     /// - Parameter content: A SwiftUI View
-    func setContent(contentID: UUID = .init(), content: @escaping () -> Content) {
+    func setContent(
+        contentID _: UUID = .init(),
+        content: @escaping () -> Content
+    ) {
         self.content = content
-        self.contentID = .init()
+        contentID = .init()
     }
 
     /// Show the DynamicNotch.
     /// - Parameters:
     ///   - screen: Screen to show on. Default is the primary screen.
     ///   - time: Time to show in seconds. If 0, the DynamicNotch will stay visible until `hide()` is called.
-    func show(on screen: NSScreen = NSScreen.screens[0], for time: Double = 0) {
+    func show(
+        on screen: NSScreen = NSScreen.screens[0],
+        for time: Double = 0
+    ) {
         func scheduleHide(_ time: Double) {
             let workItem = DispatchWorkItem { self.hide() }
             self.workItem = workItem
@@ -90,7 +98,7 @@ public extension DynamicNotch {
 
         guard !isVisible else {
             if time > 0 {
-                self.workItem?.cancel()
+                workItem?.cancel()
                 scheduleHide(time)
             }
             return
@@ -106,7 +114,7 @@ public extension DynamicNotch {
         }
 
         if time != 0 {
-            self.workItem?.cancel()
+            workItem?.cancel()
             scheduleHide(time)
         }
     }
@@ -160,13 +168,11 @@ extension DynamicNotch {
 
         notchSize = screen.notchFrameWithMenubarAsBackup.size
 
-        let view: NSView = {
-            switch notchStyle {
-            case .notch: NSHostingView(rootView: NotchView(dynamicNotch: self).foregroundStyle(.white))
-            case .floating: NSHostingView(rootView: NotchlessView(dynamicNotch: self))
-            case .auto: screen.hasNotch ? NSHostingView(rootView: NotchView(dynamicNotch: self).foregroundStyle(.white)) : NSHostingView(rootView: NotchlessView(dynamicNotch: self))
-            }
-        }()
+        let view: NSView = switch notchStyle {
+        case .notch: NSHostingView(rootView: NotchView(dynamicNotch: self).foregroundStyle(.white))
+        case .floating: NSHostingView(rootView: NotchlessView(dynamicNotch: self))
+        case .auto: screen.hasNotch ? NSHostingView(rootView: NotchView(dynamicNotch: self).foregroundStyle(.white)) : NSHostingView(rootView: NotchlessView(dynamicNotch: self))
+        }
 
         let panel = DynamicNotchPanel(
             contentRect: .zero,

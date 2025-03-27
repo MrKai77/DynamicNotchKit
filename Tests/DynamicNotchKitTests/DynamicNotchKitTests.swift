@@ -1,5 +1,5 @@
-import XCTest
 @testable import DynamicNotchKit
+import XCTest
 
 final class DynamicNotchKitTests: XCTestCase {
     func testExample() throws {

@@ -31,7 +31,6 @@ struct NotchView<Content>: View where Content: View {
                         .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: safeAreaInset) }
                         .safeAreaInset(edge: .leading, spacing: 0) { Color.clear.frame(width: safeAreaInset) }
                         .safeAreaInset(edge: .trailing, spacing: 0) { Color.clear.frame(width: safeAreaInset) }
-
                         .blur(radius: dynamicNotch.isVisible ? 0 : 10)
                         .scaleEffect(dynamicNotch.isVisible ? 1 : 0.8)
                         .offset(y: dynamicNotch.isVisible ? 0 : 5)

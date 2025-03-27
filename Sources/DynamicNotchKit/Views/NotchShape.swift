@@ -56,7 +56,7 @@ struct NotchShape: Shape {
         )
 
         path.addQuadCurve(
-            to:  CGPoint(
+            to: CGPoint(
                 x: rect.minX + topCornerRadius + bottomCornerRadius,
                 y: rect.maxY
             ),

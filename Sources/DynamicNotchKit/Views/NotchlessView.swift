@@ -25,7 +25,6 @@ struct NotchlessView<Content>: View where Content: View {
                     .safeAreaInset(edge: .leading, spacing: 0) { Color.clear.frame(width: safeAreaInset) }
                     .safeAreaInset(edge: .trailing, spacing: 0) { Color.clear.frame(width: safeAreaInset) }
                     .fixedSize()
-
                     .onHover { hovering in
                         dynamicNotch.isMouseInside = hovering
                     }

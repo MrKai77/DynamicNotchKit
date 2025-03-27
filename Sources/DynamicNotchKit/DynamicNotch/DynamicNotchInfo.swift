@@ -1,5 +1,5 @@
 //
-//  DynamicNotchInfoWindow.swift
+//  DynamicNotchInfo.swift
 //  DynamicNotchKit
 //
 //  Created by Kai Azim on 2023-08-25.
@@ -17,19 +17,18 @@ public enum DynamicNotchInfoIcon {
     @ViewBuilder
     func view(notchStyle: DynamicNotchStyle) -> some View {
         switch self {
-        case .image(let image, let color):
+        case let .image(image, color):
             image
                 .resizable()
-                .foregroundStyle(color ?? (notchStyle == .notch ? .white : .primary))
                 .padding(3)
                 .scaledToFit()
-        case .systemImage(let systemName, let color):
+        case let .systemImage(systemName, color):
             Image(systemName: systemName)
                 .resizable()
                 .foregroundStyle(color ?? (notchStyle == .notch ? .white : .primary))
                 .padding(3)
                 .scaledToFit()
-        case .view(let view):
+        case let .view(view):
             view
         case .appIcon:
             Image(nsImage: NSApplication.shared.applicationIconImage)
@@ -61,8 +60,7 @@ public class DynamicNotchInfo: ObservableObject {
         self.icon = icon
         self.title = title
         self.description = description
-
-        internalDynamicNotch = DynamicNotch(contentID: contentID, style: style) {
+        self.internalDynamicNotch = DynamicNotch(contentID: contentID, style: style) {
             InfoView(dynamicNotch: self)
         }
     }
