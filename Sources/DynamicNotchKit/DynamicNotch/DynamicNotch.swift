@@ -85,11 +85,13 @@ public extension DynamicNotch {
     /// Show the DynamicNotch.
     /// - Parameters:
     ///   - screen: Screen to show on. Default is the primary screen.
-    ///   - time: Time to show in seconds. If 0, the DynamicNotch will stay visible until `hide()` is called.
+    ///   - duration: Duration for which the notch will be shown. If 0, the DynamicNotch will stay visible until `hide()` is called.
     func show(
         on screen: NSScreen = NSScreen.screens[0],
-        for time: Double = 0
+        for duration: Duration = .zero
     ) {
+        let seconds = Double(duration.components.seconds)
+
         func scheduleHide(_ time: Double) {
             let workItem = DispatchWorkItem { self.hide() }
             self.workItem = workItem
@@ -97,9 +99,9 @@ public extension DynamicNotch {
         }
 
         guard !isVisible else {
-            if time > 0 {
+            if seconds > 0 {
                 workItem?.cancel()
-                scheduleHide(time)
+                scheduleHide(seconds)
             }
             return
         }
@@ -113,9 +115,9 @@ public extension DynamicNotch {
             }
         }
 
-        if time != 0 {
+        if seconds != 0 {
             workItem?.cancel()
-            scheduleHide(time)
+            scheduleHide(seconds)
         }
     }
 

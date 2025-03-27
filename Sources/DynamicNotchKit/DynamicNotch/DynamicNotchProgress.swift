@@ -38,9 +38,9 @@ public class DynamicNotchProgress: ObservableObject {
 
     public func show(
         on screen: NSScreen = NSScreen.screens[0],
-        for time: Double = 0
+        for duration: Duration = .zero
     ) {
-        internalDynamicNotch.show(on: screen, for: time)
+        internalDynamicNotch.show(on: screen, for: duration)
     }
 
     public func hide() {
