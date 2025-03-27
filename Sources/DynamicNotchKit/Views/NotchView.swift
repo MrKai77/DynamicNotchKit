@@ -10,6 +10,8 @@ import SwiftUI
 struct NotchView<Content>: View where Content: View {
     @ObservedObject var dynamicNotch: DynamicNotch<Content>
 
+    private let safeAreaInset: CGFloat = 20
+
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
@@ -23,9 +25,9 @@ struct NotchView<Content>: View where Content: View {
 
                     dynamicNotch.content()
                         .id(dynamicNotch.contentID)
-                        .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: 15) }
-                        .safeAreaInset(edge: .leading, spacing: 0) { Color.clear.frame(width: 15) }
-                        .safeAreaInset(edge: .trailing, spacing: 0) { Color.clear.frame(width: 15) }
+                        .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: safeAreaInset) }
+                        .safeAreaInset(edge: .leading, spacing: 0) { Color.clear.frame(width: safeAreaInset) }
+                        .safeAreaInset(edge: .trailing, spacing: 0) { Color.clear.frame(width: safeAreaInset) }
 
                         .blur(radius: dynamicNotch.isVisible ? 0 : 10)
                         .scaleEffect(dynamicNotch.isVisible ? 1 : 0.8)
@@ -63,5 +65,6 @@ struct NotchView<Content>: View where Content: View {
             }
             Spacer()
         }
+        .environment(\.notchStyle, .notch)
     }
 }

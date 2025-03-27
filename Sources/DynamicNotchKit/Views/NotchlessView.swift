@@ -11,6 +11,8 @@ struct NotchlessView<Content>: View where Content: View {
     @ObservedObject var dynamicNotch: DynamicNotch<Content>
     @State var windowHeight: CGFloat = 0
 
+    private let safeAreaInset: CGFloat = 15
+
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
@@ -18,10 +20,10 @@ struct NotchlessView<Content>: View where Content: View {
 
                 dynamicNotch.content()
                     .id(dynamicNotch.contentID)
-                    .safeAreaInset(edge: .top, spacing: 0) { Color.clear.frame(height: 15) }
-                    .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: 15) }
-                    .safeAreaInset(edge: .leading, spacing: 0) { Color.clear.frame(width: 15) }
-                    .safeAreaInset(edge: .trailing, spacing: 0) { Color.clear.frame(width: 15) }
+                    .safeAreaInset(edge: .top, spacing: 0) { Color.clear.frame(height: safeAreaInset) }
+                    .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: safeAreaInset) }
+                    .safeAreaInset(edge: .leading, spacing: 0) { Color.clear.frame(width: safeAreaInset) }
+                    .safeAreaInset(edge: .trailing, spacing: 0) { Color.clear.frame(width: safeAreaInset) }
                     .fixedSize()
 
                     .onHover { hovering in
@@ -52,5 +54,6 @@ struct NotchlessView<Content>: View where Content: View {
             }
             Spacer()
         }
+        .environment(\.notchStyle, .notch)
     }
 }
