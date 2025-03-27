@@ -10,36 +10,46 @@ import SwiftUI
 
 // MARK: - DynamicNotchStyle
 
+/// The style of a DynamicNotch.
 public enum DynamicNotchStyle: Int {
+    /// Notch-style, meant to be used on screens with a notch
     case notch
+
+    /// Floating style, to be used on screens without a notch
     case floating
+
+    /// Automatically choose the style based on the screen
     case auto
 }
 
 // MARK: - DynamicNotch
 
+/// A flexible custom notch-styled window that can be shown on the screen.
 public class DynamicNotch<Content>: ObservableObject where Content: View {
-    public var windowController: NSWindowController? // Make public in case user wants to modify the NSPanel
+    public var windowController: NSWindowController? // Public in case user wants to modify the underlying NSPanel
 
-    // Content Properties
+    /// Content Properties
     @Published var content: () -> Content
     @Published var contentID: UUID
     @Published var isVisible: Bool = false // Used to animate the fading in/out of the user's view
 
-    // Notch Size
+    /// Notch Size
     @Published var notchSize: CGSize = .zero
 
-    // Notch Closing Properties
+    /// Notch Closing Properties
     @Published var isMouseInside: Bool = false // If the mouse is inside, the notch will not auto-hide
     private var timer: Timer?
     private var workItem: DispatchWorkItem?
     private var subscription: AnyCancellable?
 
-    // Notch Style
+    /// Notch Style
     private var notchStyle: DynamicNotchStyle = .notch
 
-    private var maxAnimationDuration: Double = 0.8 // This is a timer to de-init the window after closing
+    /// This is a timer to de-init the window after closing.
+    /// Note that it's slightly longer than the animation duration, which should allow for some extra leeway.
+    private var maxAnimationDuration: Double = 0.8
 
+    /// The animation used when showing/hiding the notch.
     var animation: Animation {
         if #available(macOS 14.0, *), notchStyle == .notch {
             Animation.spring(.bouncy(duration: 0.4))
@@ -50,8 +60,9 @@ public class DynamicNotch<Content>: ObservableObject where Content: View {
 
     /// Makes a new DynamicNotch with custom content and style.
     /// - Parameters:
-    ///   - content: A SwiftUI View
-    ///   - style: The popover's style. If unspecified, the style will be automatically set according to the screen.
+    ///   - contentID: the ID of the content. If unspecified, a new ID will be generated. This helps to differentiate between different contents.
+    ///   - style: the popover's style. If unspecified, the style will be automatically set according to the screen (notch or floating).
+    ///   - content: a SwiftUI View to be shown in the popup.
     public init(
         contentID: UUID = .init(),
         style: DynamicNotchStyle = .auto,
@@ -73,7 +84,9 @@ public class DynamicNotch<Content>: ObservableObject where Content: View {
 
 public extension DynamicNotch {
     /// Set this DynamicNotch's content.
-    /// - Parameter content: A SwiftUI View
+    /// - Parameters:
+    ///   - contentID: the ID of the content. If unspecified, a new ID will be generated. This helps to differentiate between different contents.
+    ///   - content: a SwiftUI View to be shown in the popup.
     func setContent(
         contentID _: UUID = .init(),
         content: @escaping () -> Content
@@ -84,8 +97,8 @@ public extension DynamicNotch {
 
     /// Show the DynamicNotch.
     /// - Parameters:
-    ///   - screen: Screen to show on. Default is the primary screen.
-    ///   - duration: Duration for which the notch will be shown. If 0, the DynamicNotch will stay visible until `hide()` is called.
+    ///   - screen: screen to show on. Default is the primary screen, which generally contains the notch on MacBooks.
+    ///   - duration: duration for which the notch will be shown. If 0, the DynamicNotch will stay visible until `hide()` is called.
     func show(
         on screen: NSScreen = NSScreen.screens[0],
         for duration: Duration = .zero
@@ -121,7 +134,8 @@ public extension DynamicNotch {
         }
     }
 
-    /// Hide the DynamicNotch.
+    /// Hide the popup.
+    /// - Parameter ignoreMouse: if true, the popup will hide even if the mouse is inside the notch area.
     func hide(ignoreMouse: Bool = false) {
         guard isVisible else { return }
 
@@ -141,7 +155,7 @@ public extension DynamicNotch {
         }
     }
 
-    /// Toggle the DynamicNotch's visibility.
+    /// Toggles the popup's visibility.
     func toggle() {
         if isVisible {
             hide()
@@ -151,6 +165,8 @@ public extension DynamicNotch {
     }
 
     /// Check if the cursor is inside the screen's notch area.
+    ///
+    /// This function may be useful to evaluate whether the `DynamicNotch` should be shown or hidden.
     /// - Returns: If the cursor is inside the notch area.
     static func checkIfMouseIsInNotch() -> Bool {
         guard let screen = NSScreen.screenWithMouse else {

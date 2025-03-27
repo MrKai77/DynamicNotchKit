@@ -7,6 +7,9 @@
 
 import SwiftUI
 
+/// A preset `DynamicNotch` suited for seamlessly presenting the progress of an action.
+///
+/// The `DynamicNotchProgress` is a preset `DynamicNotch` that is designed to present the progress of an action. It is a simple and easy-to-use component that allows you to present a progress bar with a title and description.
 public class DynamicNotchProgress: ObservableObject {
     private var internalDynamicNotch: DynamicNotch<InfoView>!
 
@@ -16,7 +19,14 @@ public class DynamicNotchProgress: ObservableObject {
     @Published public var title: String
     @Published public var description: String?
     @Published public var textColor: Color?
-
+    
+    /// Initializes a `DynamicNotchProgress`.
+    /// - Parameters:
+    ///   - contentID: the ID of the content. If unspecified, a new ID will be generated. This helps to differentiate between different contents.
+    ///   - progress: the progress of the action. This should be a `Binding` to a `CGFloat` value.
+    ///   - title: the title to display in the notch.
+    ///   - description: the description to display in the notch. If unspecified, no description will be displayed.
+    ///   - style: the popover's style. If unspecified, the style will be automatically set according to the screen (notch or floating).
     public init(
         contentID: UUID = .init(),
         progress: Binding<CGFloat>,
@@ -31,11 +41,17 @@ public class DynamicNotchProgress: ObservableObject {
             InfoView(dynamicNotch: self)
         }
     }
-
+    
+    /// A convenience method to set the overlay of the progress bar.
+    /// - Parameter overlay: a closure that returns a SwiftUI View to be used as the overlay.
     public func setProgressBarOverlay(_ overlay: @escaping () -> some View) {
         progressBarOverlay = { AnyView(overlay()) }
     }
 
+    /// Show the DynamicNotchInfo.
+    /// - Parameters:
+    ///   - screen: screen to show on. Default is the primary screen, which generally contains the notch on MacBooks.
+    ///   - duration: duration for which the notch will be shown. If 0, the DynamicNotch will stay visible until `hide()` is called.
     public func show(
         on screen: NSScreen = NSScreen.screens[0],
         for duration: Duration = .zero
@@ -43,10 +59,13 @@ public class DynamicNotchProgress: ObservableObject {
         internalDynamicNotch.show(on: screen, for: duration)
     }
 
-    public func hide() {
-        internalDynamicNotch.hide()
+    /// Hide the popup.
+    /// - Parameter ignoreMouse: if true, the popup will hide even if the mouse is inside the notch area.
+    public func hide(ignoreMouse: Bool = false) {
+        internalDynamicNotch.hide(ignoreMouse: ignoreMouse)
     }
 
+    /// Toggles the popup's visibility.
     public func toggle() {
         internalDynamicNotch.toggle()
     }

@@ -7,17 +7,29 @@
 
 import SwiftUI
 
+/// The icon to display in the DynamicNotchInfo.
 public enum DynamicNotchInfoIcon {
-    case image(image: Image, color: Color? = nil)
+    /// An image to display in the DynamicNotchInfo.
+    case image(image: Image)
+
+    /// A system image to display in the DynamicNotchInfo.
     case systemImage(systemName: String, color: Color? = nil)
+
+    /// A view to display in the DynamicNotchInfo.
+    ///
+    /// Please note that we currently use `AnyView` (a type-erased view) to allow for any view to be passed in. This means that you will need to wrap your view in `AnyView` when using this case.
     case view(view: AnyView)
+
+    /// The app icon to display in the DynamicNotchInfo.
     case appIcon
+
+    /// No icon to display in the DynamicNotchInfo.
     case none
 
     @ViewBuilder
     func view(notchStyle: DynamicNotchStyle) -> some View {
         switch self {
-        case let .image(image, color):
+        case let .image(image):
             image
                 .resizable()
                 .padding(3)
@@ -42,6 +54,9 @@ public enum DynamicNotchInfoIcon {
     }
 }
 
+/// A preset `DynamicNotch` suited for seamlessly presenting information.
+///
+/// This class is a wrapper around `DynamicNotch` that provides a simple way to present information to the user. It is designed to be easy to use and provide a clean and simple way to present information.
 public class DynamicNotchInfo: ObservableObject {
     private var internalDynamicNotch: DynamicNotch<InfoView>!
 
@@ -49,7 +64,14 @@ public class DynamicNotchInfo: ObservableObject {
     @Published public var title: String
     @Published public var description: String?
     @Published public var textColor: Color?
-
+    
+    /// Initializes a `DynamicNotchInfo`.
+    /// - Parameters:
+    ///   - contentID: the ID of the content. If unspecified, a new ID will be generated. This helps to differentiate between different contents.
+    ///   - icon: the icon to display in the notch.
+    ///   - title: the title to display in the notch.
+    ///   - description: the description to display in the notch. If unspecified, no description will be displayed.
+    ///   - style: the popover's style. If unspecified, the style will be automatically set according to the screen (notch or floating).
     public init(
         contentID: UUID = .init(),
         icon: DynamicNotchInfoIcon,
@@ -64,7 +86,11 @@ public class DynamicNotchInfo: ObservableObject {
             InfoView(dynamicNotch: self)
         }
     }
-
+    
+    /// Show the DynamicNotchInfo.
+    /// - Parameters:
+    ///   - screen: screen to show on. Default is the primary screen, which generally contains the notch on MacBooks.
+    ///   - duration: duration for which the notch will be shown. If 0, the DynamicNotch will stay visible until `hide()` is called.
     public func show(
         on screen: NSScreen = NSScreen.screens[0],
         for duration: Duration = .zero
@@ -72,10 +98,13 @@ public class DynamicNotchInfo: ObservableObject {
         internalDynamicNotch.show(on: screen, for: duration)
     }
 
-    public func hide() {
-        internalDynamicNotch.hide()
+    /// Hide the popup.
+    /// - Parameter ignoreMouse: if true, the popup will hide even if the mouse is inside the notch area.
+    public func hide(ignoreMouse: Bool = false) {
+        internalDynamicNotch.hide(ignoreMouse: ignoreMouse)
     }
 
+    /// Toggles the popup's visibility.
     public func toggle() {
         internalDynamicNotch.toggle()
     }
