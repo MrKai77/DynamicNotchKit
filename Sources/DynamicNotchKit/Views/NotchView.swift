@@ -10,7 +10,15 @@ import SwiftUI
 struct NotchView<Content>: View where Content: View {
     @ObservedObject var dynamicNotch: DynamicNotch<Content>
 
-    private let safeAreaInset: CGFloat = 20
+//    private let safeAreaInset: CGFloat = 20
+
+    var expandedNotchCornerRadii: (top: CGFloat, bottom: CGFloat) {
+        if case let .notch(topCornerRadius, bottomCornerRadius) = dynamicNotch.notchStyle {
+            return (top: topCornerRadius, bottom: bottomCornerRadius)
+        } else {
+            return (top: 15, bottom: 20)
+        }
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -20,21 +28,19 @@ struct NotchView<Content>: View where Content: View {
                 VStack(spacing: 0) {
                     Spacer()
                         .frame(
-                            width: dynamicNotch.notchSize.width + 20,
+                            width: dynamicNotch.notchSize.width + (expandedNotchCornerRadii.top * 2),
                             height: dynamicNotch.notchSize.height
                         )
-                    // We add an extra 20 here because the corner radius of the top increases when shown.
-                    // (the remaining 10 has already been accounted for in refreshNotchSize)
 
                     dynamicNotch.content()
                         .id(dynamicNotch.contentID)
-                        .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: safeAreaInset) }
-                        .safeAreaInset(edge: .leading, spacing: 0) { Color.clear.frame(width: safeAreaInset) }
-                        .safeAreaInset(edge: .trailing, spacing: 0) { Color.clear.frame(width: safeAreaInset) }
+                        .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: expandedNotchCornerRadii.bottom) }
+                        .safeAreaInset(edge: .leading, spacing: 0) { Color.clear.frame(width: expandedNotchCornerRadii.bottom) }
+                        .safeAreaInset(edge: .trailing, spacing: 0) { Color.clear.frame(width: expandedNotchCornerRadii.bottom) }
                         .blur(radius: dynamicNotch.isVisible ? 0 : 10)
                         .scaleEffect(dynamicNotch.isVisible ? 1 : 0.8)
                         .offset(y: dynamicNotch.isVisible ? 0 : 5)
-                        .padding(.horizontal, 15) // Small corner radius of the TOP of the notch
+                        .padding(.horizontal, expandedNotchCornerRadii.top)
                         .transition(.blur.animation(.smooth))
                 }
                 .fixedSize()
@@ -51,11 +57,16 @@ struct NotchView<Content>: View where Content: View {
                     GeometryReader { _ in // This helps with positioning everything
                         HStack {
                             Spacer(minLength: 0)
-                            NotchShape(cornerRadius: dynamicNotch.isVisible ? 20 : nil)
-                                .frame(
-                                    width: dynamicNotch.isVisible ? nil : dynamicNotch.notchSize.width,
-                                    height: dynamicNotch.isVisible ? nil : dynamicNotch.notchSize.height
-                                )
+
+                            NotchShape(
+                                topCornerRadius: dynamicNotch.isVisible ? expandedNotchCornerRadii.top : nil,
+                                bottomCornerRadius: dynamicNotch.isVisible ? expandedNotchCornerRadii.bottom : nil
+                            )
+                            .frame(
+                                width: dynamicNotch.isVisible ? nil : dynamicNotch.notchSize.width,
+                                height: dynamicNotch.isVisible ? nil : dynamicNotch.notchSize.height
+                            )
+
                             Spacer(minLength: 0)
                         }
                     }
@@ -67,6 +78,6 @@ struct NotchView<Content>: View where Content: View {
             }
             Spacer()
         }
-        .environment(\.notchStyle, .notch)
+        .environment(\.notchStyle, dynamicNotch.notchStyle)
     }
 }

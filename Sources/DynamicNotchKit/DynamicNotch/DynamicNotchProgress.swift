@@ -84,7 +84,7 @@ extension DynamicNotchProgress {
             HStack(spacing: 10) {
                 ProgressRing(
                     to: dynamicNotch.progress,
-                    color: dynamicNotch.progressBarColor ?? (notchStyle == .notch ? .white : .primary)
+                    color: dynamicNotch.progressBarColor ?? (notchStyle.isNotch ? .white : .primary)
                 )
                 .overlay {
                     if let iconOverlay = dynamicNotch.progressBarOverlay {
@@ -102,12 +102,12 @@ extension DynamicNotchProgress {
             VStack(alignment: .leading, spacing: dynamicNotch.description != nil ? nil : 0) {
                 Text(dynamicNotch.title)
                     .font(.headline)
-                    .foregroundStyle(dynamicNotch.textColor ?? (notchStyle == .notch ? .white : .primary))
+                    .foregroundStyle(dynamicNotch.textColor ?? (notchStyle.isNotch ? .white : .primary))
 
                 if let description = dynamicNotch.description {
                     Text(description)
                         .font(.caption2)
-                        .foregroundStyle(dynamicNotch.textColor?.opacity(0.5) ?? (notchStyle == .notch ? .white.opacity(0.5) : .secondary))
+                        .foregroundStyle(dynamicNotch.textColor?.opacity(0.5) ?? (notchStyle.isNotch ? .white.opacity(0.5) : .secondary))
                 }
             }
         }
@@ -131,30 +131,16 @@ extension DynamicNotchProgress {
                 .stroke(style: StrokeStyle(lineWidth: thickness))
                 .foregroundStyle(.tertiary)
                 .overlay {
-                    // Foreground ring
-                    if #available(macOS 13.0, *) {
-                        Circle()
-                            .trim(from: 0, to: isLoaded ? target : 0)
-                            .stroke(
-                                color.gradient, // Gradient is only available on macOS 13+
-                                style: StrokeStyle(
-                                    lineWidth: thickness,
-                                    lineCap: .round
-                                )
+                    Circle()
+                        .trim(from: 0, to: isLoaded ? target : 0)
+                        .stroke(
+                            color.gradient,
+                            style: StrokeStyle(
+                                lineWidth: thickness,
+                                lineCap: .round
                             )
-                            .opacity(isLoaded ? 1 : 0)
-                    } else {
-                        Circle()
-                            .trim(from: 0, to: isLoaded ? target : 0)
-                            .stroke(
-                                color,
-                                style: StrokeStyle(
-                                    lineWidth: thickness,
-                                    lineCap: .round
-                                )
-                            )
-                            .opacity(isLoaded ? 1 : 0)
-                    }
+                        )
+                        .opacity(isLoaded ? 1 : 0)
                 }
                 .rotationEffect(.degrees(-90))
                 .padding(thickness / 2)

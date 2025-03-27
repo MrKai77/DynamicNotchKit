@@ -11,7 +11,7 @@ final class DynamicNotchKitTests: XCTestCase {
     func testInfoWithSystemImageAndChangingContent() async throws {
         let notch = DynamicNotchInfo(
             icon: .systemImage(systemName: "figure"),
-            title: "This is a figure"
+            title: "This is a figure",
         )
         notch.show(for: .seconds(4))
 
@@ -25,7 +25,25 @@ final class DynamicNotchKitTests: XCTestCase {
         try await Task.sleep(for: .seconds(3))
     }
 
-    func testInfoWithGradient() async throws {
+    func testFloatingInfoWithSystemImageAndChangingContent() async throws {
+        let notch = DynamicNotchInfo(
+            icon: .systemImage(systemName: "figure"),
+            title: "This is a figure",
+            style: .floating(cornerRadius: 12)
+        )
+        notch.show(for: .seconds(4))
+
+        try await Task.sleep(for: .seconds(2))
+
+        withAnimation {
+            notch.title = "ANIMATED changing content!!"
+            notch.description = "TEST"
+        }
+
+        try await Task.sleep(for: .seconds(3))
+    }
+
+    func testInfoWithGradientAndCustomRadii() async throws {
         let notch = DynamicNotchInfo(
             icon: .view {
                 LinearGradient(
@@ -36,7 +54,27 @@ final class DynamicNotchKitTests: XCTestCase {
                 .clipShape(.rect(cornerRadius: 4))
                 .aspectRatio(contentMode: .fit)
             },
-            title: "Gradient!"
+            title: "Gradient!",
+            style: .notch(topCornerRadius: 20, bottomCornerRadius: 20)
+        )
+
+        notch.show(for: .seconds(3))
+        try await Task.sleep(for: .seconds(4))
+    }
+
+    func testFloatingInfoWithGradient() async throws {
+        let notch = DynamicNotchInfo(
+            icon: .view {
+                LinearGradient(
+                    colors: [.blue, .red],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .clipShape(.rect(cornerRadius: 4))
+                .aspectRatio(contentMode: .fit)
+            },
+            title: "Gradient!",
+            style: .floating
         )
 
         notch.show(for: .seconds(3))

@@ -11,15 +11,41 @@ import SwiftUI
 // MARK: - DynamicNotchStyle
 
 /// The style of a DynamicNotch.
-public enum DynamicNotchStyle: Int {
+public enum DynamicNotchStyle {
     /// Notch-style, meant to be used on screens with a notch
-    case notch
+    ///
+    /// Note that `topCornerRadius` and `bottomCornerRadius` are only use when the notch is in the expected state.
+    case notch(
+        topCornerRadius: CGFloat,
+        bottomCornerRadius: CGFloat
+    )
 
     /// Floating style, to be used on screens without a notch
-    case floating
+    case floating(
+        cornerRadius: CGFloat
+    )
 
     /// Automatically choose the style based on the screen
     case auto
+
+    static let notch: DynamicNotchStyle = .notch(topCornerRadius: 15, bottomCornerRadius: 20)
+    static let floating: DynamicNotchStyle = .floating(cornerRadius: 20)
+
+    var isNotch: Bool {
+        if case .notch = self {
+            return true
+        } else {
+            return false
+        }
+    }
+
+    var isFloating: Bool {
+        if case .floating = self {
+            return true
+        } else {
+            return false
+        }
+    }
 }
 
 // MARK: - DynamicNotch
@@ -43,7 +69,7 @@ public class DynamicNotch<Content>: ObservableObject where Content: View {
     private var subscription: AnyCancellable?
 
     /// Notch Style
-    private var notchStyle: DynamicNotchStyle = .notch
+    private(set) var notchStyle: DynamicNotchStyle = .auto
 
     /// This is a timer to de-init the window after closing.
     /// Note that it's slightly longer than the animation duration, which should allow for some extra leeway.
@@ -51,11 +77,7 @@ public class DynamicNotch<Content>: ObservableObject where Content: View {
 
     /// The animation used when showing/hiding the notch.
     var animation: Animation {
-        if #available(macOS 14.0, *), notchStyle == .notch {
-            Animation.spring(.bouncy(duration: 0.4))
-        } else {
-            Animation.timingCurve(0.16, 1, 0.3, 1, duration: 0.7)
-        }
+        .timingCurve(0.16, 1, 0.3, 1, duration: 0.7)
     }
 
     /// Makes a new DynamicNotch with custom content and style.

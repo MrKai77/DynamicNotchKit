@@ -43,7 +43,7 @@ public enum DynamicNotchInfoIcon {
         case let .systemImage(systemName, color):
             Image(systemName: systemName)
                 .resizable()
-                .foregroundStyle(color ?? (notchStyle == .notch ? .white : .primary))
+                .foregroundStyle(color ?? (notchStyle.isNotch ? .white : .primary))
                 .padding(3)
                 .scaledToFit()
         case let .customView(view):
@@ -139,12 +139,12 @@ extension DynamicNotchInfo {
             VStack(alignment: .leading, spacing: dynamicNotch.description != nil ? nil : 0) {
                 Text(dynamicNotch.title)
                     .font(.headline)
-                    .foregroundStyle(dynamicNotch.textColor ?? (notchStyle == .notch ? .white : .primary))
+                    .foregroundStyle(dynamicNotch.textColor ?? (notchStyle.isNotch ? .white : .primary))
 
                 if let description = dynamicNotch.description {
                     Text(description)
                         .font(.caption2)
-                        .foregroundStyle(dynamicNotch.textColor?.opacity(0.5) ?? (notchStyle == .notch ? .white.opacity(0.5) : .secondary))
+                        .foregroundStyle(dynamicNotch.textColor?.opacity(0.5) ?? (notchStyle.isNotch ? .white.opacity(0.5) : .secondary))
                 }
             }
         }

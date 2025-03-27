@@ -13,6 +13,14 @@ struct NotchlessView<Content>: View where Content: View {
 
     private let safeAreaInset: CGFloat = 15
 
+    var cornerRadius: CGFloat {
+        if case let .floating(cornerRadius) = dynamicNotch.notchStyle {
+            return cornerRadius
+        } else {
+            return 20
+        }
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
@@ -31,11 +39,11 @@ struct NotchlessView<Content>: View where Content: View {
                     .background {
                         VisualEffectView(material: .popover, blendingMode: .behindWindow)
                             .overlay {
-                                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                                     .strokeBorder(.quaternary, lineWidth: 1)
                             }
                     }
-                    .clipShape(.rect(cornerRadius: 20))
+                    .clipShape(.rect(cornerRadius: cornerRadius))
                     .shadow(color: .black.opacity(0.5), radius: dynamicNotch.isVisible ? 10 : 0)
                     .padding(20)
                     .onGeometryChange(for: CGFloat.self, of: \.size.height) { newHeight in
@@ -49,6 +57,6 @@ struct NotchlessView<Content>: View where Content: View {
             }
             Spacer()
         }
-        .environment(\.notchStyle, .notch)
+        .environment(\.notchStyle, dynamicNotch.notchStyle)
     }
 }
