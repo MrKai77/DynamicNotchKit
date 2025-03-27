@@ -19,7 +19,10 @@ struct NotchView<Content>: View where Content: View {
 
                 VStack(spacing: 0) {
                     Spacer()
-                        .frame(width: dynamicNotch.notchWidth + 20, height: dynamicNotch.notchHeight)
+                        .frame(
+                            width: dynamicNotch.notchSize.width + 20,
+                            height: dynamicNotch.notchSize.height
+                        )
                     // We add an extra 20 here because the corner radius of the top increases when shown.
                     // (the remaining 10 has already been accounted for in refreshNotchSize)
 
@@ -36,7 +39,7 @@ struct NotchView<Content>: View where Content: View {
                         .transition(.blur.animation(.smooth))
                 }
                 .fixedSize()
-                .frame(minWidth: dynamicNotch.notchWidth)
+                .frame(minWidth: dynamicNotch.notchSize.width)
                 .onHover { hovering in
                     dynamicNotch.isMouseInside = hovering
                 }
@@ -51,8 +54,8 @@ struct NotchView<Content>: View where Content: View {
                             Spacer(minLength: 0)
                             NotchShape(cornerRadius: dynamicNotch.isVisible ? 20 : nil)
                                 .frame(
-                                    width: dynamicNotch.isVisible ? nil : dynamicNotch.notchWidth,
-                                    height: dynamicNotch.isVisible ? nil : dynamicNotch.notchHeight
+                                    width: dynamicNotch.isVisible ? nil : dynamicNotch.notchSize.width,
+                                    height: dynamicNotch.isVisible ? nil : dynamicNotch.notchSize.height
                                 )
                             Spacer(minLength: 0)
                         }

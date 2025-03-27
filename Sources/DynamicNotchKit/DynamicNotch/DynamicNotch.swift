@@ -28,19 +28,19 @@ public class DynamicNotch<Content>: ObservableObject where Content: View {
     @Published var isVisible: Bool = false // Used to animate the fading in/out of the user's view
 
     // Notch Size
-    @Published var notchWidth: CGFloat = 0
-    @Published var notchHeight: CGFloat = 0
+    @Published var notchSize: CGSize = .zero
 
     // Notch Closing Properties
     @Published var isMouseInside: Bool = false // If the mouse is inside, the notch will not auto-hide
     private var timer: Timer?
-    var workItem: DispatchWorkItem?
+    private var workItem: DispatchWorkItem?
     private var subscription: AnyCancellable?
 
     // Notch Style
     private var notchStyle: DynamicNotchStyle = .notch
 
     private var maxAnimationDuration: Double = 0.8 // This is a timer to de-init the window after closing
+
     var animation: Animation {
         if #available(macOS 14.0, *), notchStyle == .notch {
             Animation.spring(.bouncy(duration: 0.4))
@@ -147,39 +147,18 @@ public extension DynamicNotch {
             return false
         }
 
-        let notchWidth: CGFloat = 300
-        let notchHeight: CGFloat = screen.frame.maxY - screen.visibleFrame.maxY // menubar height
-
-        let notchFrame = screen.notchFrame ?? NSRect(
-            x: screen.frame.midX - (notchWidth / 2),
-            y: screen.frame.maxY - notchHeight,
-            width: notchWidth,
-            height: notchHeight
-        )
-
-        return notchFrame.contains(NSEvent.mouseLocation)
+        return screen.notchFrameWithMenubarAsBackup.contains(NSEvent.mouseLocation)
     }
 }
 
 // MARK: - Private
 
 extension DynamicNotch {
-
-    func refreshNotchSize(_ screen: NSScreen) {
-        if let notchSize = screen.notchSize {
-            notchWidth = notchSize.width
-            notchHeight = notchSize.height
-        } else {
-            notchWidth = 300
-            notchHeight = screen.frame.maxY - screen.visibleFrame.maxY // menubar height
-        }
-    }
-
     func initializeWindow(screen: NSScreen) {
         // so that we don't have a duplicate window
         deinitializeWindow()
 
-        refreshNotchSize(screen)
+        notchSize = screen.notchFrameWithMenubarAsBackup.size
 
         let view: NSView = {
             switch notchStyle {

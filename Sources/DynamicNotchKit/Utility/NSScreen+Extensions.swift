@@ -42,4 +42,26 @@ extension NSScreen {
             height: notchSize.height
         )
     }
+
+    var menubarHeight: CGFloat {
+        frame.maxY - visibleFrame.maxY
+    }
+
+    var notchFrameWithMenubarAsBackup: NSRect {
+        if let notchFrame {
+            return notchFrame
+        } else {
+            let arbitraryNotchWidth: CGFloat = 300
+            let arbitraryNotchHeight: CGFloat = menubarHeight
+
+            let arbitraryNotchFrame = NSRect(
+                x: frame.midX - (arbitraryNotchWidth / 2),
+                y: frame.maxY - arbitraryNotchHeight,
+                width: arbitraryNotchWidth,
+                height: arbitraryNotchHeight
+            )
+
+            return arbitraryNotchFrame
+        }
+    }
 }

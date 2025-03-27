@@ -39,15 +39,11 @@ struct NotchlessView<Content>: View where Content: View {
                     .clipShape(.rect(cornerRadius: 20))
                     .shadow(color: .black.opacity(0.5), radius: dynamicNotch.isVisible ? 10 : 0)
                     .padding(20)
-                    .background {
-                        GeometryReader { geo in
-                            Color.clear
-                                .onAppear {
-                                    windowHeight = geo.size.height // This makes sure that the floating window FULLY slides off before disappearing
-                                }
-                        }
+                    .onGeometryChange(for: CGFloat.self, of: \.size.height) { newHeight in
+                        // This makes sure that the floating window FULLY slides off before disappearing
+                        windowHeight = newHeight
                     }
-                    .offset(y: dynamicNotch.isVisible ? dynamicNotch.notchHeight : -windowHeight)
+                    .offset(y: dynamicNotch.isVisible ? dynamicNotch.notchSize.height : -windowHeight)
                     .transition(.blur.animation(.smooth))
 
                 Spacer()
