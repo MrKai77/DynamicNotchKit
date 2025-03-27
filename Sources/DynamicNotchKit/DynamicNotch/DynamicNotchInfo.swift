@@ -43,7 +43,7 @@ public enum DynamicNotchInfoIcon {
     }
 }
 
-public class DynamicNotchInfo<IconView>: ObservableObject where IconView: View {
+public class DynamicNotchInfo: ObservableObject {
     private var internalDynamicNotch: DynamicNotch<InfoView>!
 
     @Published public var icon: DynamicNotchInfoIcon
@@ -57,7 +57,7 @@ public class DynamicNotchInfo<IconView>: ObservableObject where IconView: View {
         title: String,
         description: String? = nil,
         style: DynamicNotchStyle = .auto
-    ) where IconView == Image {
+    ) {
         self.icon = icon
         self.title = title
         self.description = description
@@ -86,9 +86,9 @@ public class DynamicNotchInfo<IconView>: ObservableObject where IconView: View {
 extension DynamicNotchInfo {
     struct InfoView: View {
         @Environment(\.notchStyle) private var notchStyle
-        @ObservedObject var dynamicNotch: DynamicNotchInfo<IconView>
+        @ObservedObject var dynamicNotch: DynamicNotchInfo
 
-        init(dynamicNotch: DynamicNotchInfo<IconView>) {
+        init(dynamicNotch: DynamicNotchInfo) {
             self.dynamicNotch = dynamicNotch
         }
 
