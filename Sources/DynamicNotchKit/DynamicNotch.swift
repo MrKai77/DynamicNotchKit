@@ -95,13 +95,11 @@ public extension DynamicNotch {
         }
         timer?.invalidate()
 
-        if !isVisible {
-          initializeWindow(screen: screen)
-          DispatchQueue.main.async {
+        initializeWindow(screen: screen)
+        DispatchQueue.main.async {
             withAnimation(self.animation) {
-              self.isVisible = true
+                self.isVisible = true
             }
-          }
         }
 
         if time != 0 {
