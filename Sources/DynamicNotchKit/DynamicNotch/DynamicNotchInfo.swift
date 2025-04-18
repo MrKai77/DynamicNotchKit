@@ -15,14 +15,15 @@ import SwiftUI
 @MainActor
 public class DynamicNotchInfo: ObservableObject {
     private var internalDynamicNotch: DynamicNotch<InfoView>!
-    
+
     @Published public var icon: DynamicNotchInfoIcon? {
         didSet { internalDynamicNotch.contentID = .init() }
     }
+
     @Published public var title: String
     @Published public var description: String?
     @Published public var textColor: Color?
-    
+
     /// Initializes a `DynamicNotchInfo`.
     /// - Parameters:
     ///   - contentID: the ID of the content. If unspecified, a new ID will be generated. This helps to differentiate between different contents.
@@ -45,7 +46,7 @@ public class DynamicNotchInfo: ObservableObject {
             InfoView(dynamicNotch: self)
         }
     }
-    
+
     /// Show the DynamicNotchInfo.
     /// - Parameters:
     ///   - screen: screen to show on. Default is the primary screen, which generally contains the notch on MacBooks.

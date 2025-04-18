@@ -1,6 +1,6 @@
 @testable import DynamicNotchKit
-import XCTest
 import SwiftUI
+import XCTest
 
 /// Hey there! Looks like you found DynamicNotchKit's tests.
 ///
@@ -10,7 +10,7 @@ import SwiftUI
 final class DynamicNotchKitTests: XCTestCase {
     func testInfoWithSystemImageAndChangingContent() async throws {
         let notch = DynamicNotchInfo(
-            icon: .systemImage(systemName: "figure"),
+            icon: .init(systemName: "figure"),
             title: "This is a figure",
         )
         notch.show(for: .seconds(4))
@@ -27,7 +27,7 @@ final class DynamicNotchKitTests: XCTestCase {
 
     func testFloatingInfoWithSystemImageAndChangingContent() async throws {
         let notch = DynamicNotchInfo(
-            icon: .systemImage(systemName: "figure"),
+            icon: .init(systemName: "figure"),
             title: "This is a figure",
             style: .floating(cornerRadius: 12)
         )
@@ -45,7 +45,7 @@ final class DynamicNotchKitTests: XCTestCase {
 
     func testInfoWithGradientAndCustomRadii() async throws {
         let notch = DynamicNotchInfo(
-            icon: .view {
+            icon: .init {
                 LinearGradient(
                     colors: [.blue, .red],
                     startPoint: .topLeading,
@@ -64,7 +64,7 @@ final class DynamicNotchKitTests: XCTestCase {
 
     func testFloatingInfoWithGradient() async throws {
         let notch = DynamicNotchInfo(
-            icon: .view {
+            icon: .init {
                 LinearGradient(
                     colors: [.blue, .red],
                     startPoint: .topLeading,
@@ -83,7 +83,7 @@ final class DynamicNotchKitTests: XCTestCase {
 
     func testInfoWithAppIcon() async throws {
         let notch = DynamicNotchInfo(
-            icon: .appIcon,
+            icon: .init(image: Image(nsImage: .init(named: NSImage.applicationIconName)!)),
             title: "App Icon",
             description: "In a test environment, this should be a folder!"
         )
@@ -93,7 +93,7 @@ final class DynamicNotchKitTests: XCTestCase {
 
     func testInfoWithoutIcon() async throws {
         let notch = DynamicNotchInfo(
-            icon: .none,
+            icon: nil,
             title: "No Icon",
             description: "This is a test without an icon."
         )
@@ -104,16 +104,14 @@ final class DynamicNotchKitTests: XCTestCase {
     func testProgressWithChangingValues() async throws {
         let value = Binding<CGFloat>.constant(0.5)
 
-        let notch = DynamicNotchProgress(
-            progress: value,
+        let notch = DynamicNotchInfo(
+            icon: .init(progress: value, color: .green) {
+                Image(systemName: "bolt.fill")
+                    .foregroundColor(.green)
+            },
             title: "Progress",
             description: "With live-updating values!"
         )
-        notch.progressBarColor = .green
-        notch.setProgressBarOverlay {
-            Image(systemName: "bolt.fill")
-                .foregroundColor(.green)
-        }
 
         notch.show(for: .seconds(3))
         try await Task.sleep(for: .seconds(4))
@@ -122,7 +120,7 @@ final class DynamicNotchKitTests: XCTestCase {
     func testDynamicNotch() async throws {
         let notch = DynamicNotch {
             VStack(spacing: 12) {
-                ForEach(0..<10) { _ in
+                ForEach(0 ..< 10) { _ in
                     Text("Hello, world!")
                 }
             }

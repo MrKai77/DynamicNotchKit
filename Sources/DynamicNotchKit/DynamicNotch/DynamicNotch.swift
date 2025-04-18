@@ -25,9 +25,9 @@ public class DynamicNotch<Content>: ObservableObject where Content: View {
     /// Notch Closing Properties
     @Published var isMouseInside: Bool = false // If the mouse is inside, the notch will not auto-hide
 
-    private var hideTask: Task<Void, Never>? // Used to cancel the hide task if the mouse is inside
-    private var closePanelTask: Task<Void, Never>? // Used to close the panel after hiding completes
-    
+    private var hideTask: Task<(), Never>? // Used to cancel the hide task if the mouse is inside
+    private var closePanelTask: Task<(), Never>? // Used to close the panel after hiding completes
+
     /// Notch Style
     private(set) var notchStyle: DynamicNotchStyle = .auto
 
@@ -48,16 +48,16 @@ public class DynamicNotch<Content>: ObservableObject where Content: View {
         self.contentID = contentID
         self.content = content
         self.notchStyle = style
-        
+
         observeScreenParameters()
     }
-    
+
     private func observeScreenParameters() {
         Task {
             let sequence = NotificationCenter.default.notifications(named: NSApplication.didChangeScreenParametersNotification)
-            for await notification in sequence.map(\.name) {
+            for await _ in sequence.map(\.name) {
                 if let screen = NSScreen.screens.first {
-                    await initializeWindow(screen: screen)
+                    initializeWindow(screen: screen)
                 }
             }
         }
@@ -94,7 +94,7 @@ public extension DynamicNotch {
             hideTask = Task {
                 try? await Task.sleep(for: .seconds(time))
                 guard Task.isCancelled != true else { return }
-                await hide()
+                hide()
             }
         }
 
@@ -136,7 +136,7 @@ public extension DynamicNotch {
         closePanelTask = Task {
             try? await Task.sleep(for: .seconds(maxAnimationDuration))
             guard Task.isCancelled != true else { return }
-            await deinitializeWindow()
+            deinitializeWindow()
         }
     }
 

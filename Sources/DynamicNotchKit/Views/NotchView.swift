@@ -13,9 +13,9 @@ struct NotchView<Content>: View where Content: View {
 
     var expandedNotchCornerRadii: (top: CGFloat, bottom: CGFloat) {
         if case let .notch(topCornerRadius, bottomCornerRadius) = dynamicNotch.notchStyle {
-            return (top: topCornerRadius, bottom: bottomCornerRadius)
+            (top: topCornerRadius, bottom: bottomCornerRadius)
         } else {
-            return (top: 15, bottom: 20)
+            (top: 15, bottom: 20)
         }
     }
 
@@ -53,7 +53,7 @@ struct NotchView<Content>: View where Content: View {
             .animation(animation, value: dynamicNotch.contentID)
             .animation(animation, value: dynamicNotch.isVisible)
     }
-    
+
     func notchContent() -> some View {
         VStack(spacing: 0) {
             Spacer()

@@ -16,9 +16,9 @@ struct NotchlessView<Content>: View where Content: View {
 
     var cornerRadius: CGFloat {
         if case let .floating(cornerRadius) = dynamicNotch.notchStyle {
-            return cornerRadius
+            cornerRadius
         } else {
-            return 20
+            20
         }
     }
 
@@ -48,7 +48,7 @@ struct NotchlessView<Content>: View where Content: View {
             .animation(animation, value: dynamicNotch.contentID)
             .animation(animation, value: dynamicNotch.isVisible)
     }
-    
+
     func notchContent() -> some View {
         dynamicNotch.content()
             .id(dynamicNotch.contentID)

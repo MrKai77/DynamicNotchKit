@@ -25,22 +25,22 @@ public enum DynamicNotchStyle: Sendable {
     /// Automatically choose the style based on the screen
     case auto
 
-    static public let notch: DynamicNotchStyle = .notch(topCornerRadius: 15, bottomCornerRadius: 20)
-    static public let floating: DynamicNotchStyle = .floating(cornerRadius: 20)
+    public static let notch: DynamicNotchStyle = .notch(topCornerRadius: 15, bottomCornerRadius: 20)
+    public static let floating: DynamicNotchStyle = .floating(cornerRadius: 20)
 
     var isNotch: Bool {
         if case .notch = self {
-            return true
+            true
         } else {
-            return false
+            false
         }
     }
 
     var isFloating: Bool {
         if case .floating = self {
-            return true
+            true
         } else {
-            return false
+            false
         }
     }
 }
@@ -48,14 +48,14 @@ public enum DynamicNotchStyle: Sendable {
 extension DynamicNotchStyle: Equatable {
     public static func == (lhs: DynamicNotchStyle, rhs: DynamicNotchStyle) -> Bool {
         switch (lhs, rhs) {
-        case (.notch(let lhsTop, let lhsBottom), .notch(let rhsTop, let rhsBottom)):
-            return lhsTop == rhsTop && lhsBottom == rhsBottom
-        case (.floating(let lhsRadius), .floating(let rhsRadius)):
-            return lhsRadius == rhsRadius
+        case let (.notch(lhsTop, lhsBottom), .notch(rhsTop, rhsBottom)):
+            lhsTop == rhsTop && lhsBottom == rhsBottom
+        case let (.floating(lhsRadius), .floating(rhsRadius)):
+            lhsRadius == rhsRadius
         case (.auto, .auto):
-            return true
+            true
         default:
-            return false
+            false
         }
     }
 }

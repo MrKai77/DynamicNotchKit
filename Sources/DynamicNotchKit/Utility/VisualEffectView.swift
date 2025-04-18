@@ -20,5 +20,5 @@ struct VisualEffectView: NSViewRepresentable {
         return visualEffectView
     }
 
-    func updateNSView(_ visualEffectView: NSVisualEffectView, context _: Context) {}
+    func updateNSView(_: NSVisualEffectView, context _: Context) {}
 }
