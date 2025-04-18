@@ -24,8 +24,9 @@ public class DynamicNotch<Content>: ObservableObject where Content: View {
 
     /// Notch Closing Properties
     @Published var isMouseInside: Bool = false // If the mouse is inside, the notch will not auto-hide
-    private var timer: Timer?
-    private var workItem: DispatchWorkItem?
+
+    private var hideWorkItem: DispatchWorkItem?
+    private var closePanelWorkItem: DispatchWorkItem?
     private var subscription: AnyCancellable?
 
     /// Notch Style
@@ -84,8 +85,8 @@ public extension DynamicNotch {
 
         func scheduleHide(_ time: Double) {
             let workItem = DispatchWorkItem { self.hide() }
-            self.workItem?.cancel()
-            self.workItem = workItem
+            self.hideWorkItem?.cancel()
+            self.hideWorkItem = workItem
             DispatchQueue.main.asyncAfter(deadline: .now() + time, execute: workItem)
         }
 
@@ -95,7 +96,7 @@ public extension DynamicNotch {
             }
             return
         }
-        timer?.invalidate()
+        closePanelWorkItem?.cancel()
 
         initializeWindow(screen: screen)
 
@@ -122,9 +123,10 @@ public extension DynamicNotch {
 
         isVisible = false
 
-        timer = Timer.scheduledTimer(withTimeInterval: maxAnimationDuration, repeats: false) { _ in
-            self.deinitializeWindow()
-        }
+        let workItem = DispatchWorkItem { self.deinitializeWindow() }
+        closePanelWorkItem?.cancel()
+        closePanelWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + maxAnimationDuration, execute: workItem)
     }
 
     /// Toggles the popup's visibility.
