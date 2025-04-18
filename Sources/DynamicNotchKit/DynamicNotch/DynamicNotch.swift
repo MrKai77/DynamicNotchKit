@@ -8,46 +8,6 @@
 import Combine
 import SwiftUI
 
-// MARK: - DynamicNotchStyle
-
-/// The style of a DynamicNotch.
-public enum DynamicNotchStyle {
-    /// Notch-style, meant to be used on screens with a notch
-    ///
-    /// Note that `topCornerRadius` and `bottomCornerRadius` are only use when the notch is in the expected state.
-    case notch(
-        topCornerRadius: CGFloat,
-        bottomCornerRadius: CGFloat
-    )
-
-    /// Floating style, to be used on screens without a notch
-    case floating(
-        cornerRadius: CGFloat
-    )
-
-    /// Automatically choose the style based on the screen
-    case auto
-
-    static public let notch: DynamicNotchStyle = .notch(topCornerRadius: 15, bottomCornerRadius: 20)
-    static public let floating: DynamicNotchStyle = .floating(cornerRadius: 20)
-
-    var isNotch: Bool {
-        if case .notch = self {
-            return true
-        } else {
-            return false
-        }
-    }
-
-    var isFloating: Bool {
-        if case .floating = self {
-            return true
-        } else {
-            return false
-        }
-    }
-}
-
 // MARK: - DynamicNotch
 
 /// A flexible custom notch-styled window that can be shown on the screen.

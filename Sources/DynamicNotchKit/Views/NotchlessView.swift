@@ -23,13 +23,7 @@ struct NotchlessView<Content>: View where Content: View {
     }
 
     var body: some View {
-        dynamicNotch.content()
-            .id(dynamicNotch.contentID)
-            .safeAreaInset(edge: .top, spacing: 0) { Color.clear.frame(height: safeAreaInset) }
-            .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: safeAreaInset) }
-            .safeAreaInset(edge: .leading, spacing: 0) { Color.clear.frame(width: safeAreaInset) }
-            .safeAreaInset(edge: .trailing, spacing: 0) { Color.clear.frame(width: safeAreaInset) }
-            .fixedSize()
+        notchContent()
             .onHover { hovering in
                 dynamicNotch.isMouseInside = hovering
             }
@@ -53,5 +47,15 @@ struct NotchlessView<Content>: View where Content: View {
             .environment(\.notchStyle, dynamicNotch.notchStyle.isFloating ? dynamicNotch.notchStyle : .floating)
             .animation(animation, value: dynamicNotch.contentID)
             .animation(animation, value: dynamicNotch.isVisible)
+    }
+    
+    func notchContent() -> some View {
+        dynamicNotch.content()
+            .id(dynamicNotch.contentID)
+            .safeAreaInset(edge: .top, spacing: 0) { Color.clear.frame(height: safeAreaInset) }
+            .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: safeAreaInset) }
+            .safeAreaInset(edge: .leading, spacing: 0) { Color.clear.frame(width: safeAreaInset) }
+            .safeAreaInset(edge: .trailing, spacing: 0) { Color.clear.frame(width: safeAreaInset) }
+            .fixedSize()
     }
 }

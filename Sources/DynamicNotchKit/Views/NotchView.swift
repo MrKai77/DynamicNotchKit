@@ -20,6 +20,41 @@ struct NotchView<Content>: View where Content: View {
     }
 
     var body: some View {
+        notchContent()
+            .onHover { hovering in
+                dynamicNotch.isMouseInside = hovering
+            }
+            .background {
+                Rectangle()
+                    .foregroundStyle(.black)
+                    .padding(-50) // The opening/closing animation can overshoot, so this makes sure that it's still black
+            }
+            .mask {
+                GeometryReader { _ in // This helps with positioning everything
+                    HStack {
+                        Spacer(minLength: 0)
+
+                        NotchShape(
+                            topCornerRadius: dynamicNotch.isVisible ? expandedNotchCornerRadii.top : nil,
+                            bottomCornerRadius: dynamicNotch.isVisible ? expandedNotchCornerRadii.bottom : nil
+                        )
+                        .frame(
+                            width: dynamicNotch.isVisible ? nil : dynamicNotch.notchSize.width,
+                            height: dynamicNotch.isVisible ? nil : dynamicNotch.notchSize.height
+                        )
+
+                        Spacer(minLength: 0)
+                    }
+                }
+            }
+            .shadow(color: .black.opacity(0.5), radius: dynamicNotch.isVisible ? 10 : 0)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .environment(\.notchStyle, dynamicNotch.notchStyle.isNotch ? dynamicNotch.notchStyle : .notch)
+            .animation(animation, value: dynamicNotch.contentID)
+            .animation(animation, value: dynamicNotch.isVisible)
+    }
+    
+    func notchContent() -> some View {
         VStack(spacing: 0) {
             Spacer()
                 .frame(
@@ -40,36 +75,5 @@ struct NotchView<Content>: View where Content: View {
         }
         .fixedSize()
         .frame(minWidth: dynamicNotch.notchSize.width)
-        .onHover { hovering in
-            dynamicNotch.isMouseInside = hovering
-        }
-        .background {
-            Rectangle()
-                .foregroundStyle(.black)
-                .padding(-50) // The opening/closing animation can overshoot, so this makes sure that it's still black
-        }
-        .mask {
-            GeometryReader { _ in // This helps with positioning everything
-                HStack {
-                    Spacer(minLength: 0)
-
-                    NotchShape(
-                        topCornerRadius: dynamicNotch.isVisible ? expandedNotchCornerRadii.top : nil,
-                        bottomCornerRadius: dynamicNotch.isVisible ? expandedNotchCornerRadii.bottom : nil
-                    )
-                    .frame(
-                        width: dynamicNotch.isVisible ? nil : dynamicNotch.notchSize.width,
-                        height: dynamicNotch.isVisible ? nil : dynamicNotch.notchSize.height
-                    )
-
-                    Spacer(minLength: 0)
-                }
-            }
-        }
-        .shadow(color: .black.opacity(0.5), radius: dynamicNotch.isVisible ? 10 : 0)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .environment(\.notchStyle, dynamicNotch.notchStyle.isNotch ? dynamicNotch.notchStyle : .notch)
-        .animation(animation, value: dynamicNotch.contentID)
-        .animation(animation, value: dynamicNotch.isVisible)
     }
 }
