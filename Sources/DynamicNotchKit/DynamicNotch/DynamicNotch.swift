@@ -75,11 +75,6 @@ public class DynamicNotch<Content>: ObservableObject where Content: View {
     /// Note that it's slightly longer than the animation duration, which should allow for some extra leeway.
     private var maxAnimationDuration: Double = 0.8
 
-    /// The animation used when showing/hiding the notch.
-    var animation: Animation {
-        .timingCurve(0.16, 1, 0.3, 1, duration: 0.7)
-    }
-
     /// Makes a new DynamicNotch with custom content and style.
     /// - Parameters:
     ///   - contentID: the ID of the content. If unspecified, a new ID will be generated. This helps to differentiate between different contents.
@@ -145,9 +140,7 @@ public extension DynamicNotch {
         initializeWindow(screen: screen)
 
         DispatchQueue.main.async {
-            withAnimation(self.animation) {
-                self.isVisible = true
-            }
+            self.isVisible = true
         }
 
         if seconds != 0 {
@@ -167,9 +160,7 @@ public extension DynamicNotch {
             return
         }
 
-        withAnimation(animation) {
-            self.isVisible = false
-        }
+        isVisible = false
 
         timer = Timer.scheduledTimer(withTimeInterval: maxAnimationDuration, repeats: false) { _ in
             self.deinitializeWindow()

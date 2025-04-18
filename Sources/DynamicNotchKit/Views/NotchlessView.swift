@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct NotchlessView<Content>: View where Content: View {
+    @Environment(\.notchAnimation) private var animation
     @ObservedObject var dynamicNotch: DynamicNotch<Content>
     @State var windowHeight: CGFloat = 0
 
@@ -22,41 +23,35 @@ struct NotchlessView<Content>: View where Content: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            HStack(spacing: 0) {
-                Spacer()
-
-                dynamicNotch.content()
-                    .id(dynamicNotch.contentID)
-                    .safeAreaInset(edge: .top, spacing: 0) { Color.clear.frame(height: safeAreaInset) }
-                    .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: safeAreaInset) }
-                    .safeAreaInset(edge: .leading, spacing: 0) { Color.clear.frame(width: safeAreaInset) }
-                    .safeAreaInset(edge: .trailing, spacing: 0) { Color.clear.frame(width: safeAreaInset) }
-                    .fixedSize()
-                    .onHover { hovering in
-                        dynamicNotch.isMouseInside = hovering
-                    }
-                    .background {
-                        VisualEffectView(material: .popover, blendingMode: .behindWindow)
-                            .overlay {
-                                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                                    .strokeBorder(.quaternary, lineWidth: 1)
-                            }
-                    }
-                    .clipShape(.rect(cornerRadius: cornerRadius))
-                    .shadow(color: .black.opacity(0.5), radius: dynamicNotch.isVisible ? 10 : 0)
-                    .padding(20)
-                    .onGeometryChange(for: CGFloat.self, of: \.size.height) { newHeight in
-                        // This makes sure that the floating window FULLY slides off before disappearing
-                        windowHeight = newHeight
-                    }
-                    .offset(y: dynamicNotch.isVisible ? dynamicNotch.notchSize.height : -windowHeight)
-                    .transition(.blur.animation(dynamicNotch.animation))
-
-                Spacer()
+        dynamicNotch.content()
+            .id(dynamicNotch.contentID)
+            .safeAreaInset(edge: .top, spacing: 0) { Color.clear.frame(height: safeAreaInset) }
+            .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: safeAreaInset) }
+            .safeAreaInset(edge: .leading, spacing: 0) { Color.clear.frame(width: safeAreaInset) }
+            .safeAreaInset(edge: .trailing, spacing: 0) { Color.clear.frame(width: safeAreaInset) }
+            .fixedSize()
+            .onHover { hovering in
+                dynamicNotch.isMouseInside = hovering
             }
-            Spacer()
-        }
-        .environment(\.notchStyle, dynamicNotch.notchStyle.isFloating ? dynamicNotch.notchStyle : .floating)
+            .background {
+                VisualEffectView(material: .popover, blendingMode: .behindWindow)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                            .strokeBorder(.quaternary, lineWidth: 1)
+                    }
+            }
+            .clipShape(.rect(cornerRadius: cornerRadius))
+            .shadow(color: .black.opacity(0.5), radius: dynamicNotch.isVisible ? 10 : 0)
+            .padding(20)
+            .onGeometryChange(for: CGFloat.self, of: \.size.height) { newHeight in
+                // This makes sure that the floating window FULLY slides off before disappearing
+                windowHeight = newHeight
+            }
+            .offset(y: dynamicNotch.isVisible ? dynamicNotch.notchSize.height : -windowHeight)
+            .transition(.blur)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .environment(\.notchStyle, dynamicNotch.notchStyle.isFloating ? dynamicNotch.notchStyle : .floating)
+            .animation(animation, value: dynamicNotch.contentID)
+            .animation(animation, value: dynamicNotch.isVisible)
     }
 }

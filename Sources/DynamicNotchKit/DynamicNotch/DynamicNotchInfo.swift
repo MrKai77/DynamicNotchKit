@@ -90,7 +90,9 @@ extension DynamicNotchInfoIcon: Equatable {
 public class DynamicNotchInfo: ObservableObject {
     private var internalDynamicNotch: DynamicNotch<InfoView>!
 
-    @Published public var icon: DynamicNotchInfoIcon?
+    @Published public var icon: DynamicNotchInfoIcon? {
+        didSet { internalDynamicNotch.contentID = .init() }
+    }
     @Published public var title: String
     @Published public var description: String?
     @Published public var textColor: Color?
@@ -143,6 +145,7 @@ public class DynamicNotchInfo: ObservableObject {
 extension DynamicNotchInfo {
     struct InfoView: View {
         @Environment(\.notchStyle) private var notchStyle
+        @Environment(\.notchAnimation) private var animation
         @ObservedObject var dynamicNotch: DynamicNotchInfo
 
         init(dynamicNotch: DynamicNotchInfo) {
@@ -160,7 +163,7 @@ extension DynamicNotchInfo {
                 Spacer(minLength: 0)
             }
             .frame(height: 40)
-            .animation(dynamicNotch.internalDynamicNotch.animation, value: dynamicNotch.icon)
+            .animation(animation, value: dynamicNotch.icon)
         }
 
         @ViewBuilder
