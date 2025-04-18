@@ -53,7 +53,7 @@ public struct DynamicNotchInfoIcon: View {
     ///  - progress: the progress to display.
     ///  - color: the color of the progress bar. If not specified, the progress bar will be colored according to the notch style.
     ///  - overlay: a view to display on top of the progress bar. If not specified, no overlay will be displayed.
-    public init<Content>(progress: Binding<CGFloat>, color: Color? = nil, overlay: (() -> Content)? = { EmptyView() }) where Content: View {
+    public init(progress: Binding<CGFloat>, color: Color? = nil, overlay: (() -> some View)? = { EmptyView() }) {
         self.iconStyle = .progress(
             progress: progress,
             color: color,

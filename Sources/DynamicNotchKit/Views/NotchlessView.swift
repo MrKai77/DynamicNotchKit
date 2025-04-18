@@ -14,7 +14,7 @@ struct NotchlessView<Content>: View where Content: View {
 
     private let safeAreaInset: CGFloat = 15
 
-    var cornerRadius: CGFloat {
+    private var cornerRadius: CGFloat {
         if case let .floating(cornerRadius) = dynamicNotch.notchStyle {
             cornerRadius
         } else {
@@ -49,7 +49,7 @@ struct NotchlessView<Content>: View where Content: View {
             .animation(animation, value: dynamicNotch.isVisible)
     }
 
-    func notchContent() -> some View {
+    private func notchContent() -> some View {
         dynamicNotch.content()
             .id(dynamicNotch.contentID)
             .safeAreaInset(edge: .top, spacing: 0) { Color.clear.frame(height: safeAreaInset) }

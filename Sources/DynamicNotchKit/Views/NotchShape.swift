@@ -12,11 +12,11 @@ struct NotchShape: Shape {
     var bottomCornerRadius: CGFloat
 
     init(
-        topCornerRadius: CGFloat? = nil,
-        bottomCornerRadius: CGFloat? = nil
+        topCornerRadius: CGFloat,
+        bottomCornerRadius: CGFloat
     ) {
-        self.topCornerRadius = topCornerRadius ?? 6
-        self.bottomCornerRadius = bottomCornerRadius ?? 11
+        self.topCornerRadius = topCornerRadius
+        self.bottomCornerRadius = bottomCornerRadius
     }
 
     var animatableData: AnimatablePair<CGFloat, CGFloat> {
@@ -92,7 +92,7 @@ struct NotchShape: Shape {
         path.addLine(
             to: CGPoint(
                 x: rect.maxX - topCornerRadius,
-                y: rect.minY + bottomCornerRadius
+                y: rect.minY + topCornerRadius
             )
         )
 
@@ -119,7 +119,7 @@ struct NotchShape: Shape {
 }
 
 #Preview {
-    NotchShape()
+    NotchShape(topCornerRadius: 6, bottomCornerRadius: 14)
         .frame(width: 200, height: 32)
         .padding(10)
 }

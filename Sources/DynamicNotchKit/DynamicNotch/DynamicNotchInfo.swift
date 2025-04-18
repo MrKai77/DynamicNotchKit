@@ -89,6 +89,7 @@ struct InfoView: View {
             }
 
             textView()
+
             Spacer(minLength: 0)
         }
         .frame(height: 40)

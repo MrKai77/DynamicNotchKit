@@ -29,7 +29,7 @@ extension NSScreen {
         }
 
         let notchHeight = safeAreaInsets.top
-        let notchWidth = frame.width - topLeftNotchpadding - topRightNotchpadding + 10 // 10 is for the top rounded part of the notch, created by DynamicNotchKit
+        let notchWidth = frame.width - topLeftNotchpadding - topRightNotchpadding
         return .init(width: notchWidth, height: notchHeight)
     }
 
