@@ -86,7 +86,7 @@ public extension DynamicNotch {
     func show(
         on screen: NSScreen = NSScreen.screens[0],
         for duration: Duration = .zero
-    ) async {
+    ) {
         let seconds = Double(duration.components.seconds)
 
         func scheduleHide(_ time: Double) {
@@ -106,7 +106,7 @@ public extension DynamicNotch {
         }
 
         closePanelTask?.cancel()
-        await initializeWindow(screen: screen)
+        initializeWindow(screen: screen)
 
         Task {
             self.isVisible = true
@@ -119,12 +119,14 @@ public extension DynamicNotch {
 
     /// Hide the popup.
     /// - Parameter ignoreMouse: if true, the popup will hide even if the mouse is inside the notch area.
-    func hide(ignoreMouse: Bool = false) async {
+    func hide(ignoreMouse: Bool = false) {
         guard isVisible else { return }
 
         if !ignoreMouse, isMouseInside {
-            try? await Task.sleep(for: .seconds(0.1))
-            await hide()
+            Task {
+                try? await Task.sleep(for: .seconds(0.1))
+                hide()
+            }
             return
         }
 
@@ -139,11 +141,11 @@ public extension DynamicNotch {
     }
 
     /// Toggles the popup's visibility.
-    func toggle() async {
+    func toggle() {
         if isVisible {
-            await hide()
+            hide()
         } else {
-            await show()
+            show()
         }
     }
 

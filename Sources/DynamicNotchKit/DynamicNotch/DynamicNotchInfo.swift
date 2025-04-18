@@ -15,7 +15,7 @@ import SwiftUI
 @MainActor
 public class DynamicNotchInfo: ObservableObject {
     private var internalDynamicNotch: DynamicNotch<InfoView>!
-
+    
     @Published public var icon: DynamicNotchInfoIcon? {
         didSet { internalDynamicNotch.contentID = .init() }
     }
@@ -53,19 +53,19 @@ public class DynamicNotchInfo: ObservableObject {
     public func show(
         on screen: NSScreen = NSScreen.screens[0],
         for duration: Duration = .zero
-    ) async {
-        await internalDynamicNotch.show(on: screen, for: duration)
+    ) {
+        internalDynamicNotch.show(on: screen, for: duration)
     }
 
     /// Hide the popup.
     /// - Parameter ignoreMouse: if true, the popup will hide even if the mouse is inside the notch area.
-    public func hide(ignoreMouse: Bool = false) async {
-        await internalDynamicNotch.hide(ignoreMouse: ignoreMouse)
+    public func hide(ignoreMouse: Bool = false) {
+        internalDynamicNotch.hide(ignoreMouse: ignoreMouse)
     }
 
     /// Toggles the popup's visibility.
-    public func toggle() async {
-        await internalDynamicNotch.toggle()
+    public func toggle() {
+        internalDynamicNotch.toggle()
     }
 }
 
