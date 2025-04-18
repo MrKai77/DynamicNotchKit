@@ -88,7 +88,6 @@ public extension DynamicNotch {
 
         guard !isVisible else {
             if time > 0 {
-                self.workItem?.cancel()
                 scheduleHide(time)
             }
             return
@@ -103,7 +102,6 @@ public extension DynamicNotch {
         }
 
         if time != 0 {
-            self.workItem?.cancel()
             scheduleHide(time)
         }
     }
