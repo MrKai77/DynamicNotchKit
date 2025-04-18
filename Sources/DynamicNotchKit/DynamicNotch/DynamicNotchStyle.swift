@@ -8,7 +8,7 @@
 import Foundation
 
 /// The style of a DynamicNotch.
-public enum DynamicNotchStyle {
+public enum DynamicNotchStyle: Sendable {
     /// Notch-style, meant to be used on screens with a notch
     ///
     /// Note that `topCornerRadius` and `bottomCornerRadius` are only use when the notch is in the expected state.

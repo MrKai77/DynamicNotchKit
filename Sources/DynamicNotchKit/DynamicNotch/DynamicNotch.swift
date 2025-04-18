@@ -5,12 +5,12 @@
 //  Created by Kai Azim on 2023-08-24.
 //
 
-import Combine
 import SwiftUI
 
 // MARK: - DynamicNotch
 
 /// A flexible custom notch-styled window that can be shown on the screen.
+@MainActor
 public class DynamicNotch<Content>: ObservableObject where Content: View {
     public var windowController: NSWindowController? // Public in case user wants to modify the underlying NSPanel
 
@@ -25,10 +25,9 @@ public class DynamicNotch<Content>: ObservableObject where Content: View {
     /// Notch Closing Properties
     @Published var isMouseInside: Bool = false // If the mouse is inside, the notch will not auto-hide
 
-    private var hideWorkItem: DispatchWorkItem?
-    private var closePanelWorkItem: DispatchWorkItem?
-    private var subscription: AnyCancellable?
-
+    private var hideTask: Task<Void, Never>? // Used to cancel the hide task if the mouse is inside
+    private var closePanelTask: Task<Void, Never>? // Used to close the panel after hiding completes
+    
     /// Notch Style
     private(set) var notchStyle: DynamicNotchStyle = .auto
 
@@ -49,12 +48,19 @@ public class DynamicNotch<Content>: ObservableObject where Content: View {
         self.contentID = contentID
         self.content = content
         self.notchStyle = style
-        self.subscription = NotificationCenter.default
-            .publisher(for: NSApplication.didChangeScreenParametersNotification)
-            .sink { [weak self] _ in
-                guard let self, let screen = NSScreen.screens.first else { return }
-                initializeWindow(screen: screen)
+        
+        observeScreenParameters()
+    }
+    
+    private func observeScreenParameters() {
+        Task {
+            let sequence = NotificationCenter.default.notifications(named: NSApplication.didChangeScreenParametersNotification)
+            for await notification in sequence.map(\.name) {
+                if let screen = NSScreen.screens.first {
+                    await initializeWindow(screen: screen)
+                }
             }
+        }
     }
 }
 
@@ -80,14 +86,16 @@ public extension DynamicNotch {
     func show(
         on screen: NSScreen = NSScreen.screens[0],
         for duration: Duration = .zero
-    ) {
+    ) async {
         let seconds = Double(duration.components.seconds)
 
         func scheduleHide(_ time: Double) {
-            let workItem = DispatchWorkItem { self.hide() }
-            self.hideWorkItem?.cancel()
-            self.hideWorkItem = workItem
-            DispatchQueue.main.asyncAfter(deadline: .now() + time, execute: workItem)
+            hideTask?.cancel()
+            hideTask = Task {
+                try? await Task.sleep(for: .seconds(time))
+                guard Task.isCancelled != true else { return }
+                await hide()
+            }
         }
 
         guard !isVisible else {
@@ -96,11 +104,11 @@ public extension DynamicNotch {
             }
             return
         }
-        closePanelWorkItem?.cancel()
 
-        initializeWindow(screen: screen)
+        closePanelTask?.cancel()
+        await initializeWindow(screen: screen)
 
-        DispatchQueue.main.async {
+        Task {
             self.isVisible = true
         }
 
@@ -111,30 +119,31 @@ public extension DynamicNotch {
 
     /// Hide the popup.
     /// - Parameter ignoreMouse: if true, the popup will hide even if the mouse is inside the notch area.
-    func hide(ignoreMouse: Bool = false) {
+    func hide(ignoreMouse: Bool = false) async {
         guard isVisible else { return }
 
         if !ignoreMouse, isMouseInside {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                self.hide()
-            }
+            try? await Task.sleep(for: .seconds(0.1))
+            await hide()
             return
         }
 
         isVisible = false
 
-        let workItem = DispatchWorkItem { self.deinitializeWindow() }
-        closePanelWorkItem?.cancel()
-        closePanelWorkItem = workItem
-        DispatchQueue.main.asyncAfter(deadline: .now() + maxAnimationDuration, execute: workItem)
+        closePanelTask?.cancel()
+        closePanelTask = Task {
+            try? await Task.sleep(for: .seconds(maxAnimationDuration))
+            guard Task.isCancelled != true else { return }
+            await deinitializeWindow()
+        }
     }
 
     /// Toggles the popup's visibility.
-    func toggle() {
+    func toggle() async {
         if isVisible {
-            hide()
+            await hide()
         } else {
-            show()
+            await show()
         }
     }
 
@@ -151,9 +160,9 @@ public extension DynamicNotch {
     }
 }
 
-// MARK: - Private
+// MARK: - Window Management
 
-extension DynamicNotch {
+private extension DynamicNotch {
     func initializeWindow(screen: NSScreen) {
         // so that we don't have a duplicate window
         deinitializeWindow()

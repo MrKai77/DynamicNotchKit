@@ -7,9 +7,12 @@
 
 import SwiftUI
 
+// MARK: DynamicNotchInfo
+
 /// A preset `DynamicNotch` suited for seamlessly presenting information.
 ///
 /// This class is a wrapper around `DynamicNotch` that provides a simple way to present information to the user. It is designed to be easy to use and provide a clean and simple way to present information.
+@MainActor
 public class DynamicNotchInfo: ObservableObject {
     private var internalDynamicNotch: DynamicNotch<InfoView>!
 
@@ -27,6 +30,7 @@ public class DynamicNotchInfo: ObservableObject {
     ///   - title: the title to display in the notch.
     ///   - description: the description to display in the notch. If unspecified, no description will be displayed.
     ///   - style: the popover's style. If unspecified, the style will be automatically set according to the screen (notch or floating).
+    @MainActor
     public init(
         contentID: UUID = .init(),
         icon: DynamicNotchInfoIcon?,
@@ -49,58 +53,58 @@ public class DynamicNotchInfo: ObservableObject {
     public func show(
         on screen: NSScreen = NSScreen.screens[0],
         for duration: Duration = .zero
-    ) {
-        internalDynamicNotch.show(on: screen, for: duration)
+    ) async {
+        await internalDynamicNotch.show(on: screen, for: duration)
     }
 
     /// Hide the popup.
     /// - Parameter ignoreMouse: if true, the popup will hide even if the mouse is inside the notch area.
-    public func hide(ignoreMouse: Bool = false) {
-        internalDynamicNotch.hide(ignoreMouse: ignoreMouse)
+    public func hide(ignoreMouse: Bool = false) async {
+        await internalDynamicNotch.hide(ignoreMouse: ignoreMouse)
     }
 
     /// Toggles the popup's visibility.
-    public func toggle() {
-        internalDynamicNotch.toggle()
+    public func toggle() async {
+        await internalDynamicNotch.toggle()
     }
 }
 
-extension DynamicNotchInfo {
-    struct InfoView: View {
-        @Environment(\.notchStyle) private var notchStyle
-        @Environment(\.notchAnimation) private var animation
-        @ObservedObject var dynamicNotch: DynamicNotchInfo
+// MARK: InfoView
 
-        init(dynamicNotch: DynamicNotchInfo) {
-            self.dynamicNotch = dynamicNotch
-        }
+struct InfoView: View {
+    @Environment(\.notchStyle) private var notchStyle
+    @Environment(\.notchAnimation) private var animation
+    @ObservedObject var dynamicNotch: DynamicNotchInfo
 
-        public var body: some View {
-            HStack(spacing: 10) {
-                if let icon = dynamicNotch.icon {
-                    icon
-                        .transition(.blur)
-                }
+    init(dynamicNotch: DynamicNotchInfo) {
+        self.dynamicNotch = dynamicNotch
+    }
 
-                textView()
-                Spacer(minLength: 0)
+    public var body: some View {
+        HStack(spacing: 10) {
+            if let icon = dynamicNotch.icon {
+                icon
+                    .transition(.blur)
             }
-            .frame(height: 40)
-            .animation(animation, value: dynamicNotch.icon)
+
+            textView()
+            Spacer(minLength: 0)
         }
+        .frame(height: 40)
+        .animation(animation, value: dynamicNotch.icon)
+    }
 
-        @ViewBuilder
-        func textView() -> some View {
-            VStack(alignment: .leading, spacing: dynamicNotch.description != nil ? nil : 0) {
-                Text(dynamicNotch.title)
-                    .font(.headline)
-                    .foregroundStyle(dynamicNotch.textColor ?? (notchStyle.isNotch ? .white : .primary))
+    @ViewBuilder
+    func textView() -> some View {
+        VStack(alignment: .leading, spacing: dynamicNotch.description != nil ? nil : 0) {
+            Text(dynamicNotch.title)
+                .font(.headline)
+                .foregroundStyle(dynamicNotch.textColor ?? (notchStyle.isNotch ? .white : .primary))
 
-                if let description = dynamicNotch.description {
-                    Text(description)
-                        .font(.caption2)
-                        .foregroundStyle(dynamicNotch.textColor?.opacity(0.5) ?? (notchStyle.isNotch ? .white.opacity(0.5) : .secondary))
-                }
+            if let description = dynamicNotch.description {
+                Text(description)
+                    .font(.caption2)
+                    .foregroundStyle(dynamicNotch.textColor?.opacity(0.5) ?? (notchStyle.isNotch ? .white.opacity(0.5) : .secondary))
             }
         }
     }

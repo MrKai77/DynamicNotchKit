@@ -79,7 +79,7 @@ public struct DynamicNotchInfoIcon: View {
     }
 }
 
-extension DynamicNotchInfoIcon: Equatable {
+extension DynamicNotchInfoIcon: @preconcurrency Equatable {
     public static func == (lhs: DynamicNotchInfoIcon, rhs: DynamicNotchInfoIcon) -> Bool {
         rhs.iconStyle == lhs.iconStyle
     }
