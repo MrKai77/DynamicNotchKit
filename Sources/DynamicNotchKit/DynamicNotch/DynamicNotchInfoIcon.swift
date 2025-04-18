@@ -15,7 +15,7 @@ public struct DynamicNotchInfoIcon: View {
     enum IconStyle: Equatable {
         case image(image: Image)
         case systemImage(systemName: String, color: Color?)
-        case appIcon
+        case progress(progress: Binding<CGFloat>, color: Color?, overlay: AnyView?)
         case customView(contentID: UUID, view: AnyView)
         
         static func == (lhs: DynamicNotchInfoIcon.IconStyle, rhs: DynamicNotchInfoIcon.IconStyle) -> Bool {
@@ -24,8 +24,8 @@ public struct DynamicNotchInfoIcon: View {
                 return image1 == image2
             case let (.systemImage(systemName1, color1), .systemImage(systemName2, color2)):
                 return systemName1 == systemName2 && color1 == color2
-            case (.appIcon, .appIcon):
-                return true
+            case let (.progress(progress1, color1, overlay1), .progress(progress2, color2, overlay2)):
+                return progress1.wrappedValue == progress2.wrappedValue && color1 == color2
             case let (.customView(contentID1, _), .customView(contentID2, _)):
                 return contentID1 == contentID2
             default:
@@ -49,6 +49,15 @@ public struct DynamicNotchInfoIcon: View {
         self.iconStyle = .systemImage(systemName: systemName, color: color)
     }
     
+    /// A progress bar to display in the `DynamicNotchInfo`. The progress should be a value between 0 and 1.
+    /// - Parameters:
+    ///  - progress: the progress to display.
+    ///  - color: the color of the progress bar. If not specified, the progress bar will be colored according to the notch style.
+    ///  - overlay: a view to display on top of the progress bar. If not specified, no overlay will be displayed.
+    public init(progress: Binding<CGFloat>, color: Color? = nil, overlay: AnyView? = nil) {
+        self.iconStyle = .progress(progress: progress, color: color, overlay: overlay)
+    }
+    
     /// A view to display in the` DynamicNotchInfo`.
     /// - Parameter content: the view to display.
     public init<Content: View>(@ViewBuilder content: () -> Content) {
@@ -68,13 +77,61 @@ public struct DynamicNotchInfoIcon: View {
                 .foregroundStyle(color ?? (notchStyle.isNotch ? .white : .primary))
                 .padding(3)
                 .scaledToFit()
+        case let .progress(progress, color, overlay):
+            ProgressRing(
+                to: progress,
+                color: color ?? (notchStyle.isNotch ? .white : .primary)
+            )
+            .overlay {
+                if let overlay = overlay {
+                    overlay
+                }
+            }
         case let .customView(_, view):
             view
-        case .appIcon:
-            Image(nsImage: NSApplication.shared.applicationIconImage)
-                .resizable()
-                .padding(-5)
-                .scaledToFit()
+        }
+    }
+    
+    struct ProgressRing: View {
+        @Binding var target: CGFloat
+        let color: Color
+        let thickness: CGFloat
+
+        @State private var isLoaded = false
+
+        public init(
+            to target: Binding<CGFloat>,
+            color: Color = .white,
+            thickness: CGFloat = 5
+        ) {
+            self._target = target
+            self.color = color
+            self.thickness = thickness
+        }
+
+        public var body: some View {
+            Circle()
+                .stroke(style: StrokeStyle(lineWidth: thickness))
+                .foregroundStyle(.tertiary)
+                .overlay {
+                    Circle()
+                        .trim(from: 0, to: isLoaded ? target : 0)
+                        .stroke(
+                            color.gradient,
+                            style: StrokeStyle(
+                                lineWidth: thickness,
+                                lineCap: .round
+                            )
+                        )
+                        .opacity(isLoaded ? 1 : 0)
+                }
+                .rotationEffect(.degrees(-90))
+                .padding(thickness / 2)
+                .task {
+                    withAnimation(Animation.timingCurve(0.22, 1, 0.36, 1, duration: 1)) {
+                        isLoaded = true
+                    }
+                }
         }
     }
 }
