@@ -28,8 +28,8 @@ public enum DynamicNotchStyle {
     /// Automatically choose the style based on the screen
     case auto
 
-    static let notch: DynamicNotchStyle = .notch(topCornerRadius: 15, bottomCornerRadius: 20)
-    static let floating: DynamicNotchStyle = .floating(cornerRadius: 20)
+    static public let notch: DynamicNotchStyle = .notch(topCornerRadius: 15, bottomCornerRadius: 20)
+    static public let floating: DynamicNotchStyle = .floating(cornerRadius: 20)
 
     var isNotch: Bool {
         if case .notch = self {
@@ -129,13 +129,13 @@ public extension DynamicNotch {
 
         func scheduleHide(_ time: Double) {
             let workItem = DispatchWorkItem { self.hide() }
+            self.workItem?.cancel()
             self.workItem = workItem
             DispatchQueue.main.asyncAfter(deadline: .now() + time, execute: workItem)
         }
 
         guard !isVisible else {
             if seconds > 0 {
-                workItem?.cancel()
                 scheduleHide(seconds)
             }
             return
@@ -151,7 +151,6 @@ public extension DynamicNotch {
         }
 
         if seconds != 0 {
-            workItem?.cancel()
             scheduleHide(seconds)
         }
     }

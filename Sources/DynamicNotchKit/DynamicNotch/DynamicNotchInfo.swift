@@ -7,34 +7,55 @@
 
 import SwiftUI
 
-/// The icon to display in the DynamicNotchInfo.
-public enum DynamicNotchInfoIcon {
-    /// An image to display in the DynamicNotchInfo.
-    case image(image: Image)
-
-    /// A system image to display in the DynamicNotchInfo.
-    case systemImage(systemName: String, color: Color? = nil)
-
-    /// A view to display in the DynamicNotchInfo.
-    ///
-    /// It is recommended to use `DynamicNotchInfoIcon.view()` instead of this case for a more concise syntax.
-    /// Please note that we currently use `AnyView` (a type-erased view) to allow for any view to be passed in.
-    case customView(view: AnyView)
-
-    /// The app icon to display in the DynamicNotchInfo.
-    case appIcon
-
-    /// No icon to display in the DynamicNotchInfo.
-    case none
-
-    ///
-    static func view<Content: View>(content: () -> Content) -> DynamicNotchInfoIcon {
-        .customView(view: AnyView(content()))
+public struct DynamicNotchInfoIcon: View {
+    @Environment(\.notchStyle) private var notchStyle
+    private var iconStyle: IconStyle
+    
+    enum IconStyle: Equatable {
+        case image(image: Image)
+        case systemImage(systemName: String, color: Color?)
+        case appIcon
+        case customView(contentID: UUID, view: AnyView)
+        
+        static func == (lhs: DynamicNotchInfoIcon.IconStyle, rhs: DynamicNotchInfoIcon.IconStyle) -> Bool {
+            switch (lhs, rhs) {
+            case let (.image(image1), .image(image2)):
+                return image1 == image2
+            case let (.systemImage(systemName1, color1), .systemImage(systemName2, color2)):
+                return systemName1 == systemName2 && color1 == color2
+            case (.appIcon, .appIcon):
+                return true
+            case let (.customView(contentID1, _), .customView(contentID2, _)):
+                return contentID1 == contentID2
+            default:
+                return false
+            }
+        }
     }
-
-    @ViewBuilder
-    func iconView(notchStyle: DynamicNotchStyle) -> some View {
-        switch self {
+    
+    
+    /// An image to display in the `DynamicNotchInfo`.
+    /// - Parameter image: the image to display.
+    public init(image: Image) {
+        self.iconStyle = .image(image: image)
+    }
+    
+    /// A system image to display in the `DynamicNotchInfo`.
+    /// - Parameters:
+    ///   - systemName: the name of the system image to display.
+    ///   - color: the color of the image. If not specified, the image will be colored according to the notch style.
+    public init(systemName: String, color: Color? = nil) {
+        self.iconStyle = .systemImage(systemName: systemName, color: color)
+    }
+    
+    /// A view to display in the` DynamicNotchInfo`.
+    /// - Parameter content: the view to display.
+    public init<Content: View>(@ViewBuilder content: () -> Content) {
+        self.iconStyle = .customView(contentID: .init(), view: AnyView(content()))
+    }
+    
+    public var body: some View {
+        switch iconStyle {
         case let .image(image):
             image
                 .resizable()
@@ -46,17 +67,20 @@ public enum DynamicNotchInfoIcon {
                 .foregroundStyle(color ?? (notchStyle.isNotch ? .white : .primary))
                 .padding(3)
                 .scaledToFit()
-        case let .customView(view):
+        case let .customView(_, view):
             view
         case .appIcon:
             Image(nsImage: NSApplication.shared.applicationIconImage)
                 .resizable()
                 .padding(-5)
                 .scaledToFit()
-        case .none:
-            EmptyView()
-                .frame(width: 0, height: 0)
         }
+    }
+}
+
+extension DynamicNotchInfoIcon: Equatable {
+    public static func == (lhs: DynamicNotchInfoIcon, rhs: DynamicNotchInfoIcon) -> Bool {
+        rhs.iconStyle == lhs.iconStyle
     }
 }
 
@@ -66,7 +90,7 @@ public enum DynamicNotchInfoIcon {
 public class DynamicNotchInfo: ObservableObject {
     private var internalDynamicNotch: DynamicNotch<InfoView>!
 
-    @Published public var icon: DynamicNotchInfoIcon
+    @Published public var icon: DynamicNotchInfoIcon?
     @Published public var title: String
     @Published public var description: String?
     @Published public var textColor: Color?
@@ -80,7 +104,7 @@ public class DynamicNotchInfo: ObservableObject {
     ///   - style: the popover's style. If unspecified, the style will be automatically set according to the screen (notch or floating).
     public init(
         contentID: UUID = .init(),
-        icon: DynamicNotchInfoIcon,
+        icon: DynamicNotchInfoIcon?,
         title: String,
         description: String? = nil,
         style: DynamicNotchStyle = .auto
@@ -127,11 +151,16 @@ extension DynamicNotchInfo {
 
         public var body: some View {
             HStack(spacing: 10) {
-                dynamicNotch.icon.iconView(notchStyle: notchStyle)
+                if let icon = dynamicNotch.icon {
+                    icon
+                        .transition(.blur)
+                }
+
                 textView()
                 Spacer(minLength: 0)
             }
             .frame(height: 40)
+            .animation(dynamicNotch.internalDynamicNotch.animation, value: dynamicNotch.icon)
         }
 
         @ViewBuilder
