@@ -23,7 +23,7 @@ class DynamicNotchPanel: NSPanel {
         self.hasShadow = false
         self.backgroundColor = .clear
         self.level = .screenSaver
-        self.collectionBehavior = .canJoinAllSpaces
+        self.collectionBehavior = [.canJoinAllSpaces, .stationary]
     }
 
     override var canBecomeKey: Bool {

@@ -41,7 +41,7 @@ struct NotchView<Content>: View where Content: View {
                         .scaleEffect(dynamicNotch.isVisible ? 1 : 0.8)
                         .offset(y: dynamicNotch.isVisible ? 0 : 5)
                         .padding(.horizontal, expandedNotchCornerRadii.top)
-                        .transition(.blur.animation(.smooth))
+                        .transition(.blur.animation(dynamicNotch.animation))
                 }
                 .fixedSize()
                 .frame(minWidth: dynamicNotch.notchSize.width)
