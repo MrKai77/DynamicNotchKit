@@ -11,25 +11,24 @@ import SwiftUI
 
 /// A flexible custom notch-styled window that can be shown on the screen.
 @MainActor
-public class DynamicNotch<Content>: ObservableObject where Content: View {
-    public var windowController: NSWindowController? // Public in case user wants to modify the underlying NSPanel
+public final class DynamicNotch<Content>: ObservableObject where Content: View {
+    /// Public in case user wants to modify the underlying NSPanel
+    public var windowController: NSWindowController?
+
+    /// Notch Options
+    public let style: DynamicNotchStyle
+    public let hoverBehavior: DynamicNotchHoverBehavior
 
     /// Content Properties
-    @Published var content: () -> Content
-    @Published var contentID: UUID
-    @Published var isVisible: Bool = false // Used to animate the fading in/out of the user's view
+    @Published private(set) var content: () -> Content
+    @Published private(set) var contentID: UUID
+    @Published private(set) var isVisible: Bool = false
+    @Published private(set) var notchSize: CGSize = .zero
+    @Published private(set) var isHovering: Bool = false
 
-    /// Notch Size
-    @Published var notchSize: CGSize = .zero
-
-    /// Notch Closing Properties
-    @Published var isMouseInside: Bool = false // If the mouse is inside, the notch will not auto-hide
-
+    /// Cancellable tasks for asynchronous operations
     private var hideTask: Task<(), Never>? // Used to cancel the hide task if the mouse is inside
     private var closePanelTask: Task<(), Never>? // Used to close the panel after hiding completes
-
-    /// Notch Style
-    private(set) var notchStyle: DynamicNotchStyle = .auto
 
     /// This is a timer to de-init the window after closing.
     /// Note that it's slightly longer than the animation duration, which should allow for some extra leeway.
@@ -42,14 +41,32 @@ public class DynamicNotch<Content>: ObservableObject where Content: View {
     ///   - content: a SwiftUI View to be shown in the popup.
     public init(
         contentID: UUID = .init(),
+        hoverBehavior: DynamicNotchHoverBehavior = [.keepVisible],
         style: DynamicNotchStyle = .auto,
         @ViewBuilder content: @escaping () -> Content
     ) {
         self.contentID = contentID
+        self.hoverBehavior = hoverBehavior
+        self.style = style
         self.content = content
-        self.notchStyle = style
 
         observeScreenParameters()
+    }
+
+    func refreshContent() {
+        contentID = .init()
+    }
+
+    func updateHoverState(_ hovering: Bool) {
+        // Ensure that we only update when the state changes
+        guard isVisible, hovering != isHovering else { return }
+
+        isHovering = hovering
+
+        if hoverBehavior.contains(.hapticFeedback) {
+            let performer = NSHapticFeedbackManager.defaultPerformer
+            performer.perform(.alignment, performanceTime: .default)
+        }
     }
 
     private func observeScreenParameters() {
@@ -72,11 +89,11 @@ public extension DynamicNotch {
     ///   - contentID: the ID of the content. If unspecified, a new ID will be generated. This helps to differentiate between different contents.
     ///   - content: a SwiftUI View to be shown in the popup.
     func setContent(
-        contentID _: UUID = .init(),
+        contentID: UUID = .init(),
         content: @escaping () -> Content
     ) {
         self.content = content
-        contentID = .init()
+        self.contentID = contentID
     }
 
     /// Show the DynamicNotch.
@@ -118,11 +135,10 @@ public extension DynamicNotch {
     }
 
     /// Hide the popup.
-    /// - Parameter ignoreMouse: if true, the popup will hide even if the mouse is inside the notch area.
-    func hide(ignoreMouse: Bool = false) {
+    func hide() {
         guard isVisible else { return }
 
-        if !ignoreMouse, isMouseInside {
+        if hoverBehavior.contains(.keepVisible), isHovering {
             Task {
                 try? await Task.sleep(for: .seconds(0.1))
                 hide()
@@ -131,6 +147,7 @@ public extension DynamicNotch {
         }
 
         isVisible = false
+        isHovering = false
 
         closePanelTask?.cancel()
         closePanelTask = Task {
@@ -171,11 +188,8 @@ private extension DynamicNotch {
 
         notchSize = screen.notchFrameWithMenubarAsBackup.size
 
-        let view: NSView = switch notchStyle {
-        case .notch: NSHostingView(rootView: NotchView(dynamicNotch: self).foregroundStyle(.white))
-        case .floating: NSHostingView(rootView: NotchlessView(dynamicNotch: self))
-        case .auto: screen.hasNotch ? NSHostingView(rootView: NotchView(dynamicNotch: self).foregroundStyle(.white)) : NSHostingView(rootView: NotchlessView(dynamicNotch: self))
-        }
+        let style = style == .auto ? (screen.hasNotch ? .notch : .floating) : style
+        let view = NSHostingView(rootView: NotchContentView(dynamicNotch: self, style: style))
 
         let panel = DynamicNotchPanel(
             contentRect: .zero,

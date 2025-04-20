@@ -7,7 +7,7 @@
 
 import AppKit
 
-class DynamicNotchPanel: NSPanel {
+final class DynamicNotchPanel: NSPanel {
     override init(
         contentRect: NSRect,
         styleMask style: NSWindow.StyleMask,

@@ -12,7 +12,7 @@ struct NotchView<Content>: View where Content: View {
     @ObservedObject var dynamicNotch: DynamicNotch<Content>
 
     private var expandedNotchCornerRadii: (top: CGFloat, bottom: CGFloat) {
-        if case let .notch(topCornerRadius, bottomCornerRadius) = dynamicNotch.notchStyle {
+        if case let .notch(topCornerRadius, bottomCornerRadius) = dynamicNotch.style {
             (top: topCornerRadius, bottom: bottomCornerRadius)
         } else {
             (top: 15, bottom: 20)
@@ -25,9 +25,6 @@ struct NotchView<Content>: View where Content: View {
 
     var body: some View {
         notchContent()
-            .onHover { hovering in
-                dynamicNotch.isMouseInside = hovering
-            }
             .background {
                 Rectangle()
                     .foregroundStyle(.black)
@@ -45,11 +42,6 @@ struct NotchView<Content>: View where Content: View {
                 )
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             }
-            .shadow(color: .black.opacity(0.5), radius: dynamicNotch.isVisible ? 10 : 0)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            .environment(\.notchStyle, dynamicNotch.notchStyle.isNotch ? dynamicNotch.notchStyle : .notch)
-            .animation(animation, value: dynamicNotch.contentID)
-            .animation(animation, value: dynamicNotch.isVisible)
     }
 
     private func notchContent() -> some View {
@@ -62,6 +54,7 @@ struct NotchView<Content>: View where Content: View {
 
             dynamicNotch.content()
                 .id(dynamicNotch.contentID)
+                .transition(.blur)
                 .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: bottomCornerRadius) }
                 .safeAreaInset(edge: .leading, spacing: 0) { Color.clear.frame(width: bottomCornerRadius) }
                 .safeAreaInset(edge: .trailing, spacing: 0) { Color.clear.frame(width: bottomCornerRadius) }
@@ -69,7 +62,6 @@ struct NotchView<Content>: View where Content: View {
                 .scaleEffect(dynamicNotch.isVisible ? 1 : 0.8)
                 .offset(y: dynamicNotch.isVisible ? 0 : 5)
                 .padding(.horizontal, topCornerRadius)
-                .transition(.blur)
         }
         .fixedSize()
         .frame(minWidth: notchWidth)

@@ -13,11 +13,11 @@ import SwiftUI
 ///
 /// This class is a wrapper around `DynamicNotch` that provides a simple way to present information to the user. It is designed to be easy to use and provide a clean and simple way to present information.
 @MainActor
-public class DynamicNotchInfo: ObservableObject {
+public final class DynamicNotchInfo: ObservableObject {
     private var internalDynamicNotch: DynamicNotch<InfoView>!
 
     @Published public var icon: DynamicNotchInfoIcon? {
-        didSet { internalDynamicNotch.contentID = .init() }
+        didSet { internalDynamicNotch.refreshContent() }
     }
 
     @Published public var title: String
@@ -37,12 +37,17 @@ public class DynamicNotchInfo: ObservableObject {
         icon: DynamicNotchInfoIcon?,
         title: String,
         description: String? = nil,
-        style: DynamicNotchStyle = .auto
+        hoverBehavior: DynamicNotchHoverBehavior = [.keepVisible],
+        style: DynamicNotchStyle = .auto,
     ) {
         self.icon = icon
         self.title = title
         self.description = description
-        self.internalDynamicNotch = DynamicNotch(contentID: contentID, style: style) {
+        self.internalDynamicNotch = DynamicNotch(
+            contentID: contentID,
+            hoverBehavior: hoverBehavior,
+            style: style
+        ) {
             InfoView(dynamicNotch: self)
         }
     }
@@ -59,9 +64,8 @@ public class DynamicNotchInfo: ObservableObject {
     }
 
     /// Hide the popup.
-    /// - Parameter ignoreMouse: if true, the popup will hide even if the mouse is inside the notch area.
-    public func hide(ignoreMouse: Bool = false) {
-        internalDynamicNotch.hide(ignoreMouse: ignoreMouse)
+    public func hide() {
+        internalDynamicNotch.hide()
     }
 
     /// Toggles the popup's visibility.

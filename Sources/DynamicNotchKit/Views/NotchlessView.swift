@@ -15,7 +15,7 @@ struct NotchlessView<Content>: View where Content: View {
     private let safeAreaInset: CGFloat = 15
 
     private var cornerRadius: CGFloat {
-        if case let .floating(cornerRadius) = dynamicNotch.notchStyle {
+        if case let .floating(cornerRadius) = dynamicNotch.style {
             cornerRadius
         } else {
             20
@@ -24,9 +24,6 @@ struct NotchlessView<Content>: View where Content: View {
 
     var body: some View {
         notchContent()
-            .onHover { hovering in
-                dynamicNotch.isMouseInside = hovering
-            }
             .background {
                 VisualEffectView(material: .popover, blendingMode: .behindWindow)
                     .overlay {
@@ -35,27 +32,24 @@ struct NotchlessView<Content>: View where Content: View {
                     }
             }
             .clipShape(.rect(cornerRadius: cornerRadius))
-            .shadow(color: .black.opacity(0.5), radius: dynamicNotch.isVisible ? 10 : 0)
             .padding(20)
             .onGeometryChange(for: CGFloat.self, of: \.size.height) { newHeight in
                 // This makes sure that the floating window FULLY slides off before disappearing
                 windowHeight = newHeight
             }
             .offset(y: dynamicNotch.isVisible ? dynamicNotch.notchSize.height : -windowHeight)
-            .transition(.blur)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            .environment(\.notchStyle, dynamicNotch.notchStyle.isFloating ? dynamicNotch.notchStyle : .floating)
-            .animation(animation, value: dynamicNotch.contentID)
-            .animation(animation, value: dynamicNotch.isVisible)
     }
 
     private func notchContent() -> some View {
-        dynamicNotch.content()
-            .id(dynamicNotch.contentID)
-            .safeAreaInset(edge: .top, spacing: 0) { Color.clear.frame(height: safeAreaInset) }
-            .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: safeAreaInset) }
-            .safeAreaInset(edge: .leading, spacing: 0) { Color.clear.frame(width: safeAreaInset) }
-            .safeAreaInset(edge: .trailing, spacing: 0) { Color.clear.frame(width: safeAreaInset) }
-            .fixedSize()
+        VStack(spacing: 0) {
+            dynamicNotch.content()
+                .id(dynamicNotch.contentID)
+                .transition(.blur)
+                .safeAreaInset(edge: .top, spacing: 0) { Color.clear.frame(height: safeAreaInset) }
+                .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: safeAreaInset) }
+                .safeAreaInset(edge: .leading, spacing: 0) { Color.clear.frame(width: safeAreaInset) }
+                .safeAreaInset(edge: .trailing, spacing: 0) { Color.clear.frame(width: safeAreaInset) }
+        }
+        .fixedSize()
     }
 }
