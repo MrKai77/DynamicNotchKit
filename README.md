@@ -26,7 +26,7 @@ notch.show(for: .seconds(5))
 
 Where `ContentView` is a View.
 
-Notice the `show(for: 2)`. This will cause the popover to be displayed on the primary screen for two seconds before hiding itself automatically.
+Notice the `show(for: .seconds(5))`. This will cause the popover to be displayed on the primary screen for two seconds before hiding itself automatically.
 The available methods to set the DynamicNotch's visibility are:
 - `show()`
 - `hide()`
