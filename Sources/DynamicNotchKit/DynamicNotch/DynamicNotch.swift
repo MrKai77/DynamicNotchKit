@@ -53,10 +53,26 @@ public final class DynamicNotch<Content>: ObservableObject where Content: View {
         observeScreenParameters()
     }
 
-    func refreshContent() {
-        contentID = .init()
+    private func observeScreenParameters() {
+        Task {
+            let sequence = NotificationCenter.default.notifications(named: NSApplication.didChangeScreenParametersNotification)
+            for await _ in sequence.map(\.name) {
+                if let screen = NSScreen.screens.first {
+                    initializeWindow(screen: screen)
+                }
+            }
+        }
     }
-
+    
+    /// Refreshes the content of the DynamicNotch.
+    /// It is called everytime `setContent(_:_:)` is called.
+    /// - Parameter contentID: the ID of the content. If unspecified, a new ID will be generated. This helps to differentiate between different contents.
+    func refreshContent(contentID: UUID = .init()) {
+        self.contentID = contentID
+    }
+    
+    /// Updates the hover state of the DynamicNotch, and processes necessary hover behavior.
+    /// - Parameter hovering: a boolean indicating whether the mouse is hovering over the notch.
     func updateHoverState(_ hovering: Bool) {
         // Ensure that we only update when the state changes
         guard isVisible, hovering != isHovering else { return }
@@ -66,17 +82,6 @@ public final class DynamicNotch<Content>: ObservableObject where Content: View {
         if hoverBehavior.contains(.hapticFeedback) {
             let performer = NSHapticFeedbackManager.defaultPerformer
             performer.perform(.alignment, performanceTime: .default)
-        }
-    }
-
-    private func observeScreenParameters() {
-        Task {
-            let sequence = NotificationCenter.default.notifications(named: NSApplication.didChangeScreenParametersNotification)
-            for await _ in sequence.map(\.name) {
-                if let screen = NSScreen.screens.first {
-                    initializeWindow(screen: screen)
-                }
-            }
         }
     }
 }
@@ -93,7 +98,7 @@ public extension DynamicNotch {
         content: @escaping () -> Content
     ) {
         self.content = content
-        self.contentID = contentID
+        refreshContent(contentID: contentID)
     }
 
     /// Show the DynamicNotch.
