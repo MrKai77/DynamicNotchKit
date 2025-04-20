@@ -9,7 +9,11 @@ import SwiftUI
 
 struct NotchView<Content>: View where Content: View {
     @Environment(\.notchAnimation) private var animation
-    @ObservedObject var dynamicNotch: DynamicNotch<Content>
+    @ObservedObject private var dynamicNotch: DynamicNotch<Content>
+    
+    init(dynamicNotch: DynamicNotch<Content>) {
+        self.dynamicNotch = dynamicNotch
+    }
 
     private var expandedNotchCornerRadii: (top: CGFloat, bottom: CGFloat) {
         if case let .notch(topCornerRadius, bottomCornerRadius) = dynamicNotch.style {

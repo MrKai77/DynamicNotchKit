@@ -7,12 +7,11 @@
 
 import SwiftUI
 
-// This transition is used to animate the blur effect
 struct BlurModifier: ViewModifier {
-    public let isIdentity: Bool
-    public var intensity: CGFloat
+    let isIdentity: Bool
+    var intensity: CGFloat
 
-    public func body(content: Content) -> some View {
+    func body(content: Content) -> some View {
         content
             .blur(radius: isIdentity ? intensity : 0)
             .opacity(isIdentity ? 0 : 1)

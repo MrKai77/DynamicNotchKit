@@ -9,10 +9,13 @@ import SwiftUI
 
 struct NotchlessView<Content>: View where Content: View {
     @Environment(\.notchAnimation) private var animation
-    @ObservedObject var dynamicNotch: DynamicNotch<Content>
-    @State var windowHeight: CGFloat = 0
-
+    @ObservedObject private var dynamicNotch: DynamicNotch<Content>
+    @State private var windowHeight: CGFloat = 0
     private let safeAreaInset: CGFloat = 15
+    
+    init(dynamicNotch: DynamicNotch<Content>) {
+        self.dynamicNotch = dynamicNotch
+    }
 
     private var cornerRadius: CGFloat {
         if case let .floating(cornerRadius) = dynamicNotch.style {

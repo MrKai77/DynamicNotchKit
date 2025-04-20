@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct NotchShape: Shape {
-    var topCornerRadius: CGFloat
-    var bottomCornerRadius: CGFloat
+    private var topCornerRadius: CGFloat
+    private var bottomCornerRadius: CGFloat
 
     init(
         topCornerRadius: CGFloat,
