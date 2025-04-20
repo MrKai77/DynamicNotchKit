@@ -39,9 +39,9 @@ DynamicNotchKit also supports Macs without a notch, meaning that this package su
 In addition, there is also a `DynamicNotchInfo`, which is a fine-tuned version of the DynamicNotch specifically tailored to show general information:
 ```swift
 let notch = DynamicNotchInfo(
-icon: .init(systemName: "figure"),
-title: "Figure",
-description: "Looks like a person"
+    icon: .init(systemName: "figure"),
+    title: "Figure",
+    description: "Looks like a person"
 )
 notch.show(for: .seconds(5))
 ```
