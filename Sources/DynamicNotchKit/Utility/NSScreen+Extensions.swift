@@ -29,7 +29,7 @@ extension NSScreen {
         }
 
         let notchHeight = safeAreaInsets.top
-        let notchWidth = frame.width - topLeftNotchpadding - topRightNotchpadding + 10 // 10 is for the top rounded part of the notch, created by DynamicNotchKit
+        let notchWidth = frame.width - topLeftNotchpadding - topRightNotchpadding
         return .init(width: notchWidth, height: notchHeight)
     }
 
@@ -41,5 +41,27 @@ extension NSScreen {
             width: notchSize.width,
             height: notchSize.height
         )
+    }
+
+    var menubarHeight: CGFloat {
+        frame.maxY - visibleFrame.maxY
+    }
+
+    var notchFrameWithMenubarAsBackup: NSRect {
+        if let notchFrame {
+            return notchFrame
+        } else {
+            let arbitraryNotchWidth: CGFloat = 300
+            let arbitraryNotchHeight: CGFloat = menubarHeight
+
+            let arbitraryNotchFrame = NSRect(
+                x: frame.midX - (arbitraryNotchWidth / 2),
+                y: frame.maxY - arbitraryNotchHeight,
+                width: arbitraryNotchWidth,
+                height: arbitraryNotchHeight
+            )
+
+            return arbitraryNotchFrame
+        }
     }
 }
