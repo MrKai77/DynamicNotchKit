@@ -8,7 +8,7 @@
 
 ## Installation
 
-Compatibility: **macOS 12+**
+Compatibility: **macOS 13+**
 
 Add `https://github.com/MrKai77/DynamicNotchKit` in the [“Swift Package Manager” tab in Xcode](https://developer.apple.com/documentation/xcode/adding_package_dependencies_to_your_app).
 
@@ -28,7 +28,7 @@ Where `ContentView` is a View.
 
 Notice the `show(for: 2)`. This will cause the popover to be displayed on the primary screen for two seconds before hiding itself automatically.
 The available methods to set the DynamicNotch's visibility are:
-- `show(on screen: NSScreen = NSScreen.screens[0], for time: Double = 0)`
+- `show()`
 - `hide()`
 - `toggle()`
 
@@ -39,11 +39,11 @@ DynamicNotchKit also supports Macs without a notch, meaning that this package su
 In addition, there is also a `DynamicNotchInfo`, which is a fine-tuned version of the DynamicNotch specifically tailored to show general information:
 ```swift
 let notch = DynamicNotchInfo(
-    icon: Image(systemName: "figure"),
-    title: "Figure",
-    description: "Looks like a person"
+icon: .init(systemName: "figure"),
+title: "Figure",
+description: "Looks like a person"
 )
-notch.show(for: 2)
+notch.show(for: .seconds(5))
 ```
 
 This will result in a popover as so:
