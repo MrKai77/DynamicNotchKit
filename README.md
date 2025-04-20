@@ -18,10 +18,10 @@ It's really easy! All the UI is handled by SwiftUI. That means, that you can use
 
 Here's an example:
 ```swift
-let dynamicNotch = DynamicNotch {
+let notch = DynamicNotch {
     ContentView()
 }
-dynamicNotch.show(for: 2)
+notch.show(for: .seconds(5))
 ```
 
 Where `ContentView` is a View.
