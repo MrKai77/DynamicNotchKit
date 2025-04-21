@@ -103,6 +103,7 @@ struct NotchView<Expanded, CompactLeading, CompactTrailing>: View where Expanded
         HStack(spacing: 0) {
             if !dynamicNotch.disableCompactLeading {
                 dynamicNotch.compactLeadingContent
+                    .environment(\.notchSection, .compactLeading)
                     .safeAreaInset(edge: .leading, spacing: 0) { Color.clear.frame(width: 8) }
                     .safeAreaInset(edge: .top, spacing: 0) { Color.clear.frame(height: 4) }
                     .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: 8) }
@@ -116,6 +117,7 @@ struct NotchView<Expanded, CompactLeading, CompactTrailing>: View where Expanded
 
             if !dynamicNotch.disableCompactTrailing {
                 dynamicNotch.compactTrailingContent
+                    .environment(\.notchSection, .compactTrailing)
                     .safeAreaInset(edge: .trailing, spacing: 0) { Color.clear.frame(width: 8) }
                     .safeAreaInset(edge: .top, spacing: 0) { Color.clear.frame(height: 4) }
                     .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: 8) }
@@ -137,6 +139,7 @@ struct NotchView<Expanded, CompactLeading, CompactTrailing>: View where Expanded
         .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: expandedNotchCornerRadii.bottom) }
         .safeAreaInset(edge: .leading, spacing: 0) { Color.clear.frame(width: expandedNotchCornerRadii.bottom) }
         .safeAreaInset(edge: .trailing, spacing: 0) { Color.clear.frame(width: expandedNotchCornerRadii.bottom) }
+        .frame(minWidth: dynamicNotch.notchSize.width)
         .compositingGroup()
         .scaleEffect(y: dynamicNotch.state == .expanded ? 1 : 0.6, anchor: .bottom)
         .blur(radius: dynamicNotch.state == .expanded ? 0 : 10)

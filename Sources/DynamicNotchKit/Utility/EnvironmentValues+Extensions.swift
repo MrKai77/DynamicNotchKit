@@ -7,6 +7,13 @@
 
 import SwiftUI
 
-public extension EnvironmentValues {
+extension EnvironmentValues {
     @Entry var notchStyle: DynamicNotchStyle = .auto
+    @Entry var notchSection: DynamicNotchSection = .expanded
+}
+
+enum DynamicNotchSection {
+    case expanded
+    case compactLeading
+    case compactTrailing
 }

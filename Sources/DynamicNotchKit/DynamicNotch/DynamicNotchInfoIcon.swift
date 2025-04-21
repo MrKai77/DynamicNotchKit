@@ -10,6 +10,7 @@ import SwiftUI
 /// The icon to display in a `DynamicNotchInfo`.
 public struct DynamicNotchInfoIcon: View {
     @Environment(\.notchStyle) private var notchStyle
+    @Environment(\.notchSection) private var notchSection
     private var iconStyle: IconStyle
 
     enum IconStyle: Equatable {
@@ -72,24 +73,26 @@ public struct DynamicNotchInfoIcon: View {
         case let .image(image):
             image
                 .resizable()
-                .padding(3)
+                .padding(4)
                 .scaledToFit()
         case let .systemImage(systemName, color):
             Image(systemName: systemName)
                 .resizable()
                 .foregroundStyle(color ?? (notchStyle.isNotch ? .white : .primary))
-                .padding(3)
+                .padding(4)
                 .scaledToFit()
         case let .progress(progress, color, overlay):
             ProgressRing(
                 to: progress,
-                color: color ?? (notchStyle.isNotch ? .white : .primary)
+                color: color ?? (notchStyle.isNotch ? .white : .primary),
+                thickness: notchSection == .expanded ? 4 : 3
             )
             .overlay {
                 if let overlay {
                     overlay
                 }
             }
+            .padding(2)
         case let .customView(_, view):
             view
         }
@@ -105,7 +108,7 @@ public struct DynamicNotchInfoIcon: View {
         public init(
             to target: Binding<CGFloat>,
             color: Color = .white,
-            thickness: CGFloat = 5
+            thickness: CGFloat
         ) {
             self._target = target
             self.color = color
@@ -131,7 +134,7 @@ public struct DynamicNotchInfoIcon: View {
                 .rotationEffect(.degrees(-90))
                 .padding(thickness / 2)
                 .task {
-                    withAnimation(Animation.timingCurve(0.22, 1, 0.36, 1, duration: 1)) {
+                    withAnimation(.timingCurve(0, 0.55, 0.45, 1, duration: 0.8).delay(0.1)) {
                         isLoaded = true
                     }
                 }
