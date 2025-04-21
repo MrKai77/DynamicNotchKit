@@ -76,7 +76,7 @@ struct NotchView<Expanded, CompactLeading, CompactTrailing>: View where Expanded
     }
 
     private func notchContent() -> some View {
-        VStack(spacing: 0) {
+        ZStack {
             compactContent()
                 .fixedSize()
                 .offset(x: dynamicNotch.state == .compact ? 0 : compactXOffset)
@@ -136,6 +136,7 @@ struct NotchView<Expanded, CompactLeading, CompactTrailing>: View where Expanded
         HStack(spacing: 0) {
             dynamicNotch.expandedContent
         }
+        .safeAreaInset(edge: .top, spacing: 0) { Color.clear.frame(height: dynamicNotch.notchSize.height) }
         .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: expandedNotchCornerRadii.bottom) }
         .safeAreaInset(edge: .leading, spacing: 0) { Color.clear.frame(width: expandedNotchCornerRadii.bottom) }
         .safeAreaInset(edge: .trailing, spacing: 0) { Color.clear.frame(width: expandedNotchCornerRadii.bottom) }
