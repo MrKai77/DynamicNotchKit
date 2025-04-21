@@ -108,7 +108,7 @@ public final class DynamicNotch<Expanded, CompactLeading, CompactTrailing>: Obse
 // MARK: - Public
 
 public extension DynamicNotch {
-    func expand(on screen: NSScreen = NSScreen.screens[0]) {
+    func expand(on screen: NSScreen = NSScreen.screens[0]) async {
         guard state != .expanded else { return }
 
         closePanelTask?.cancel()
@@ -135,18 +135,22 @@ public extension DynamicNotch {
                 }
             }
         }
+        
+        // This is the time it takes for the animation to complete
+        // See DynamicNotchStyle's animations
+        try? await Task.sleep(for: .seconds(0.4))
     }
 
-    func compact(on screen: NSScreen = NSScreen.screens[0]) {
+    func compact(on screen: NSScreen = NSScreen.screens[0]) async {
         guard state != .compact else { return }
 
         if effectiveStyle(for: screen).isFloating {
-            hide()
+            await hide()
             return
         }
 
         if disableCompactLeading, disableCompactTrailing {
-            hide()
+            await hide()
             return
         }
 
@@ -174,20 +178,28 @@ public extension DynamicNotch {
                 }
             }
         }
+        
+        // This is the time it takes for the animation to complete
+        // See DynamicNotchStyle's animations
+        try? await Task.sleep(for: .seconds(0.4))
     }
-
-    func hide() {
-        hide(completion: nil)
+    
+    func hide() async {
+        await withCheckedContinuation { continuation in
+            _hide {
+                continuation.resume()
+            }
+        }
     }
-
+    
     /// Hides the popup, with a completion handler when the animation is completed.
-    func hide(completion: (() -> ())? = nil) {
+    private func _hide(completion: (() -> ())? = nil) {
         guard state != .hidden else { return }
 
         if hoverBehavior.contains(.keepVisible), isHovering {
             Task {
                 try? await Task.sleep(for: .seconds(0.1))
-                hide()
+                _hide(completion: completion)
             }
             return
         }

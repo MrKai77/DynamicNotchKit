@@ -16,8 +16,8 @@ public final class DynamicNotchInfo: ObservableObject, DynamicNotchControllable 
     private var internalDynamicNotch: DynamicNotch<InfoView, CompactLeadingView, CompactTrailingView>!
 
     @Published public var icon: DynamicNotchInfo.Label?
-    @Published public var title: String
-    @Published public var description: String?
+    @Published public var title: LocalizedStringKey
+    @Published public var description: LocalizedStringKey?
     @Published public var textColor: Color?
     @Published public var compactLeading: DynamicNotchInfo.Label? {
         didSet { internalDynamicNotch.disableCompactLeading = compactLeading == nil }
@@ -37,8 +37,8 @@ public final class DynamicNotchInfo: ObservableObject, DynamicNotchControllable 
     ///   - style: the popover's style. If unspecified, the style will be automatically set according to the screen (notch or floating).
     public init(
         icon: DynamicNotchInfo.Label?,
-        title: String,
-        description: String? = nil,
+        title: LocalizedStringKey,
+        description: LocalizedStringKey? = nil,
         compactLeading: DynamicNotchInfo.Label? = nil,
         compactTrailing: DynamicNotchInfo.Label? = nil,
         hoverBehavior: DynamicNotchHoverBehavior = .all,
@@ -63,17 +63,17 @@ public final class DynamicNotchInfo: ObservableObject, DynamicNotchControllable 
 
     public func expand(
         on screen: NSScreen = NSScreen.screens[0]
-    ) {
-        internalDynamicNotch.expand(on: screen)
+    ) async {
+        await internalDynamicNotch.expand(on: screen)
     }
 
     public func compact(
         on screen: NSScreen = NSScreen.screens[0]
-    ) {
-        internalDynamicNotch.compact(on: screen)
+    ) async {
+        await internalDynamicNotch.compact(on: screen)
     }
 
-    public func hide() {
-        internalDynamicNotch.hide()
+    public func hide() async {
+        await internalDynamicNotch.hide()
     }
 }
