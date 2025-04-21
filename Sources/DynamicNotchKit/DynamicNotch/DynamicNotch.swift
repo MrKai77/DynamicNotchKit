@@ -18,7 +18,7 @@ public enum DynamicNotchState: Equatable {
     case expanded
     case compact
     case hidden
-    
+
     func animation(to newState: DynamicNotchState) -> Animation {
         switch (self, newState) {
         case (.hidden, .expanded):
@@ -45,13 +45,16 @@ public final class DynamicNotch<Expanded, CompactLeading, CompactTrailing>: Obse
 
     /// Notch Options
     public let style: DynamicNotchStyle
-    @Published public var state: DynamicNotchState = .hidden
     public let hoverBehavior: DynamicNotchHoverBehavior
+    @Published public var state: DynamicNotchState = .hidden
 
-    /// Content Properties
+    /// Content
     let expandedContent: Expanded
     let compactLeadingContent: CompactLeading
     let compactTrailingContent: CompactTrailing
+
+    @Published var disableCompactLeading: Bool = false
+    @Published var disableCompactTrailing: Bool = false
 
     /// Notch Properties
     @Published private(set) var notchSize: CGSize = .zero
@@ -67,10 +70,10 @@ public final class DynamicNotch<Expanded, CompactLeading, CompactTrailing>: Obse
     ///   - style: the popover's style. If unspecified, the style will be automatically set according to the screen (notch or floating).
     ///   - content: a SwiftUI View to be shown in the popup.
     public init(
-        hoverBehavior: DynamicNotchHoverBehavior = [.keepVisible],
+        hoverBehavior: DynamicNotchHoverBehavior = .all,
         style: DynamicNotchStyle = .auto,
         @ViewBuilder expanded: @escaping () -> Expanded,
-        @ViewBuilder compactLeading: @escaping () -> CompactLeading ,
+        @ViewBuilder compactLeading: @escaping () -> CompactLeading,
         @ViewBuilder compactTrailing: @escaping () -> CompactTrailing
     ) {
         self.hoverBehavior = hoverBehavior
@@ -82,7 +85,7 @@ public final class DynamicNotch<Expanded, CompactLeading, CompactTrailing>: Obse
 
         observeScreenParameters()
     }
-    
+
     public convenience init(
         hoverBehavior: DynamicNotchHoverBehavior = [.keepVisible],
         style: DynamicNotchStyle = .auto,
@@ -95,6 +98,8 @@ public final class DynamicNotch<Expanded, CompactLeading, CompactTrailing>: Obse
             compactLeading: { EmptyView() },
             compactTrailing: { EmptyView() }
         )
+        self.disableCompactLeading = true
+        self.disableCompactTrailing = true
     }
 
     private func observeScreenParameters() {
@@ -128,25 +133,25 @@ public final class DynamicNotch<Expanded, CompactLeading, CompactTrailing>: Obse
 public extension DynamicNotch {
     func expand(on screen: NSScreen = NSScreen.screens[0]) {
         guard state != .expanded else { return }
-        
+
         closePanelTask?.cancel()
         if state == .hidden {
             initializeWindow(screen: screen)
         }
-        
+
         Task {
             let animation = state.animation(to: .expanded)
-            
+
             withAnimation(animation) {
                 self.state = .expanded
             }
         }
     }
-    
+
     func compact(on screen: NSScreen = NSScreen.screens[0]) {
         guard state != .compact else { return }
-        
-        if compactLeadingContent.self is EmptyView && compactLeadingContent.self is EmptyView {
+
+        if disableCompactLeading, disableCompactTrailing {
             hide()
             return
         }
@@ -158,7 +163,7 @@ public extension DynamicNotch {
 
         Task {
             let animation = state.animation(to: .compact)
-            
+
             withAnimation(animation) {
                 self.state = .compact
             }

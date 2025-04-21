@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct NotchContentView<Expanded, CompactLeading, CompactTrailing>: View where Expanded: View, CompactLeading: View, CompactTrailing: View {
-    
     @ObservedObject private var dynamicNotch: DynamicNotch<Expanded, CompactLeading, CompactTrailing>
     private let style: DynamicNotchStyle
 
@@ -20,6 +19,8 @@ struct NotchContentView<Expanded, CompactLeading, CompactTrailing>: View where E
     private var shadowOpacity: CGFloat {
         if dynamicNotch.hoverBehavior.contains(.increaseShadow), dynamicNotch.isHovering {
             0.8
+        } else if dynamicNotch.state != .expanded {
+            0.0
         } else {
             0.5
         }
@@ -50,6 +51,6 @@ struct NotchContentView<Expanded, CompactLeading, CompactTrailing>: View where E
         )
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .environment(\.notchStyle, style)
-        .animation(.bouncy, value: dynamicNotch.isHovering)
+        .animation(.snappy(duration: 0.4), value: dynamicNotch.isHovering)
     }
 }

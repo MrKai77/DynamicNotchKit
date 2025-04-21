@@ -13,104 +13,143 @@ import SwiftUI
 ///
 /// This class is a wrapper around `DynamicNotch` that provides a simple way to present information to the user. It is designed to be easy to use and provide a clean and simple way to present information.
 @MainActor
-public final class DynamicNotchInfo: ObservableObject {
-    private var internalDynamicNotch: DynamicNotch<InfoView>!
+public final class DynamicNotchInfo: ObservableObject, DynamicNotchControllable {
+    private var internalDynamicNotch: DynamicNotch<InfoView, CompactLeadingView, CompactTrailingView>!
 
-    @Published public var icon: DynamicNotchInfoIcon? {
-        didSet { internalDynamicNotch.refreshContent() }
-    }
-
+    @Published public var icon: DynamicNotchInfoIcon?
     @Published public var title: String
     @Published public var description: String?
     @Published public var textColor: Color?
+    @Published public var compactLeading: DynamicNotchInfoIcon? {
+        didSet { internalDynamicNotch.disableCompactLeading = compactLeading == nil }
+    }
+
+    @Published public var compactTrailing: DynamicNotchInfoIcon? {
+        didSet { internalDynamicNotch.disableCompactTrailing = compactTrailing == nil }
+    }
 
     /// Initializes a `DynamicNotchInfo`.
     /// - Parameters:
-    ///   - contentID: the ID of the content. If unspecified, a new ID will be generated. This helps to differentiate between different contents.
     ///   - icon: the icon to display in the notch.
     ///   - title: the title to display in the notch.
     ///   - description: the description to display in the notch. If unspecified, no description will be displayed.
     ///   - style: the popover's style. If unspecified, the style will be automatically set according to the screen (notch or floating).
-    @MainActor
     public init(
-        contentID: UUID = .init(),
         icon: DynamicNotchInfoIcon?,
         title: String,
         description: String? = nil,
-        hoverBehavior: DynamicNotchHoverBehavior = [.keepVisible],
+        compactLeading: DynamicNotchInfoIcon? = nil,
+        compactTrailing: DynamicNotchInfoIcon? = nil,
+        hoverBehavior: DynamicNotchHoverBehavior = .all,
         style: DynamicNotchStyle = .auto,
     ) {
         self.icon = icon
         self.title = title
         self.description = description
         self.internalDynamicNotch = DynamicNotch(
-            contentID: contentID,
             hoverBehavior: hoverBehavior,
             style: style
         ) {
             InfoView(dynamicNotch: self)
+        } compactLeading: {
+            CompactLeadingView(dynamicNotch: self)
+        } compactTrailing: {
+            CompactTrailingView(dynamicNotch: self)
         }
+        self.compactLeading = compactLeading
+        self.compactTrailing = compactTrailing
     }
 
     /// Show the DynamicNotchInfo.
     /// - Parameters:
     ///   - screen: screen to show on. Default is the primary screen, which generally contains the notch on MacBooks.
-    ///   - duration: duration for which the notch will be shown. If 0, the DynamicNotch will stay visible until `hide()` is called.
-    public func show(
-        on screen: NSScreen = NSScreen.screens[0],
-        for duration: Duration = .zero
+    public func expand(
+        on screen: NSScreen = NSScreen.screens[0]
     ) {
-        internalDynamicNotch.show(on: screen, for: duration)
+        internalDynamicNotch.expand(on: screen)
+    }
+
+    /// Show the popup in a compact state.
+    /// - Parameters:
+    ///  - screen: screen to show on. Default is the primary screen, which generally contains the notch on MacBooks.
+    public func compact(
+        on screen: NSScreen = NSScreen.screens[0]
+    ) {
+        internalDynamicNotch.compact(on: screen)
     }
 
     /// Hide the popup.
     public func hide() {
         internalDynamicNotch.hide()
     }
-
-    /// Toggles the popup's visibility.
-    public func toggle() {
-        internalDynamicNotch.toggle()
-    }
 }
 
-// MARK: InfoView
+// MARK: Helper Views
 
-struct InfoView: View {
-    @Environment(\.notchStyle) private var notchStyle
-    @Environment(\.notchAnimation) private var animation
-    @ObservedObject var dynamicNotch: DynamicNotchInfo
-
-    init(dynamicNotch: DynamicNotchInfo) {
-        self.dynamicNotch = dynamicNotch
-    }
-
-    public var body: some View {
-        HStack(spacing: 10) {
-            if let icon = dynamicNotch.icon {
-                icon
-                    .transition(.blur)
-            }
-
-            textView()
-
-            Spacer(minLength: 0)
+extension DynamicNotchInfo {
+    struct CompactInfoView: View {
+        var body: some View {
+            Circle()
         }
-        .frame(height: 40)
-        .animation(animation, value: dynamicNotch.icon)
     }
 
-    @ViewBuilder
-    func textView() -> some View {
-        VStack(alignment: .leading, spacing: dynamicNotch.description != nil ? nil : 0) {
-            Text(dynamicNotch.title)
-                .font(.headline)
-                .foregroundStyle(dynamicNotch.textColor ?? (notchStyle.isNotch ? .white : .primary))
+    struct CompactLeadingView: View {
+        @ObservedObject var dynamicNotch: DynamicNotchInfo
 
-            if let description = dynamicNotch.description {
-                Text(description)
-                    .font(.caption2)
-                    .foregroundStyle(dynamicNotch.textColor?.opacity(0.5) ?? (notchStyle.isNotch ? .white.opacity(0.5) : .secondary))
+        init(dynamicNotch: DynamicNotchInfo) {
+            self.dynamicNotch = dynamicNotch
+        }
+
+        public var body: some View {
+            dynamicNotch.compactLeading
+        }
+    }
+
+    struct CompactTrailingView: View {
+        @ObservedObject var dynamicNotch: DynamicNotchInfo
+
+        init(dynamicNotch: DynamicNotchInfo) {
+            self.dynamicNotch = dynamicNotch
+        }
+
+        public var body: some View {
+            dynamicNotch.compactTrailing
+        }
+    }
+
+    struct InfoView: View {
+        @Environment(\.notchStyle) private var notchStyle
+        @ObservedObject var dynamicNotch: DynamicNotchInfo
+
+        init(dynamicNotch: DynamicNotchInfo) {
+            self.dynamicNotch = dynamicNotch
+        }
+
+        public var body: some View {
+            HStack(spacing: 10) {
+                if let icon = dynamicNotch.icon {
+                    icon
+                }
+
+                textView()
+
+                Spacer(minLength: 0)
+            }
+            .frame(height: 40)
+        }
+
+        @ViewBuilder
+        func textView() -> some View {
+            VStack(alignment: .leading, spacing: dynamicNotch.description != nil ? nil : 0) {
+                Text(dynamicNotch.title)
+                    .font(.headline)
+                    .foregroundStyle(dynamicNotch.textColor ?? (notchStyle.isNotch ? .white : .primary))
+
+                if let description = dynamicNotch.description {
+                    Text(description)
+                        .font(.caption2)
+                        .foregroundStyle(dynamicNotch.textColor?.opacity(0.5) ?? (notchStyle.isNotch ? .white.opacity(0.5) : .secondary))
+                }
             }
         }
     }

@@ -15,6 +15,9 @@ public struct DynamicNotchHoverBehavior: OptionSet, Sendable {
         self.rawValue = rawValue
     }
 
+    /// All behaviors combined.
+    public static let all: DynamicNotchHoverBehavior = [.keepVisible, .hapticFeedback, .increaseShadow]
+
     /// Ensures that the notch is always visible during hover.
     public static let keepVisible: DynamicNotchHoverBehavior = .init(rawValue: 1 << 0)
 

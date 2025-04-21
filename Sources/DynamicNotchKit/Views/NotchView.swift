@@ -10,8 +10,8 @@ import SwiftUI
 struct NotchView<Expanded, CompactLeading, CompactTrailing>: View where Expanded: View, CompactLeading: View, CompactTrailing: View {
     @ObservedObject private var dynamicNotch: DynamicNotch<Expanded, CompactLeading, CompactTrailing>
 
-    @State private var compactLeadingWidth: CGFloat?
-    @State private var compactTrailingWidth: CGFloat?
+    @State private var compactLeadingWidth: CGFloat = 0
+    @State private var compactTrailingWidth: CGFloat = 0
 
     init(dynamicNotch: DynamicNotch<Expanded, CompactLeading, CompactTrailing>) {
         self.dynamicNotch = dynamicNotch
@@ -50,10 +50,7 @@ struct NotchView<Expanded, CompactLeading, CompactTrailing>: View where Expanded
     }
 
     private var compactXOffset: CGFloat {
-        if let compactLeadingWidth, let compactTrailingWidth {
-            return (compactTrailingWidth - compactLeadingWidth) / 2
-        }
-        return 0
+        (compactTrailingWidth - compactLeadingWidth) / 2
     }
 
     var body: some View {
@@ -81,57 +78,68 @@ struct NotchView<Expanded, CompactLeading, CompactTrailing>: View where Expanded
     private func notchContent() -> some View {
         VStack(spacing: 0) {
             compactContent()
+                .fixedSize()
+                .offset(x: dynamicNotch.state == .compact ? 0 : compactXOffset)
+                .frame(
+                    width: dynamicNotch.state == .compact ? nil : dynamicNotch.notchSize.width,
+                    height: (dynamicNotch.state == .compact && dynamicNotch.isHovering) ? dynamicNotch.menubarHeight : dynamicNotch.notchSize.height
+                )
+
             expandedContent()
+                .fixedSize()
+                .frame(
+                    maxWidth: dynamicNotch.state == .expanded ? nil : 0,
+                    maxHeight: dynamicNotch.state == .expanded ? nil : 0
+                )
+                .offset(x: dynamicNotch.state == .compact ? -compactXOffset : 0)
         }
         .padding(.horizontal, topCornerRadius)
         .fixedSize()
         .frame(minWidth: minWidth, minHeight: dynamicNotch.notchSize.height)
         .onHover(perform: dynamicNotch.updateHoverState)
     }
-    
+
     func compactContent() -> some View {
         HStack(spacing: 0) {
-            dynamicNotch.compactLeadingContent
-                .onGeometryChange(for: CGFloat.self, of: \.size.width) { compactLeadingWidth = $0 }
-                .compositingGroup()
-                .scaleEffect(dynamicNotch.state == .compact ? 1 : 0.5, anchor: .trailing)
-                .rotation3DEffect(dynamicNotch.state == .compact ? .zero : .degrees(-45), axis: (0, 1, 0), anchor: .trailing)
+            if !dynamicNotch.disableCompactLeading {
+                dynamicNotch.compactLeadingContent
+                    .safeAreaInset(edge: .leading, spacing: 0) { Color.clear.frame(width: 8) }
+                    .safeAreaInset(edge: .top, spacing: 0) { Color.clear.frame(height: 4) }
+                    .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: 8) }
+                    .onGeometryChange(for: CGFloat.self, of: \.size.width) { compactLeadingWidth = $0 }
+                    .compositingGroup()
+                    .scaleEffect(x: dynamicNotch.state == .compact ? 1 : 0, anchor: .trailing)
+            }
 
             Spacer()
                 .frame(width: dynamicNotch.notchSize.width)
-            
-            dynamicNotch.compactTrailingContent
-                .onGeometryChange(for: CGFloat.self, of: \.size.width) { compactTrailingWidth = $0 }
-                .compositingGroup()
-                .scaleEffect(dynamicNotch.state == .compact ? 1 : 0.5, anchor: .leading)
-                .rotation3DEffect(dynamicNotch.state == .compact ? .zero : .degrees(45), axis: (0, 1, 0), anchor: .leading)
+
+            if !dynamicNotch.disableCompactTrailing {
+                dynamicNotch.compactTrailingContent
+                    .safeAreaInset(edge: .trailing, spacing: 0) { Color.clear.frame(width: 8) }
+                    .safeAreaInset(edge: .top, spacing: 0) { Color.clear.frame(height: 4) }
+                    .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: 8) }
+                    .onGeometryChange(for: CGFloat.self, of: \.size.width) { compactTrailingWidth = $0 }
+                    .compositingGroup()
+                    .scaleEffect(x: dynamicNotch.state == .compact ? 1 : 0, anchor: .leading)
+            }
         }
-        .safeAreaInset(edge: .leading, spacing: 0) {  Color.clear.frame(width: 8) }
-        .safeAreaInset(edge: .trailing, spacing: 0) { Color.clear.frame(width: 8) }
-        .safeAreaInset(edge: .top, spacing: 0) { Color.clear.frame(height: 4) }
-        .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: 8) }
         .frame(height: dynamicNotch.notchSize.height)
+        .compositingGroup()
         .blur(radius: dynamicNotch.state == .compact ? 0 : 10)
         .opacity(dynamicNotch.state == .compact ? 1 : 0)
-        .fixedSize()
-        .compositingGroup()
-        .offset(x: dynamicNotch.state == .compact ? 0 : compactXOffset)
-        .frame(
-            width: dynamicNotch.state == .compact ? nil : dynamicNotch.notchSize.width,
-            height: (dynamicNotch.state == .compact && dynamicNotch.isHovering) ? dynamicNotch.menubarHeight : dynamicNotch.notchSize.height
-        )
     }
-    
+
     func expandedContent() -> some View {
-        dynamicNotch.expandedContent
-            .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: expandedNotchCornerRadii.bottom) }
-            .safeAreaInset(edge: .leading, spacing: 0) { Color.clear.frame(width: expandedNotchCornerRadii.bottom) }
-            .safeAreaInset(edge: .trailing, spacing: 0) { Color.clear.frame(width: expandedNotchCornerRadii.bottom) }
-            .compositingGroup()
-            .rotation3DEffect(dynamicNotch.state == .expanded ? .zero : .degrees(45), axis: (1, 0, 0), anchor: .bottom)
-            .blur(radius: dynamicNotch.state == .expanded ? 0 : 10)
-            .opacity(dynamicNotch.state == .expanded ? 1 : 0)
-            .frame(maxWidth: dynamicNotch.state == .expanded ? nil : 0, maxHeight: dynamicNotch.state == .expanded ? nil : 0)
-            .offset(x: dynamicNotch.state == .compact ? -compactXOffset : 0)
+        HStack(spacing: 0) {
+            dynamicNotch.expandedContent
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: expandedNotchCornerRadii.bottom) }
+        .safeAreaInset(edge: .leading, spacing: 0) { Color.clear.frame(width: expandedNotchCornerRadii.bottom) }
+        .safeAreaInset(edge: .trailing, spacing: 0) { Color.clear.frame(width: expandedNotchCornerRadii.bottom) }
+        .compositingGroup()
+        .scaleEffect(y: dynamicNotch.state == .expanded ? 1 : 0.6, anchor: .bottom)
+        .blur(radius: dynamicNotch.state == .expanded ? 0 : 10)
+        .opacity(dynamicNotch.state == .expanded ? 1 : 0)
     }
 }
