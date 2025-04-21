@@ -38,12 +38,12 @@ struct NotchContentView<Expanded, CompactLeading, CompactTrailing>: View where E
 
     var body: some View {
         ZStack {
-//            if style.isNotch {
+            if style.isNotch {
             NotchView(dynamicNotch: dynamicNotch)
                 .foregroundStyle(.white)
-//            } else {
-//                NotchlessView(dynamicNotch: dynamicNotch)
-//            }
+            } else {
+                NotchlessView(dynamicNotch: dynamicNotch)
+            }
         }
         .shadow(
             color: .black.opacity(shadowOpacity),

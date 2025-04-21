@@ -5,7 +5,7 @@
 //  Created by Kai Azim on 2025-04-18.
 //
 
-import Foundation
+import SwiftUI
 
 /// The style of a DynamicNotch.
 public enum DynamicNotchStyle: Sendable {
@@ -42,6 +42,22 @@ public enum DynamicNotchStyle: Sendable {
         } else {
             false
         }
+    }
+    
+    var openingAnimation: Animation {
+        if self.isNotch {
+            .bouncy(duration: 0.4)
+        } else {
+            .snappy(duration: 0.4)
+        }
+    }
+
+    var closingAnimation: Animation {
+        .smooth(duration: 0.4)
+    }
+    
+    var conversionAnimation: Animation {
+        .snappy(duration: 0.4)
     }
 }
 

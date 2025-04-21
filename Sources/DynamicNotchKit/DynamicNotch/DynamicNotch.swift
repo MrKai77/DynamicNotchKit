@@ -109,7 +109,7 @@ public extension DynamicNotch {
 
         Task {
             if state != .hidden {
-                withAnimation(.smooth) {
+                withAnimation(style.closingAnimation) {
                     self.state = .hidden
                 }
                 
@@ -117,11 +117,11 @@ public extension DynamicNotch {
                 
                 try? await Task.sleep(for: .seconds(0.25))
                 
-                withAnimation(.snappy) {
+                withAnimation(style.conversionAnimation) {
                     self.state = .expanded
                 }
             } else {
-                withAnimation(.bouncy) {
+                withAnimation(style.openingAnimation) {
                     self.state = .expanded
                 }
             }
@@ -130,6 +130,11 @@ public extension DynamicNotch {
 
     func compact(on screen: NSScreen = NSScreen.screens[0]) {
         guard state != .compact else { return }
+        
+        if effectiveStyle(for: screen).isFloating {
+            hide()
+            return
+        }
 
         if disableCompactLeading, disableCompactTrailing {
             hide()
@@ -143,7 +148,7 @@ public extension DynamicNotch {
 
         Task {
             if state != .hidden {
-                withAnimation(.smooth) {
+                withAnimation(style.closingAnimation) {
                     self.state = .hidden
                 }
                 
@@ -151,11 +156,11 @@ public extension DynamicNotch {
                 
                 guard self.state == .hidden else { return }
 
-                withAnimation(.snappy) {
+                withAnimation(style.conversionAnimation) {
                     self.state = .compact
                 }
             } else {
-                withAnimation(.bouncy) {
+                withAnimation(style.openingAnimation) {
                     self.state = .compact
                 }
             }
@@ -178,14 +183,14 @@ public extension DynamicNotch {
             return
         }
 
-        withAnimation(.smooth) {
+        withAnimation(style.closingAnimation) {
             state = .hidden
             isHovering = false
         }
 
         closePanelTask?.cancel()
         closePanelTask = Task {
-            try? await Task.sleep(for: .seconds(0.8)) // Wait for animation to complete
+            try? await Task.sleep(for: .seconds(0.4)) // Wait for animation to complete
             guard Task.isCancelled != true else { return }
             deinitializeWindow()
             completion?()
@@ -196,6 +201,13 @@ public extension DynamicNotch {
 // MARK: - Window Management
 
 private extension DynamicNotch {
+    func effectiveStyle(for screen: NSScreen) -> DynamicNotchStyle {
+        if style == .auto {
+            return screen.hasNotch ? .notch : .floating
+        }
+        return style
+    }
+
     func initializeWindow(screen: NSScreen) {
         // so that we don't have a duplicate window
         deinitializeWindow()
@@ -203,7 +215,7 @@ private extension DynamicNotch {
         notchSize = screen.notchFrameWithMenubarAsBackup.size
         menubarHeight = screen.menubarHeight
 
-        let style = style == .auto ? (screen.hasNotch ? .notch : .floating) : style
+        let style = effectiveStyle(for: screen)
         let view = NSHostingView(rootView: NotchContentView(dynamicNotch: self, style: style))
 
         let panel = DynamicNotchPanel(
