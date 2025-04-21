@@ -12,7 +12,6 @@ import SwiftUI
 /// A preset `DynamicNotch` suited for seamlessly presenting information.
 ///
 /// This class is a wrapper around `DynamicNotch` that provides a simple way to present information to the user. It is designed to be easy to use and provide a clean and simple way to present information.
-@MainActor
 public final class DynamicNotchInfo: ObservableObject, DynamicNotchControllable {
     private var internalDynamicNotch: DynamicNotch<InfoView, CompactLeadingView, CompactTrailingView>!
 

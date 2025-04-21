@@ -7,38 +7,9 @@
 
 import SwiftUI
 
-@MainActor
-public protocol DynamicNotchControllable {
-    func expand(on screen: NSScreen)
-    func compact(on screen: NSScreen)
-    func hide()
-}
-
-public enum DynamicNotchState: Equatable {
-    case expanded
-    case compact
-    case hidden
-
-    func animation(to newState: DynamicNotchState) -> Animation {
-        switch (self, newState) {
-        case (.hidden, .expanded):
-            .bouncy
-        case (.hidden, .compact):
-            .bouncy
-        case (.expanded, .compact):
-            .snappy
-        case (.compact, .expanded):
-            .spring
-        default:
-            .smooth
-        }
-    }
-}
-
 // MARK: - DynamicNotch
 
 /// A flexible custom notch-styled window that can be shown on the screen.
-@MainActor
 public final class DynamicNotch<Expanded, CompactLeading, CompactTrailing>: ObservableObject, DynamicNotchControllable where Expanded: View, CompactLeading: View, CompactTrailing: View {
     /// Public in case user wants to modify the underlying NSPanel
     public var windowController: NSWindowController?
@@ -52,7 +23,6 @@ public final class DynamicNotch<Expanded, CompactLeading, CompactTrailing>: Obse
     let expandedContent: Expanded
     let compactLeadingContent: CompactLeading
     let compactTrailingContent: CompactTrailing
-
     @Published var disableCompactLeading: Bool = false
     @Published var disableCompactTrailing: Bool = false
 
@@ -61,8 +31,6 @@ public final class DynamicNotch<Expanded, CompactLeading, CompactTrailing>: Obse
     @Published private(set) var menubarHeight: CGFloat = 0
     @Published private(set) var isHovering: Bool = false
 
-    /// Cancellable tasks for asynchronous operations
-    private var hideTask: Task<(), Never>? // Used to cancel the hide task if the mouse is inside
     private var closePanelTask: Task<(), Never>? // Used to close the panel after hiding completes
 
     /// Makes a new DynamicNotch with custom content and style.
@@ -140,10 +108,22 @@ public extension DynamicNotch {
         }
 
         Task {
-            let animation = state.animation(to: .expanded)
-
-            withAnimation(animation) {
-                self.state = .expanded
+            if state != .hidden {
+                withAnimation(.smooth) {
+                    self.state = .hidden
+                }
+                
+                guard self.state == .hidden else { return }
+                
+                try? await Task.sleep(for: .seconds(0.25))
+                
+                withAnimation(.snappy) {
+                    self.state = .expanded
+                }
+            } else {
+                withAnimation(.bouncy) {
+                    self.state = .expanded
+                }
             }
         }
     }
@@ -162,16 +142,32 @@ public extension DynamicNotch {
         }
 
         Task {
-            let animation = state.animation(to: .compact)
+            if state != .hidden {
+                withAnimation(.smooth) {
+                    self.state = .hidden
+                }
+                
+                try? await Task.sleep(for: .seconds(0.25))
+                
+                guard self.state == .hidden else { return }
 
-            withAnimation(animation) {
-                self.state = .compact
+                withAnimation(.snappy) {
+                    self.state = .compact
+                }
+            } else {
+                withAnimation(.bouncy) {
+                    self.state = .compact
+                }
             }
         }
     }
 
-    /// Hide the popup.
     func hide() {
+        hide(completion: nil)
+    }
+
+    /// Hide the popup.
+    func hide(completion: (() -> Void)? = nil) {
         guard state != .hidden else { return }
 
         if hoverBehavior.contains(.keepVisible), isHovering {
@@ -182,9 +178,7 @@ public extension DynamicNotch {
             return
         }
 
-        let animation = state.animation(to: .hidden)
-
-        withAnimation(animation) {
+        withAnimation(.smooth) {
             state = .hidden
             isHovering = false
         }
@@ -194,6 +188,7 @@ public extension DynamicNotch {
             try? await Task.sleep(for: .seconds(0.8)) // Wait for animation to complete
             guard Task.isCancelled != true else { return }
             deinitializeWindow()
+            completion?()
         }
     }
 }
