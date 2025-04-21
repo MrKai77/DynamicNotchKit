@@ -33,10 +33,13 @@ public final class DynamicNotch<Expanded, CompactLeading, CompactTrailing>: Obse
 
     private var closePanelTask: Task<(), Never>? // Used to close the panel after hiding completes
 
-    /// Makes a new DynamicNotch with custom content and style.
+    /// Creates a new DynamicNotch with custom content and style.
     /// - Parameters:
+    ///   - hoverBehavior: defines the hover behavior of the notch, which allows for different interactions such as haptic feedback, increased shadow etc.
     ///   - style: the popover's style. If unspecified, the style will be automatically set according to the screen (notch or floating).
-    ///   - content: a SwiftUI View to be shown in the popup.
+    ///   - expanded: a SwiftUI View to be shown in the expanded state of the notch.
+    ///   - compactLeading: a SwiftUI View to be shown in the compact leading state of the notch.
+    ///   - compactTrailing: a SwiftUI View to be shown in the compact trailing state of the notch.
     public init(
         hoverBehavior: DynamicNotchHoverBehavior = .all,
         style: DynamicNotchStyle = .auto,
@@ -54,6 +57,11 @@ public final class DynamicNotch<Expanded, CompactLeading, CompactTrailing>: Obse
         observeScreenParameters()
     }
 
+    /// Creates a new DynamicNotch with custom content and style. Does not support the compact appearance.
+    /// - Parameters:
+    ///   - hoverBehavior: defines the hover behavior of the notch, which allows for different interactions such as haptic feedback, increased shadow etc.
+    ///   - style: the popover's style. If unspecified, the style will be automatically set according to the screen (notch or floating).
+    ///   - expanded: a SwiftUI View to be shown in the expanded state of the notch.
     public convenience init(
         hoverBehavior: DynamicNotchHoverBehavior = [.keepVisible],
         style: DynamicNotchStyle = .auto,
@@ -70,6 +78,7 @@ public final class DynamicNotch<Expanded, CompactLeading, CompactTrailing>: Obse
         self.disableCompactTrailing = true
     }
 
+    /// Observes screen parameters changes and re-initializes the window if necessary.
     private func observeScreenParameters() {
         Task {
             let sequence = NotificationCenter.default.notifications(named: NSApplication.didChangeScreenParametersNotification)
@@ -112,11 +121,11 @@ public extension DynamicNotch {
                 withAnimation(style.closingAnimation) {
                     self.state = .hidden
                 }
-                
+
                 guard self.state == .hidden else { return }
-                
+
                 try? await Task.sleep(for: .seconds(0.25))
-                
+
                 withAnimation(style.conversionAnimation) {
                     self.state = .expanded
                 }
@@ -130,7 +139,7 @@ public extension DynamicNotch {
 
     func compact(on screen: NSScreen = NSScreen.screens[0]) {
         guard state != .compact else { return }
-        
+
         if effectiveStyle(for: screen).isFloating {
             hide()
             return
@@ -151,9 +160,9 @@ public extension DynamicNotch {
                 withAnimation(style.closingAnimation) {
                     self.state = .hidden
                 }
-                
+
                 try? await Task.sleep(for: .seconds(0.25))
-                
+
                 guard self.state == .hidden else { return }
 
                 withAnimation(style.conversionAnimation) {
@@ -171,8 +180,8 @@ public extension DynamicNotch {
         hide(completion: nil)
     }
 
-    /// Hide the popup.
-    func hide(completion: (() -> Void)? = nil) {
+    /// Hides the popup, with a completion handler when the animation is completed.
+    func hide(completion: (() -> ())? = nil) {
         guard state != .hidden else { return }
 
         if hoverBehavior.contains(.keepVisible), isHovering {
@@ -201,6 +210,9 @@ public extension DynamicNotch {
 // MARK: - Window Management
 
 private extension DynamicNotch {
+    /// Determines the effective style for a selected screen.
+    /// - Parameter screen: the screen to check for a notch.
+    /// - Returns: the effective style for the screen.
     func effectiveStyle(for screen: NSScreen) -> DynamicNotchStyle {
         if style == .auto {
             return screen.hasNotch ? .notch : .floating
@@ -208,6 +220,8 @@ private extension DynamicNotch {
         return style
     }
 
+    /// Initializes the window for the DynamicNotch.
+    /// - Parameter screen: the screen to initialize the window on.
     func initializeWindow(screen: NSScreen) {
         // so that we don't have a duplicate window
         deinitializeWindow()
@@ -247,6 +261,7 @@ private extension DynamicNotch {
         windowController = .init(window: panel)
     }
 
+    /// Deinitializes the window and removes it from the screen.
     func deinitializeWindow() {
         guard let windowController else { return }
         windowController.close()

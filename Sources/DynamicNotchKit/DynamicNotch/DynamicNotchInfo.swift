@@ -27,11 +27,14 @@ public final class DynamicNotchInfo: ObservableObject, DynamicNotchControllable 
         didSet { internalDynamicNotch.disableCompactTrailing = compactTrailing == nil }
     }
 
-    /// Initializes a `DynamicNotchInfo`.
+    /// Creates a new DynamicNotchInfo with a predefined content and style based on parameters.
     /// - Parameters:
-    ///   - icon: the icon to display in the notch.
-    ///   - title: the title to display in the notch.
-    ///   - description: the description to display in the notch. If unspecified, no description will be displayed.
+    ///   - icon: the icon to display in the expanded state of the notch.
+    ///   - title: the title to display in the expanded state of the notch.
+    ///   - description: the description to display in the expanded state of the notch. If unspecified, no description will be displayed.
+    ///   - compactLeading: the icon to display in the compact leading state of the notch. If unspecified, no icon will be displayed.
+    ///   - compactTrailing: the icon to display in the compact trailing state of the notch. If unspecified, no icon will be displayed.
+    ///   - hoverBehavior: the hover behavior of the notch, which allows for different interactions such as haptic feedback, increased shadow etc.
     ///   - style: the popover's style. If unspecified, the style will be automatically set according to the screen (notch or floating).
     public init(
         icon: DynamicNotchInfoIcon?,
@@ -59,25 +62,18 @@ public final class DynamicNotchInfo: ObservableObject, DynamicNotchControllable 
         self.compactTrailing = compactTrailing
     }
 
-    /// Show the DynamicNotchInfo.
-    /// - Parameters:
-    ///   - screen: screen to show on. Default is the primary screen, which generally contains the notch on MacBooks.
     public func expand(
         on screen: NSScreen = NSScreen.screens[0]
     ) {
         internalDynamicNotch.expand(on: screen)
     }
 
-    /// Show the popup in a compact state.
-    /// - Parameters:
-    ///  - screen: screen to show on. Default is the primary screen, which generally contains the notch on MacBooks.
     public func compact(
         on screen: NSScreen = NSScreen.screens[0]
     ) {
         internalDynamicNotch.compact(on: screen)
     }
 
-    /// Hide the popup.
     public func hide() {
         internalDynamicNotch.hide()
     }

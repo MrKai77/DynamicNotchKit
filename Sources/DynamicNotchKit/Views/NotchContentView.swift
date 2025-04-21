@@ -39,8 +39,8 @@ struct NotchContentView<Expanded, CompactLeading, CompactTrailing>: View where E
     var body: some View {
         ZStack {
             if style.isNotch {
-            NotchView(dynamicNotch: dynamicNotch)
-                .foregroundStyle(.white)
+                NotchView(dynamicNotch: dynamicNotch)
+                    .foregroundStyle(.white)
             } else {
                 NotchlessView(dynamicNotch: dynamicNotch)
             }

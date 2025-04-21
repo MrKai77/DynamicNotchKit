@@ -43,9 +43,9 @@ public enum DynamicNotchStyle: Sendable {
             false
         }
     }
-    
+
     var openingAnimation: Animation {
-        if self.isNotch {
+        if isNotch {
             .bouncy(duration: 0.4)
         } else {
             .snappy(duration: 0.4)
@@ -55,7 +55,7 @@ public enum DynamicNotchStyle: Sendable {
     var closingAnimation: Animation {
         .smooth(duration: 0.4)
     }
-    
+
     var conversionAnimation: Animation {
         .snappy(duration: 0.4)
     }
