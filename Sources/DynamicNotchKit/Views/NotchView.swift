@@ -12,6 +12,7 @@ struct NotchView<Expanded, CompactLeading, CompactTrailing>: View where Expanded
 
     @State private var compactLeadingWidth: CGFloat = 0
     @State private var compactTrailingWidth: CGFloat = 0
+    private let safeAreaInset: CGFloat = 15
 
     init(dynamicNotch: DynamicNotch<Expanded, CompactLeading, CompactTrailing>) {
         self.dynamicNotch = dynamicNotch
@@ -102,35 +103,30 @@ struct NotchView<Expanded, CompactLeading, CompactTrailing>: View where Expanded
 
     func compactContent() -> some View {
         HStack(spacing: 0) {
-            if !dynamicNotch.disableCompactLeading {
+            if dynamicNotch.state == .compact, !dynamicNotch.disableCompactLeading {
                 dynamicNotch.compactLeadingContent
                     .environment(\.notchSection, .compactLeading)
                     .safeAreaInset(edge: .leading, spacing: 0) { Color.clear.frame(width: 8) }
                     .safeAreaInset(edge: .top, spacing: 0) { Color.clear.frame(height: 4) }
                     .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: 8) }
                     .onGeometryChange(for: CGFloat.self, of: \.size.width) { compactLeadingWidth = $0 }
-                    .compositingGroup()
-                    .scaleEffect(x: dynamicNotch.state == .compact ? 1 : 0, anchor: .trailing)
+                    .transition(.blur(intensity: 10).combined(with: .scale(x: 0, anchor: .trailing)))
             }
 
             Spacer()
                 .frame(width: dynamicNotch.notchSize.width)
 
-            if !dynamicNotch.disableCompactTrailing {
+            if dynamicNotch.state == .compact, !dynamicNotch.disableCompactTrailing {
                 dynamicNotch.compactTrailingContent
                     .environment(\.notchSection, .compactTrailing)
                     .safeAreaInset(edge: .trailing, spacing: 0) { Color.clear.frame(width: 8) }
                     .safeAreaInset(edge: .top, spacing: 0) { Color.clear.frame(height: 4) }
                     .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: 8) }
                     .onGeometryChange(for: CGFloat.self, of: \.size.width) { compactTrailingWidth = $0 }
-                    .compositingGroup()
-                    .scaleEffect(x: dynamicNotch.state == .compact ? 1 : 0, anchor: .leading)
+                    .transition(.blur(intensity: 10).combined(with: .scale(x: 0, anchor: .leading)))
             }
         }
         .frame(height: dynamicNotch.notchSize.height)
-        .compositingGroup()
-        .blur(radius: dynamicNotch.state == .compact ? 0 : 10)
-        .opacity(dynamicNotch.state == .compact ? 1 : 0)
         .onChange(of: dynamicNotch.disableCompactLeading) { _ in
             if dynamicNotch.disableCompactLeading {
                 compactLeadingWidth = 0
@@ -145,16 +141,16 @@ struct NotchView<Expanded, CompactLeading, CompactTrailing>: View where Expanded
 
     func expandedContent() -> some View {
         HStack(spacing: 0) {
-            dynamicNotch.expandedContent
+            if dynamicNotch.state == .expanded {
+                dynamicNotch.expandedContent
+                    .transition(.blur(intensity: 10).combined(with: .scale(y: 0.6, anchor: .bottom)))
+            }
         }
         .safeAreaInset(edge: .top, spacing: 0) { Color.clear.frame(height: dynamicNotch.notchSize.height) }
-        .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: expandedNotchCornerRadii.bottom) }
-        .safeAreaInset(edge: .leading, spacing: 0) { Color.clear.frame(width: expandedNotchCornerRadii.bottom) }
-        .safeAreaInset(edge: .trailing, spacing: 0) { Color.clear.frame(width: expandedNotchCornerRadii.bottom) }
+        .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: safeAreaInset) }
+        .safeAreaInset(edge: .leading, spacing: 0) { Color.clear.frame(width: safeAreaInset) }
+        .safeAreaInset(edge: .trailing, spacing: 0) { Color.clear.frame(width: safeAreaInset) }
         .frame(minWidth: dynamicNotch.notchSize.width)
-        .compositingGroup()
-        .scaleEffect(y: dynamicNotch.state == .expanded ? 1 : 0.6, anchor: .bottom)
-        .blur(radius: dynamicNotch.state == .expanded ? 0 : 10)
-        .opacity(dynamicNotch.state == .expanded ? 1 : 0)
     }
 }
+

@@ -45,7 +45,7 @@ struct NotchlessView<Expanded, CompactLeading, CompactTrailing>: View where Expa
     private func notchContent() -> some View {
         VStack(spacing: 0) {
             dynamicNotch.expandedContent
-                .transition(.blur)
+                .transition(.blur(intensity: 10).combined(with: .opacity))
                 .safeAreaInset(edge: .top, spacing: 0) { Color.clear.frame(height: safeAreaInset) }
                 .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: safeAreaInset) }
                 .safeAreaInset(edge: .leading, spacing: 0) { Color.clear.frame(width: safeAreaInset) }

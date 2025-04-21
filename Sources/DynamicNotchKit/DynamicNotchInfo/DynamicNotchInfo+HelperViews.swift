@@ -10,6 +10,7 @@ import SwiftUI
 extension DynamicNotchInfo {
     struct CompactLeadingView: View {
         @ObservedObject var dynamicNotch: DynamicNotchInfo
+        @Namespace private var namespace
 
         init(dynamicNotch: DynamicNotchInfo) {
             self.dynamicNotch = dynamicNotch
@@ -17,6 +18,16 @@ extension DynamicNotchInfo {
 
         public var body: some View {
             dynamicNotch.compactLeading
+                .matchedGeometryEffect(
+                    id: "info_icon",
+                    in: dynamicNotch.namespace ?? namespace,
+                    isSource: dynamicNotch.internalDynamicNotch.state == .compact
+                )
+                .onAppear {
+                    if dynamicNotch.namespace == nil {
+                        dynamicNotch.namespace = namespace
+                    }
+                }
         }
     }
 
@@ -35,6 +46,7 @@ extension DynamicNotchInfo {
     struct InfoView: View {
         @Environment(\.notchStyle) private var notchStyle
         @ObservedObject var dynamicNotch: DynamicNotchInfo
+        @Namespace private var namespace
 
         init(dynamicNotch: DynamicNotchInfo) {
             self.dynamicNotch = dynamicNotch
@@ -44,6 +56,11 @@ extension DynamicNotchInfo {
             HStack(spacing: 10) {
                 if let icon = dynamicNotch.icon {
                     icon
+                        .matchedGeometryEffect(
+                            id: "info_icon",
+                            in: dynamicNotch.namespace ?? namespace,
+                            isSource: dynamicNotch.internalDynamicNotch.state == .expanded
+                        )
                 }
 
                 textView()
@@ -51,6 +68,11 @@ extension DynamicNotchInfo {
                 Spacer(minLength: 0)
             }
             .frame(height: 40)
+            .onAppear {
+                if dynamicNotch.namespace == nil {
+                    dynamicNotch.namespace = namespace
+                }
+            }
         }
 
         @ViewBuilder

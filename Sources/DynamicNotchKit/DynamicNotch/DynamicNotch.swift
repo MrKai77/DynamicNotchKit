@@ -107,8 +107,12 @@ public final class DynamicNotch<Expanded, CompactLeading, CompactTrailing>: Obse
 
 // MARK: - Public
 
-public extension DynamicNotch {
-    func expand(on screen: NSScreen = NSScreen.screens[0]) async {
+extension DynamicNotch {
+    public func expand(on screen: NSScreen = NSScreen.screens[0]) async {
+        await _expand(on: screen, skipHide: false)
+    }
+
+    func _expand(on screen: NSScreen = NSScreen.screens[0], skipHide: Bool) async {
         guard state != .expanded else { return }
 
         closePanelTask?.cancel()
@@ -118,13 +122,15 @@ public extension DynamicNotch {
 
         Task {
             if state != .hidden {
-                withAnimation(style.closingAnimation) {
-                    self.state = .hidden
+                if !skipHide {
+                    withAnimation(style.closingAnimation) {
+                        self.state = .hidden
+                    }
+                    
+                    guard self.state == .hidden else { return }
+                    
+                    try? await Task.sleep(for: .seconds(0.25))
                 }
-
-                guard self.state == .hidden else { return }
-
-                try? await Task.sleep(for: .seconds(0.25))
 
                 withAnimation(style.conversionAnimation) {
                     self.state = .expanded
@@ -140,8 +146,12 @@ public extension DynamicNotch {
         // See DynamicNotchStyle's animations
         try? await Task.sleep(for: .seconds(0.4))
     }
+    
+    public func compact(on screen: NSScreen) async {
+        await _compact(on: screen, skipHide: false)
+    }
 
-    func compact(on screen: NSScreen = NSScreen.screens[0]) async {
+    func _compact(on screen: NSScreen = NSScreen.screens[0], skipHide: Bool) async {
         guard state != .compact else { return }
 
         if effectiveStyle(for: screen).isFloating {
@@ -161,13 +171,15 @@ public extension DynamicNotch {
 
         Task {
             if state != .hidden {
-                withAnimation(style.closingAnimation) {
-                    self.state = .hidden
+                if !skipHide {
+                    withAnimation(style.closingAnimation) {
+                        self.state = .hidden
+                    }
+                    
+                    try? await Task.sleep(for: .seconds(0.25))
+                    
+                    guard self.state == .hidden else { return }
                 }
-
-                try? await Task.sleep(for: .seconds(0.25))
-
-                guard self.state == .hidden else { return }
 
                 withAnimation(style.conversionAnimation) {
                     self.state = .compact
@@ -184,7 +196,7 @@ public extension DynamicNotch {
         try? await Task.sleep(for: .seconds(0.4))
     }
     
-    func hide() async {
+    public func hide() async {
         await withCheckedContinuation { continuation in
             _hide {
                 continuation.resume()
@@ -193,7 +205,7 @@ public extension DynamicNotch {
     }
     
     /// Hides the popup, with a completion handler when the animation is completed.
-    private func _hide(completion: (() -> ())? = nil) {
+    func _hide(completion: (() -> ())? = nil) {
         guard state != .hidden else {
             completion?()
             return

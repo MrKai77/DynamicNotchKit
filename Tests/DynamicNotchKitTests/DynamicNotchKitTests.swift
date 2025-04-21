@@ -8,9 +8,8 @@ extension Tag {
 }
 
 /// Hey there! Looks like you found DynamicNotchKit's tests.
-///
-/// Please note that these tests do NOT actaully "test" anything. They are moreso here to serve as examples of usage of DynamicNotchKit.
-/// To run these tests, simply `cd` into the `DynamicNotchKit` directory and run `swift test`.
+/// Please note that these tests do NOT actually "test" anything. They are only here to serve as examples of usage of DynamicNotchKit.
+/// To run these tests, simply `cd` into the `DynamicNotchKit` directory and run `swift test`. Alternatively, open this package directly in Xcode, and the tests should show up in the sidebar.
 @MainActor
 @Suite(.serialized)
 struct DynamicNotchKitTests {
@@ -116,12 +115,12 @@ struct DynamicNotchKitTests {
 
     @Test("Info - Custom Notch Style & Gradient", .tags(.notchStyle))
     func dynamicNotchInfoCustomNotchStyle() async throws {
-        try await _dynamicNotchInfoGradientCustomRadii(with: .notch(topCornerRadius: 10, bottomCornerRadius: 40))
+        try await _dynamicNotchInfoGradientCustomRadii(with: .notch(topCornerRadius: 10, bottomCornerRadius: 25))
     }
     
-    @Test("Info - Custom Floating Style & Gradient", .tags(.floatingStyle))
+    @Test("Info - Custom Floating Style & Gradient", .tags(.floatingStyle), .disabled("Compact style is not supported in floating mode"))
     func dynamicNotchInfoCustomFloatingStyle() async throws {
-        try await _dynamicNotchInfoGradientCustomRadii(with: .floating(cornerRadius: 40))
+        try await _dynamicNotchInfoGradientCustomRadii(with: .floating(cornerRadius: 25))
     }
     
     func _dynamicNotchInfoGradientCustomRadii(with style: DynamicNotchStyle) async throws {
@@ -135,12 +134,23 @@ struct DynamicNotchKitTests {
                 .clipShape(.rect(cornerRadius: 4))
                 .aspectRatio(contentMode: .fit)
             },
-            title: "Gradient!",
+            title: "This a gradient!",
+            description: "It ships with a `matchedGeometryEffect` for easy animations.",
             style: style
         )
 
         await notch.expand()
         try await Task.sleep(for: .seconds(4))
+        await notch.compact()
+        try await Task.sleep(for: .seconds(0.6))
+        await notch.expand()
+        try await Task.sleep(for: .seconds(0.6))
+        await notch.compact()
+        try await Task.sleep(for: .seconds(0.6))
+        await notch.expand()
+        try await Task.sleep(for: .seconds(0.6))
+        await notch.compact()
+        try await Task.sleep(for: .seconds(2))
         await notch.hide()
     }
 
