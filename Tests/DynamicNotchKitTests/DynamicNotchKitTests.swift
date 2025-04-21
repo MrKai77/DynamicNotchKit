@@ -223,4 +223,37 @@ struct DynamicNotchKitTests {
         try? await Task.sleep(for: .seconds(2))
         await notch.hide()
     }
+    
+    @Test("DynamicNotch - Usage showcase - Notch style", .tags(.notchStyle))
+    func dynamicNotchShowcaseNotchStyle() async throws {
+        try await _dynamicNotchShowcase(with: .notch)
+    }
+    
+    @Test("DynamicNotch - Usage showcase - Floating style", .tags(.floatingStyle))
+    func dynamicNotchShowcaseFloatingStyle() async throws {
+        try await _dynamicNotchShowcase(with: .floating)
+    }
+    
+    func _dynamicNotchShowcase(with style: DynamicNotchStyle) async throws {
+        let notch = DynamicNotch(style: style) {
+            VStack(spacing: 10) {
+                ForEach(0..<10) { i in
+                    Text("Hello World \(i)")
+                }
+            }
+        } compactLeading: {
+            Image(systemName: "moon.fill")
+                .foregroundStyle(.blue)
+        } compactTrailing: {
+            Capsule()
+                .frame(width: 8)
+                .foregroundStyle(.white)
+        }
+
+        await notch.expand()
+        try? await Task.sleep(for: .seconds(2))
+        await notch.compact()
+        try? await Task.sleep(for: .seconds(2))
+        await notch.hide()
+    }
 }

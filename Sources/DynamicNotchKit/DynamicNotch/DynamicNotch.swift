@@ -44,8 +44,8 @@ public final class DynamicNotch<Expanded, CompactLeading, CompactTrailing>: Obse
         hoverBehavior: DynamicNotchHoverBehavior = .all,
         style: DynamicNotchStyle = .auto,
         @ViewBuilder expanded: @escaping () -> Expanded,
-        @ViewBuilder compactLeading: @escaping () -> CompactLeading,
-        @ViewBuilder compactTrailing: @escaping () -> CompactTrailing
+        @ViewBuilder compactLeading: @escaping () -> CompactLeading = { EmptyView() },
+        @ViewBuilder compactTrailing: @escaping () -> CompactTrailing = { EmptyView() }
     ) {
         self.hoverBehavior = hoverBehavior
         self.style = style
@@ -147,7 +147,7 @@ extension DynamicNotch {
         try? await Task.sleep(for: .seconds(0.4))
     }
     
-    public func compact(on screen: NSScreen) async {
+    public func compact(on screen: NSScreen = NSScreen.screens[0]) async {
         await _compact(on: screen, skipHide: false)
     }
 
