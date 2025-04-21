@@ -16,12 +16,12 @@ struct DynamicNotchKitTests {
 
     // MARK: - DynamicNotchInfo - Simple
 
-    @Test("Info - Simple Notch Style", .tags(.notchStyle))
+    @Test("Info - Simple notch style", .tags(.notchStyle))
     func dynamicNotchInfoSimpleNotchStyle() async throws {
         try await _dynamicNotchInfoSimple(with: .notch)
     }
     
-    @Test("Info - Simple Floating Style", .tags(.floatingStyle))
+    @Test("Info - Simple floating style", .tags(.floatingStyle))
     func dynamicNotchInfoSimpleFloatingStyle() async throws {
         try await _dynamicNotchInfoSimple(with: .floating)
     }
@@ -51,12 +51,12 @@ struct DynamicNotchKitTests {
     
     // MARK: - DynamicNotchInfo - Advanced
     
-    @Test("Info - Advanced Notch Style", .tags(.notchStyle))
+    @Test("Info - Advanced notch style", .tags(.notchStyle))
     func dynamicNotchInfoAdvancedNotchStyle() async throws {
         try await _dynamicNotchInfoAdvanced(with: .notch)
     }
     
-    @Test("Info - Advanced Floating Style", .tags(.floatingStyle))
+    @Test("Info - Advanced floating style", .tags(.floatingStyle))
     func dynamicNotchInfoAdvancedFloatingStyle() async throws {
         try await _dynamicNotchInfoAdvanced(with: .floating)
     }
@@ -113,12 +113,12 @@ struct DynamicNotchKitTests {
     
     // MARK: - DynamicNotchInfo - Custom
 
-    @Test("Info - Custom Notch Style & Gradient", .tags(.notchStyle))
+    @Test("Info - Custom notch style & gradient", .tags(.notchStyle))
     func dynamicNotchInfoCustomNotchStyle() async throws {
         try await _dynamicNotchInfoGradientCustomRadii(with: .notch(topCornerRadius: 10, bottomCornerRadius: 25))
     }
     
-    @Test("Info - Custom Floating Style & Gradient", .tags(.floatingStyle), .disabled("Compact style is not supported in floating mode"))
+    @Test("Info - Custom floating style & gradient", .tags(.floatingStyle), .disabled("Compact mode does not support floating windows"))
     func dynamicNotchInfoCustomFloatingStyle() async throws {
         try await _dynamicNotchInfoGradientCustomRadii(with: .floating(cornerRadius: 25))
     }
@@ -142,25 +142,38 @@ struct DynamicNotchKitTests {
         await notch.expand()
         try await Task.sleep(for: .seconds(4))
         await notch.compact()
-        try await Task.sleep(for: .seconds(0.6))
+        try await Task.sleep(for: .seconds(2))
         await notch.expand()
-        try await Task.sleep(for: .seconds(0.6))
-        await notch.compact()
-        try await Task.sleep(for: .seconds(0.6))
-        await notch.expand()
-        try await Task.sleep(for: .seconds(0.6))
+        try await Task.sleep(for: .seconds(2))
         await notch.compact()
         try await Task.sleep(for: .seconds(2))
         await notch.hide()
     }
+    
+    // MARK: DynamicNotchInfo - App Icon
+    
+    @Test("Info - Notch with custom icon", .tags(.notchStyle))
+    func dynamicNotchInfoAppIcon() async throws {
+        await _testInfoWithAppIcon(with: .notch)
+    }
+    
+    @Test("Info - Floating with custom icon", .tags(.floatingStyle), .disabled("Compact mode does not support floating windows"))
+    func dynamicNotchInfoAppIconFloating() async throws {
+        await _testInfoWithAppIcon(with: .floating)
+    }
 
-//    func testInfoWithAppIcon() async throws {
-//        let notch = DynamicNotchInfo(
-//            icon: .init(image: Image(nsImage: .init(named: NSImage.applicationIconName)!)),
-//            title: "App Icon",
-//            description: "In a test environment, this should be a folder!"
-//        )
-//        notch.show(for: .seconds(3))
-//        try await Task.sleep(for: .seconds(4))
-//    }
+    func _testInfoWithAppIcon(with style: DynamicNotchStyle) async {
+        let notch = DynamicNotchInfo(
+            icon: .init(image: Image(nsImage: NSImage(named: NSImage.applicationIconName)!)),
+            title: "We support custom icons as well!",
+            description: "As always, with a provided `matchedGeometryEffect`.",
+            style: style
+        )
+
+        await notch.expand()
+        try? await Task.sleep(for: .seconds(4))
+        await notch.compact()
+        try? await Task.sleep(for: .seconds(4))
+        await notch.hide()
+    }
 }
