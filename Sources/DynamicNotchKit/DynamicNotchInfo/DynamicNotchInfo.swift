@@ -20,10 +20,14 @@ public final class DynamicNotchInfo: ObservableObject, DynamicNotchControllable 
     @Published public var description: LocalizedStringKey?
     @Published public var textColor: Color?
     @Published public var compactLeading: DynamicNotchInfo.Label? {
-        didSet { internalDynamicNotch.disableCompactLeading = compactLeading == nil }
+        didSet {
+            internalDynamicNotch.disableCompactLeading = compactLeading == nil
+        }
     }
     @Published public var compactTrailing: DynamicNotchInfo.Label? {
-        didSet { internalDynamicNotch.disableCompactTrailing = compactTrailing == nil }
+        didSet {
+            internalDynamicNotch.disableCompactTrailing = compactTrailing == nil
+        }
     }
 
     /// Creates a new DynamicNotchInfo with a predefined content and style based on parameters.

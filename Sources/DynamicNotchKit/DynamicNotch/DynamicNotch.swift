@@ -194,7 +194,10 @@ public extension DynamicNotch {
     
     /// Hides the popup, with a completion handler when the animation is completed.
     private func _hide(completion: (() -> ())? = nil) {
-        guard state != .hidden else { return }
+        guard state != .hidden else {
+            completion?()
+            return
+        }
 
         if hoverBehavior.contains(.keepVisible), isHovering {
             Task {

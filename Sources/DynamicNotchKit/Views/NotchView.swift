@@ -73,6 +73,7 @@ struct NotchView<Expanded, CompactLeading, CompactTrailing>: View where Expanded
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             }
             .offset(x: xOffset)
+            .animation(.smooth, value: [compactLeadingWidth, compactTrailingWidth])
     }
 
     private func notchContent() -> some View {
@@ -130,6 +131,16 @@ struct NotchView<Expanded, CompactLeading, CompactTrailing>: View where Expanded
         .compositingGroup()
         .blur(radius: dynamicNotch.state == .compact ? 0 : 10)
         .opacity(dynamicNotch.state == .compact ? 1 : 0)
+        .onChange(of: dynamicNotch.disableCompactLeading) { _ in
+            if dynamicNotch.disableCompactLeading {
+                compactLeadingWidth = 0
+            }
+        }
+        .onChange(of: dynamicNotch.disableCompactTrailing) { _ in
+            if dynamicNotch.disableCompactTrailing {
+                compactTrailingWidth = 0
+            }
+        }
     }
 
     func expandedContent() -> some View {
