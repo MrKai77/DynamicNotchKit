@@ -12,6 +12,7 @@ extension DynamicNotchInfo {
     public struct Label: View {
         @Environment(\.notchStyle) private var notchStyle
         @Environment(\.notchSection) private var notchSection
+        private let id: UUID = .init()
         private var iconStyle: Style
         
         enum Style: Equatable {
@@ -70,33 +71,36 @@ extension DynamicNotchInfo {
         }
         
         public var body: some View {
-            switch iconStyle {
-            case let .image(image):
-                image
-                    .resizable()
-                    .padding(4)
-                    .scaledToFit()
-            case let .systemImage(systemName, color):
-                Image(systemName: systemName)
-                    .resizable()
-                    .foregroundStyle(color ?? (notchStyle.isNotch ? .white : .primary))
-                    .padding(4)
-                    .scaledToFit()
-            case let .progress(progress, color, overlay):
-                ProgressRing(
-                    to: progress,
-                    color: color ?? (notchStyle.isNotch ? .white : .primary),
-                    thickness: notchSection == .expanded ? 4 : 3
-                )
-                .overlay {
-                    if let overlay {
-                        overlay
+            Group {
+                switch iconStyle {
+                case let .image(image):
+                    image
+                        .resizable()
+                        .padding(4)
+                        .scaledToFit()
+                case let .systemImage(systemName, color):
+                    Image(systemName: systemName)
+                        .resizable()
+                        .foregroundStyle(color ?? (notchStyle.isNotch ? .white : .primary))
+                        .padding(4)
+                        .scaledToFit()
+                case let .progress(progress, color, overlay):
+                    ProgressRing(
+                        to: progress,
+                        color: color ?? (notchStyle.isNotch ? .white : .primary),
+                        thickness: notchSection == .expanded ? 4 : 3
+                    )
+                    .overlay {
+                        if let overlay {
+                            overlay
+                        }
                     }
+                    .padding(2)
+                case let .customView(_, view):
+                    view
                 }
-                .padding(2)
-            case let .customView(_, view):
-                view
             }
+            .id(id)
         }
         
         struct ProgressRing: View {

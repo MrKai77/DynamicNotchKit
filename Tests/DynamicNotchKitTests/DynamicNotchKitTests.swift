@@ -167,13 +167,60 @@ struct DynamicNotchKitTests {
             icon: .init(image: Image(nsImage: NSImage(named: NSImage.applicationIconName)!)),
             title: "We support custom icons as well!",
             description: "As always, with a provided `matchedGeometryEffect`.",
+            compactTrailing: .init(systemName: "square.and.arrow.up", color: .blue),
             style: style
         )
 
         await notch.expand()
         try? await Task.sleep(for: .seconds(4))
         await notch.compact()
+        try? await Task.sleep(for: .seconds(1))
+        withAnimation {
+            notch.compactTrailing = .init(progress: .constant(1.0), color: .blue)
+        }
+        try? await Task.sleep(for: .seconds(2))
+        await notch.hide()
+    }
+    
+    @Test("Info - Notch with changing compact icons", .tags(.notchStyle))
+    func dynamicNotchInfoCompactIcons() async throws {
+        await _testDifferentCompactIcons(with: .notch)
+    }
+    
+    func _testDifferentCompactIcons(with style: DynamicNotchStyle) async {
+        let notch = DynamicNotchInfo(
+            icon: .init(systemName: "info.circle"),
+            title: "Compact icons can change!",
+            description: "This will show some combos.",
+            compactLeading: .init(systemName: "moon.fill", color: .blue),
+            compactTrailing: .init(systemName: "eyes.inverse", color: .orange),
+            style: style
+        )
+
+        await notch.expand()
         try? await Task.sleep(for: .seconds(4))
+        await notch.compact()
+        try? await Task.sleep(for: .seconds(2))
+        withAnimation {
+            notch.compactLeading = .init(systemName: "arrow.triangle.2.circlepath", color: .teal)
+        }
+        try? await Task.sleep(for: .seconds(2))
+        withAnimation {
+            notch.compactTrailing = .init(progress: .constant(0.75))
+        }
+        try? await Task.sleep(for: .seconds(2))
+        withAnimation {
+            notch.compactLeading = .init(systemName: "scribble.variable", color: .indigo)
+        }
+        try? await Task.sleep(for: .seconds(2))
+        withAnimation {
+            notch.compactTrailing = .init(systemName: "rectangle.pattern.checkered", color: .yellow)
+        }
+        try? await Task.sleep(for: .seconds(2))
+        withAnimation {
+            notch.compactLeading = .init(image: Image(nsImage: NSImage(named: NSImage.applicationIconName)!))
+        }
+        try? await Task.sleep(for: .seconds(2))
         await notch.hide()
     }
 }

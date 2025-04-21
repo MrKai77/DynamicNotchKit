@@ -20,15 +20,13 @@ public final class DynamicNotchInfo: ObservableObject, DynamicNotchControllable 
     @Published public var description: LocalizedStringKey?
     @Published public var textColor: Color?
     @Published public var compactLeading: DynamicNotchInfo.Label? {
-        didSet {
-            internalDynamicNotch.disableCompactLeading = compactLeading == nil
-        }
+        didSet { internalDynamicNotch.disableCompactLeading = compactLeading == nil }
     }
     @Published public var compactTrailing: DynamicNotchInfo.Label? {
-        didSet {
-            internalDynamicNotch.disableCompactTrailing = compactTrailing == nil
-        }
+        didSet { internalDynamicNotch.disableCompactTrailing = compactTrailing == nil }
     }
+    
+    @Published var shouldSkipHideWhenConverting: Bool = false
     @Published var namespace: Namespace.ID?
 
     /// Creates a new DynamicNotchInfo with a predefined content and style based on parameters.
@@ -62,20 +60,31 @@ public final class DynamicNotchInfo: ObservableObject, DynamicNotchControllable 
         } compactTrailing: {
             CompactTrailingView(dynamicNotch: self)
         }
-        self.compactLeading = compactLeading ?? icon
+        if let compactLeading {
+            self.compactLeading = compactLeading
+        } else {
+            self.compactLeading = icon
+            self.shouldSkipHideWhenConverting = true
+        }
         self.compactTrailing = compactTrailing
     }
 
     public func expand(
         on screen: NSScreen = NSScreen.screens[0]
     ) async {
-        await internalDynamicNotch._expand(on: screen, skipHide: true)
+        await internalDynamicNotch._expand(
+            on: screen,
+            skipHide: shouldSkipHideWhenConverting
+        )
     }
 
     public func compact(
         on screen: NSScreen = NSScreen.screens[0]
     ) async {
-        await internalDynamicNotch._compact(on: screen, skipHide: true)
+        await internalDynamicNotch._compact(
+            on: screen,
+            skipHide: shouldSkipHideWhenConverting
+        )
     }
 
     public func hide() async {

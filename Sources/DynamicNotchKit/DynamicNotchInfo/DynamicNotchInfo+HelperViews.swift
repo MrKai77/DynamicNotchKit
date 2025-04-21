@@ -18,10 +18,11 @@ extension DynamicNotchInfo {
 
         public var body: some View {
             dynamicNotch.compactLeading
+                .transition(.blur(intensity: 10).combined(with: .scale(scale: 0.8)).combined(with: .opacity))
                 .matchedGeometryEffect(
                     id: "info_icon",
                     in: dynamicNotch.namespace ?? namespace,
-                    isSource: dynamicNotch.internalDynamicNotch.state == .compact
+                    isSource: dynamicNotch.internalDynamicNotch.state == .compact && dynamicNotch.shouldSkipHideWhenConverting
                 )
                 .onAppear {
                     if dynamicNotch.namespace == nil {
@@ -40,6 +41,7 @@ extension DynamicNotchInfo {
 
         public var body: some View {
             dynamicNotch.compactTrailing
+                .transition(.blur(intensity: 10).combined(with: .scale(scale: 0.8)).combined(with: .opacity))
         }
     }
 
@@ -59,7 +61,7 @@ extension DynamicNotchInfo {
                         .matchedGeometryEffect(
                             id: "info_icon",
                             in: dynamicNotch.namespace ?? namespace,
-                            isSource: dynamicNotch.internalDynamicNotch.state == .expanded
+                            isSource: dynamicNotch.internalDynamicNotch.state == .expanded && dynamicNotch.shouldSkipHideWhenConverting
                         )
                 }
 
