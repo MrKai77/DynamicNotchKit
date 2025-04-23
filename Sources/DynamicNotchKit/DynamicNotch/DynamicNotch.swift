@@ -9,15 +9,68 @@ import SwiftUI
 
 // MARK: - DynamicNotch
 
-/// A flexible custom notch-styled window that can be shown on the screen.
+///
+/// A customizable, notch-styled window for macOS applications.
+///
+/// # Overview
+///
+/// ``DynamicNotch`` is the most flexible way to present custom windows using ``DynamicNotchKit``.
+/// It accepts SwiftUI views as input and renders them in a dynamic floating window, and is ideal when full control over the content is required.
+///
+/// Inspired by Apple’s Dynamic Island, ``DynamicNotch`` introduces a similar interface experience for macOS, with built-in support for *expanded* and *compact* display states.
+///
+/// ### Expanded State
+/// The expanded state is generally the largest view.
+/// It shows the full content view below the notch, and is also the view used when the window is floating.
+///
+/// ### Compact State
+/// In the compact state, there is the leading content, which is shown on the left side of the notch, and the trailing content, which is shown on the right side of the notch.
+///
+/// > Important Consideration: Macs without a physical notch do not support compact mode.
+/// > Calling ``compact(on:)`` on these devices will automatically hide the window.
+///
+/// # Example Usage
+///
+/// ```swift
+/// import SwiftUI
+///
+/// struct ContentView: View {
+///     let notch = DynamicNotch(style: style) {
+///         VStack(spacing: 10) {
+///             ForEach(0..<10) { i in
+///                 Text("Hello World \(i)")
+///             }
+///         }
+///     } compactLeading: {
+///         Image(systemName: "moon.fill")
+///             .foregroundStyle(.blue)
+///     } compactTrailing: {
+///         Image(systemName: "sun.max")
+///             .foregroundStyle(.yellow)
+///     }
+///
+///     var body: some View {
+///         Button("Show Notch") {
+///             Task {
+///                 await notch.expand()
+///                 try await Task.sleep(for: .seconds(2))
+///                 await notch.compact()
+///                 try await Task.sleep(for: .seconds(2))
+///                 await notch.hide()
+///             }
+///         }
+///     }
+/// }
+/// ```
 public final class DynamicNotch<Expanded, CompactLeading, CompactTrailing>: ObservableObject, DynamicNotchControllable where Expanded: View, CompactLeading: View, CompactTrailing: View {
     /// Public in case user wants to modify the underlying NSPanel
     public var windowController: NSWindowController?
 
-    /// Notch Options
+    /// The window appearance, indicating the style of the notch.
     public let style: DynamicNotchStyle
+    
+    /// Behavior of window when mouse enters.
     public let hoverBehavior: DynamicNotchHoverBehavior
-    @Published public var state: DynamicNotchState = .hidden
 
     /// Content
     let expandedContent: Expanded
@@ -27,6 +80,7 @@ public final class DynamicNotch<Expanded, CompactLeading, CompactTrailing>: Obse
     @Published var disableCompactTrailing: Bool = false
 
     /// Notch Properties
+    @Published private(set) var state: DynamicNotchState = .hidden
     @Published private(set) var notchSize: CGSize = .zero
     @Published private(set) var menubarHeight: CGFloat = 0
     @Published private(set) var isHovering: Bool = false
@@ -116,11 +170,11 @@ extension DynamicNotch {
         guard state != .expanded else { return }
 
         closePanelTask?.cancel()
-        if state == .hidden {
+        if state == .hidden || windowController?.window?.screen != screen {
             initializeWindow(screen: screen)
         }
 
-        Task {
+        Task { @MainActor in
             if state != .hidden {
                 if !skipHide {
                     withAnimation(style.closingAnimation) {
@@ -165,11 +219,11 @@ extension DynamicNotch {
         }
 
         closePanelTask?.cancel()
-        if state == .hidden {
+        if state == .hidden || windowController?.window?.screen != screen {
             initializeWindow(screen: screen)
         }
 
-        Task {
+        Task { @MainActor in
             if state != .hidden {
                 if !skipHide {
                     withAnimation(style.closingAnimation) {
