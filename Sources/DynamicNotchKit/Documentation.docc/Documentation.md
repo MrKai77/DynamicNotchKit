@@ -17,9 +17,3 @@ Unfortunately, a limitation (much like iOS), is that not all devices have this n
 ## The Vision
 
 There are _many_, _**many**_ macOS apps that attempt to add functionality to the notch. Unfortunately, what a lot of them do is to attempt to put *too* much functionality into such a small popover. The goal for DynamicNotchKit is not to replace the main app window, but to provide a simple and elegant way to display notifications and updates in a way that feels native to the platform, similar to iOS's Dynamic Island.
-
-## Topics
-
-### <!--@START_MENU_TOKEN@-->Group<!--@END_MENU_TOKEN@-->
-
-- <!--@START_MENU_TOKEN@-->``Symbol``<!--@END_MENU_TOKEN@-->
