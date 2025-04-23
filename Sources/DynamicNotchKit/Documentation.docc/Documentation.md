@@ -8,7 +8,7 @@ Seamlessly adapt your macOS app to the notch era.
 
 ## Overview
 
-@Video(source: "intro.mov", alt: "DynamicNotchKit Introduction")
+@Video(source: "intro", alt: "DynamicNotchKit Introduction")
 
 DynamicNotchKit provides a set of tools to help you integrate your macOS app with the new notch on modern MacBooks. It attempts to provide a similar experience to iOS's Dynamic Island, allowing you to display notifications and updates in a visually appealing way. It handles the complexities of managing the notch area, such as drawing a custom window, ensuring proper content insets and safe areas. This enables you to create a polished user experience that feels native to the platform, while still feeling innovative and fresh.
 
