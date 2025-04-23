@@ -1,7 +1,5 @@
 # DynamicNotchKit
 
-## Examples:
-
 <div><video controls src="https://github.com/user-attachments/assets/09a139a8-1a40-4214-bcd9-1937764fb071" muted="true"></video></div>
 
 ## Installation
