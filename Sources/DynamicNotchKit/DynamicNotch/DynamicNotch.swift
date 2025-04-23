@@ -12,8 +12,6 @@ import SwiftUI
 ///
 /// A customizable, notch-styled window for macOS applications.
 ///
-/// # Overview
-///
 /// ``DynamicNotch`` is the most flexible way to present custom windows using ``DynamicNotchKit``.
 /// It accepts SwiftUI views as input and renders them in a dynamic floating window, and is ideal when full control over the content is required.
 ///
@@ -29,7 +27,7 @@ import SwiftUI
 /// > Important Consideration: Macs without a physical notch do not support compact mode.
 /// > Calling ``compact(on:)`` on these devices will automatically hide the window.
 ///
-/// # Example Usage
+/// ## Example Usage
 ///
 /// ```swift
 /// import SwiftUI

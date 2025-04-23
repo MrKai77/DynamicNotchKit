@@ -8,9 +8,17 @@
 import Foundation
 
 /// Defines the behavior of the notch when hovered over.
+///
+/// Currently, there are limited behaviors available.
+/// In ``DynamicNotch`` and ``DynamicNotchInfo``, ``all`` is used by default, and there is likely no configuration required on your end.
+///
+/// If there is more behaviors you wish to see, please open an issue on the GitHub repository!
+///
 public struct DynamicNotchHoverBehavior: OptionSet, Sendable {
+    /// The underlying raw value of the option set.
     public let rawValue: Int
 
+    /// Creates a new instance with the specified raw value.
     public init(rawValue: Int) {
         self.rawValue = rawValue
     }
