@@ -16,10 +16,10 @@ It's really easy! All the UI is handled by SwiftUI. That means that you can use 
 
 Here's an example:
 ```swift
-let dynamicNotch = DynamicNotch {
+let notch = DynamicNotch {
     ContentView()
 }
-dynamicNotch.show()
+await notch.expand()
 ```
 
 Where `ContentView` conforms to `View`.
@@ -35,7 +35,7 @@ let notch = DynamicNotchInfo(
     title: "Figure",
     description: "Looks like a person"
 )
-notch.show()
+await notch.expand()
 ```
 
 This will result in a popover as so:
