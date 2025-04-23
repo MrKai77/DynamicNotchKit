@@ -8,21 +8,37 @@
 import SwiftUI
 
 struct BlurModifier: ViewModifier {
-    let isIdentity: Bool
-    var intensity: CGFloat
+    let intensity: CGFloat
 
     func body(content: Content) -> some View {
         content
-            .blur(radius: isIdentity ? intensity : 0)
-            .opacity(isIdentity ? 0 : 1)
+            .blur(radius: intensity)
+    }
+}
+
+struct ScaleModifier: ViewModifier {
+    let xScale: CGFloat
+    var yScale: CGFloat
+    let anchor: UnitPoint
+
+    func body(content: Content) -> some View {
+        content
+            .scaleEffect(x: xScale, y: yScale, anchor: anchor)
     }
 }
 
 extension AnyTransition {
-    static var blur: AnyTransition {
+    static func blur(intensity: CGFloat) -> AnyTransition {
         .modifier(
-            active: BlurModifier(isIdentity: true, intensity: 5),
-            identity: BlurModifier(isIdentity: false, intensity: 5)
+            active: BlurModifier(intensity: intensity),
+            identity: BlurModifier(intensity: 0)
+        )
+    }
+
+    static func scale(x: CGFloat = 1, y: CGFloat = 1, anchor: UnitPoint = .center) -> AnyTransition {
+        .modifier(
+            active: ScaleModifier(xScale: x, yScale: y, anchor: anchor),
+            identity: ScaleModifier(xScale: 1, yScale: 1, anchor: anchor)
         )
     }
 }

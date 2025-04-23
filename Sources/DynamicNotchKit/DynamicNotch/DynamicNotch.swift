@@ -9,50 +9,124 @@ import SwiftUI
 
 // MARK: - DynamicNotch
 
-/// A flexible custom notch-styled window that can be shown on the screen.
-@MainActor
-public final class DynamicNotch<Content>: ObservableObject where Content: View {
+///
+/// A customizable, notch-styled window for macOS applications.
+///
+/// ``DynamicNotch`` is the most flexible way to present custom windows using ``DynamicNotchKit``.
+/// It accepts SwiftUI views as input and renders them in a dynamic floating window, and is ideal when full control over the content is required.
+///
+/// Inspired by Apple’s Dynamic Island, ``DynamicNotch`` introduces a similar interface experience for macOS, with built-in support for *expanded* and *compact* display states.
+///
+/// ### Expanded State
+/// The expanded state is generally the largest view.
+/// It shows the full content view below the notch, and is also the view used when the window is floating.
+///
+/// ### Compact State
+/// In the compact state, there is the leading content, which is shown on the left side of the notch, and the trailing content, which is shown on the right side of the notch.
+///
+/// > When using the `floating` style, this framework does not support compact mode.
+/// > Calling ``compact(on:)`` on these devices will automatically hide the window.
+///
+/// ## Usage
+///
+/// ```swift
+/// Task {
+///     let notch = DynamicNotch(style: style) {
+///         VStack(spacing: 10) {
+///             ForEach(0..<10) { i in
+///                 Text("Hello World \(i)")
+///             }
+///         }
+///     } compactLeading: {
+///         Image(systemName: "moon.fill")
+///             .foregroundStyle(.blue)
+///     } compactTrailing: {
+///         Image(systemName: "sun.max")
+///             .foregroundStyle(.yellow)
+///     }
+///
+///     await notch.expand()
+///     try await Task.sleep(for: .seconds(2))
+///     await notch.compact()
+///     try await Task.sleep(for: .seconds(2))
+///     await notch.hide()
+/// }
+/// ```
+///
+public final class DynamicNotch<Expanded, CompactLeading, CompactTrailing>: ObservableObject, DynamicNotchControllable where Expanded: View, CompactLeading: View, CompactTrailing: View {
     /// Public in case user wants to modify the underlying NSPanel
     public var windowController: NSWindowController?
 
-    /// Notch Options
+    /// The window appearance, indicating the style of the notch.
     public let style: DynamicNotchStyle
+
+    /// Behavior of window when mouse enters.
     public let hoverBehavior: DynamicNotchHoverBehavior
 
-    /// Content Properties
-    @Published private(set) var content: () -> Content
-    @Published private(set) var contentID: UUID
-    @Published private(set) var isVisible: Bool = false
+    /// Namespace for matched geometry effect. It is automatically generated if `nil` when the notch is first presented.
+    @Published public internal(set) var namespace: Namespace.ID?
+
+    /// Content
+    let expandedContent: Expanded
+    let compactLeadingContent: CompactLeading
+    let compactTrailingContent: CompactTrailing
+    @Published var disableCompactLeading: Bool = false
+    @Published var disableCompactTrailing: Bool = false
+
+    /// Notch Properties
+    @Published private(set) var state: DynamicNotchState = .hidden
     @Published private(set) var notchSize: CGSize = .zero
+    @Published private(set) var menubarHeight: CGFloat = 0
     @Published private(set) var isHovering: Bool = false
 
-    /// Cancellable tasks for asynchronous operations
-    private var hideTask: Task<(), Never>? // Used to cancel the hide task if the mouse is inside
     private var closePanelTask: Task<(), Never>? // Used to close the panel after hiding completes
 
-    /// This is a timer to de-init the window after closing.
-    /// Note that it's slightly longer than the animation duration, which should allow for some extra leeway.
-    private var maxAnimationDuration: Double = 0.8
-
-    /// Makes a new DynamicNotch with custom content and style.
+    /// Creates a new DynamicNotch with custom content and style.
     /// - Parameters:
-    ///   - contentID: the ID of the content. If unspecified, a new ID will be generated. This helps to differentiate between different contents.
+    ///   - hoverBehavior: defines the hover behavior of the notch, which allows for different interactions such as haptic feedback, increased shadow etc.
     ///   - style: the popover's style. If unspecified, the style will be automatically set according to the screen (notch or floating).
-    ///   - content: a SwiftUI View to be shown in the popup.
+    ///   - expanded: a SwiftUI View to be shown in the expanded state of the notch.
+    ///   - compactLeading: a SwiftUI View to be shown in the compact leading state of the notch.
+    ///   - compactTrailing: a SwiftUI View to be shown in the compact trailing state of the notch.
     public init(
-        contentID: UUID = .init(),
-        hoverBehavior: DynamicNotchHoverBehavior = [.keepVisible],
+        hoverBehavior: DynamicNotchHoverBehavior = .all,
         style: DynamicNotchStyle = .auto,
-        @ViewBuilder content: @escaping () -> Content
+        @ViewBuilder expanded: @escaping () -> Expanded,
+        @ViewBuilder compactLeading: @escaping () -> CompactLeading = { EmptyView() },
+        @ViewBuilder compactTrailing: @escaping () -> CompactTrailing = { EmptyView() }
     ) {
-        self.contentID = contentID
         self.hoverBehavior = hoverBehavior
         self.style = style
-        self.content = content
+
+        self.expandedContent = expanded()
+        self.compactLeadingContent = compactLeading()
+        self.compactTrailingContent = compactTrailing()
 
         observeScreenParameters()
     }
 
+    /// Creates a new DynamicNotch with custom content and style. Does not support the compact appearance.
+    /// - Parameters:
+    ///   - hoverBehavior: defines the hover behavior of the notch, which allows for different interactions such as haptic feedback, increased shadow etc.
+    ///   - style: the popover's style. If unspecified, the style will be automatically set according to the screen (notch or floating).
+    ///   - expanded: a SwiftUI View to be shown in the expanded state of the notch.
+    public convenience init(
+        hoverBehavior: DynamicNotchHoverBehavior = [.keepVisible],
+        style: DynamicNotchStyle = .auto,
+        @ViewBuilder expanded: @escaping () -> Expanded
+    ) where CompactLeading == EmptyView, CompactTrailing == EmptyView {
+        self.init(
+            hoverBehavior: hoverBehavior,
+            style: style,
+            expanded: expanded,
+            compactLeading: { EmptyView() },
+            compactTrailing: { EmptyView() }
+        )
+        self.disableCompactLeading = true
+        self.disableCompactTrailing = true
+    }
+
+    /// Observes screen parameters changes and re-initializes the window if necessary.
     private func observeScreenParameters() {
         Task {
             let sequence = NotificationCenter.default.notifications(named: NSApplication.didChangeScreenParametersNotification)
@@ -63,19 +137,12 @@ public final class DynamicNotch<Content>: ObservableObject where Content: View {
             }
         }
     }
-    
-    /// Refreshes the content of the DynamicNotch.
-    /// It is called everytime `setContent(_:_:)` is called.
-    /// - Parameter contentID: the ID of the content. If unspecified, a new ID will be generated. This helps to differentiate between different contents.
-    func refreshContent(contentID: UUID = .init()) {
-        self.contentID = contentID
-    }
-    
+
     /// Updates the hover state of the DynamicNotch, and processes necessary hover behavior.
     /// - Parameter hovering: a boolean indicating whether the mouse is hovering over the notch.
     func updateHoverState(_ hovering: Bool) {
         // Ensure that we only update when the state changes
-        guard isVisible, hovering != isHovering else { return }
+        guard state != .hidden, hovering != isHovering else { return }
 
         isHovering = hovering
 
@@ -88,112 +155,156 @@ public final class DynamicNotch<Content>: ObservableObject where Content: View {
 
 // MARK: - Public
 
-public extension DynamicNotch {
-    /// Set this DynamicNotch's content.
-    /// - Parameters:
-    ///   - contentID: the ID of the content. If unspecified, a new ID will be generated. This helps to differentiate between different contents.
-    ///   - content: a SwiftUI View to be shown in the popup.
-    func setContent(
-        contentID: UUID = .init(),
-        content: @escaping () -> Content
-    ) {
-        self.content = content
-        refreshContent(contentID: contentID)
+extension DynamicNotch {
+    public func expand(on screen: NSScreen = NSScreen.screens[0]) async {
+        await _expand(on: screen, skipHide: false)
     }
 
-    /// Show the DynamicNotch.
-    /// - Parameters:
-    ///   - screen: screen to show on. Default is the primary screen, which generally contains the notch on MacBooks.
-    ///   - duration: duration for which the notch will be shown. If 0, the DynamicNotch will stay visible until `hide()` is called.
-    func show(
-        on screen: NSScreen = NSScreen.screens[0],
-        for duration: Duration = .zero
-    ) {
-        let seconds = Double(duration.components.seconds)
+    func _expand(on screen: NSScreen = NSScreen.screens[0], skipHide: Bool) async {
+        guard state != .expanded else { return }
 
-        func scheduleHide(_ time: Double) {
-            hideTask?.cancel()
-            hideTask = Task {
-                try? await Task.sleep(for: .seconds(time))
-                guard Task.isCancelled != true else { return }
-                hide()
+        closePanelTask?.cancel()
+        if state == .hidden || windowController?.window?.screen != screen {
+            initializeWindow(screen: screen)
+        }
+
+        Task { @MainActor in
+            if state != .hidden {
+                if !skipHide {
+                    withAnimation(style.closingAnimation) {
+                        self.state = .hidden
+                    }
+
+                    guard self.state == .hidden else { return }
+
+                    try? await Task.sleep(for: .seconds(0.25))
+                }
+
+                withAnimation(style.conversionAnimation) {
+                    self.state = .expanded
+                }
+            } else {
+                withAnimation(style.openingAnimation) {
+                    self.state = .expanded
+                }
             }
         }
 
-        guard !isVisible else {
-            if seconds > 0 {
-                scheduleHide(seconds)
-            }
+        // This is the time it takes for the animation to complete
+        // See DynamicNotchStyle's animations
+        try? await Task.sleep(for: .seconds(0.4))
+    }
+
+    public func compact(on screen: NSScreen = NSScreen.screens[0]) async {
+        await _compact(on: screen, skipHide: false)
+    }
+
+    func _compact(on screen: NSScreen = NSScreen.screens[0], skipHide: Bool) async {
+        guard state != .compact else { return }
+
+        if effectiveStyle(for: screen).isFloating {
+            await hide()
+            return
+        }
+
+        if disableCompactLeading, disableCompactTrailing {
+            await hide()
             return
         }
 
         closePanelTask?.cancel()
-        initializeWindow(screen: screen)
-
-        Task {
-            self.isVisible = true
+        if state == .hidden || windowController?.window?.screen != screen {
+            initializeWindow(screen: screen)
         }
 
-        if seconds != 0 {
-            scheduleHide(seconds)
+        Task { @MainActor in
+            if state != .hidden {
+                if !skipHide {
+                    withAnimation(style.closingAnimation) {
+                        self.state = .hidden
+                    }
+
+                    try? await Task.sleep(for: .seconds(0.25))
+
+                    guard self.state == .hidden else { return }
+                }
+
+                withAnimation(style.conversionAnimation) {
+                    self.state = .compact
+                }
+            } else {
+                withAnimation(style.openingAnimation) {
+                    self.state = .compact
+                }
+            }
+        }
+
+        // This is the time it takes for the animation to complete
+        // See DynamicNotchStyle's animations
+        try? await Task.sleep(for: .seconds(0.4))
+    }
+
+    public func hide() async {
+        await withCheckedContinuation { continuation in
+            _hide {
+                continuation.resume()
+            }
         }
     }
 
-    /// Hide the popup.
-    func hide() {
-        guard isVisible else { return }
+    /// Hides the popup, with a completion handler when the animation is completed.
+    func _hide(completion: (() -> ())? = nil) {
+        guard state != .hidden else {
+            completion?()
+            return
+        }
 
         if hoverBehavior.contains(.keepVisible), isHovering {
             Task {
                 try? await Task.sleep(for: .seconds(0.1))
-                hide()
+                _hide(completion: completion)
             }
             return
         }
 
-        isVisible = false
-        isHovering = false
+        withAnimation(style.closingAnimation) {
+            state = .hidden
+            isHovering = false
+        }
 
         closePanelTask?.cancel()
         closePanelTask = Task {
-            try? await Task.sleep(for: .seconds(maxAnimationDuration))
+            try? await Task.sleep(for: .seconds(0.4)) // Wait for animation to complete
             guard Task.isCancelled != true else { return }
             deinitializeWindow()
+            completion?()
         }
-    }
-
-    /// Toggles the popup's visibility.
-    func toggle() {
-        if isVisible {
-            hide()
-        } else {
-            show()
-        }
-    }
-
-    /// Check if the cursor is inside the screen's notch area.
-    ///
-    /// This function may be useful to evaluate whether the `DynamicNotch` should be shown or hidden.
-    /// - Returns: If the cursor is inside the notch area.
-    static func checkIfMouseIsInNotch() -> Bool {
-        guard let screen = NSScreen.screenWithMouse else {
-            return false
-        }
-
-        return screen.notchFrameWithMenubarAsBackup.contains(NSEvent.mouseLocation)
     }
 }
 
 // MARK: - Window Management
 
 private extension DynamicNotch {
+    /// Determines the effective style for a selected screen.
+    /// - Parameter screen: the screen to check for a notch.
+    /// - Returns: the effective style for the screen.
+    func effectiveStyle(for screen: NSScreen) -> DynamicNotchStyle {
+        if style == .auto {
+            return screen.hasNotch ? .notch : .floating
+        }
+        return style
+    }
+
+    /// Initializes the window for the DynamicNotch.
+    /// - Parameter screen: the screen to initialize the window on.
     func initializeWindow(screen: NSScreen) {
         // so that we don't have a duplicate window
         deinitializeWindow()
 
         notchSize = screen.notchFrameWithMenubarAsBackup.size
+        menubarHeight = screen.menubarHeight
 
-        let style = style == .auto ? (screen.hasNotch ? .notch : .floating) : style
+        let style = effectiveStyle(for: screen)
         let view = NSHostingView(rootView: NotchContentView(dynamicNotch: self, style: style))
 
         let panel = DynamicNotchPanel(
@@ -225,6 +336,7 @@ private extension DynamicNotch {
         windowController = .init(window: panel)
     }
 
+    /// Deinitializes the window and removes it from the screen.
     func deinitializeWindow() {
         guard let windowController else { return }
         windowController.close()

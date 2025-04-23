@@ -7,13 +7,12 @@
 
 import SwiftUI
 
-struct NotchlessView<Content>: View where Content: View {
-    @Environment(\.notchAnimation) private var animation
-    @ObservedObject private var dynamicNotch: DynamicNotch<Content>
+struct NotchlessView<Expanded, CompactLeading, CompactTrailing>: View where Expanded: View, CompactLeading: View, CompactTrailing: View {
+    @ObservedObject private var dynamicNotch: DynamicNotch<Expanded, CompactLeading, CompactTrailing>
     @State private var windowHeight: CGFloat = 0
     private let safeAreaInset: CGFloat = 15
-    
-    init(dynamicNotch: DynamicNotch<Content>) {
+
+    init(dynamicNotch: DynamicNotch<Expanded, CompactLeading, CompactTrailing>) {
         self.dynamicNotch = dynamicNotch
     }
 
@@ -40,14 +39,13 @@ struct NotchlessView<Content>: View where Content: View {
                 // This makes sure that the floating window FULLY slides off before disappearing
                 windowHeight = newHeight
             }
-            .offset(y: dynamicNotch.isVisible ? dynamicNotch.notchSize.height : -windowHeight)
+            .offset(y: dynamicNotch.state == .expanded ? dynamicNotch.notchSize.height : -windowHeight)
     }
 
     private func notchContent() -> some View {
         VStack(spacing: 0) {
-            dynamicNotch.content()
-                .id(dynamicNotch.contentID)
-                .transition(.blur)
+            dynamicNotch.expandedContent
+                .transition(.blur(intensity: 10).combined(with: .opacity))
                 .safeAreaInset(edge: .top, spacing: 0) { Color.clear.frame(height: safeAreaInset) }
                 .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: safeAreaInset) }
                 .safeAreaInset(edge: .leading, spacing: 0) { Color.clear.frame(width: safeAreaInset) }

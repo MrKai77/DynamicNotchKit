@@ -2,9 +2,7 @@
 
 ## Examples:
 
-| <img src="media/output-device.gif" width="100%"/> | <img src="media/battery.gif" width="100%"/> |
-| -------- | ------- |
-| <img src="media/info-panel.png" width="100%"/>  | <img src="media/window-management.gif" width="100%"/> |
+<div><video controls src="https://github.com/user-attachments/assets/09a139a8-1a40-4214-bcd9-1937764fb071" muted="true"></video></div>
 
 ## Installation
 
@@ -14,23 +12,17 @@ Add `https://github.com/MrKai77/DynamicNotchKit` in the [“Swift Package Manage
 
 ## Usage
 
-It's really easy! All the UI is handled by SwiftUI. That means, that you can use your existing views *directly* in DynamicNotchKit!
+It's really easy! All the UI is handled by SwiftUI. That means that you can use your existing views *directly* in DynamicNotchKit!
 
 Here's an example:
 ```swift
 let notch = DynamicNotch {
     ContentView()
 }
-notch.show(for: .seconds(5))
+await notch.expand()
 ```
 
-Where `ContentView` is a View.
-
-Notice the `show(for: .seconds(5))`. This will cause the popover to be displayed on the primary screen for two seconds before hiding itself automatically.
-The available methods to set the DynamicNotch's visibility are:
-- `show()`
-- `hide()`
-- `toggle()`
+Where `ContentView` conforms to `View`.
 
 DynamicNotchKit also supports Macs without a notch, meaning that this package supports _all_ Mac styles! You will see an example of that below.
 
@@ -43,7 +35,7 @@ let notch = DynamicNotchInfo(
     title: "Figure",
     description: "Looks like a person"
 )
-notch.show(for: .seconds(5))
+await notch.expand()
 ```
 
 This will result in a popover as so:
@@ -54,11 +46,7 @@ Furthermore, there is a `.floating` style, which will **automatically** be used 
 
 <img src="media/demo-floating.gif" width="50%"/>
 
-In fact, `DynamicNotchInfo` was used 3/4 of the examples above :D
-
-Anyways, there are more methods available, which I haven't listed here, as this package is still in development. I have also added much more detailed documentation to each available public method in the code, so if you are curious, please check there for more usage information!
-
-...I'm probably going to improve these docs later :)
+This is only a basic glimpse into this framework's capabilities. Documentation is available for **all** public methods and properties, so I encourage you to take a look at it for more advanced usage. Alternatively, you can take a look at the unit tests for this package, where I have added some usage examples as well.
 
 Feel free to ask questions/report issues in the Issues tab!
 
