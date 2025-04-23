@@ -41,6 +41,7 @@ import SwiftUI
 ///     await notch.hide()
 /// }
 /// ```
+///
 public final class DynamicNotchInfo: ObservableObject, DynamicNotchControllable {
     var internalDynamicNotch: DynamicNotch<InfoView, CompactLeadingView, CompactTrailingView>!
 

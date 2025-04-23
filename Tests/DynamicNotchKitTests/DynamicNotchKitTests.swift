@@ -13,19 +13,18 @@ extension Tag {
 @MainActor
 @Suite(.serialized)
 struct DynamicNotchKitTests {
-
     // MARK: - DynamicNotchInfo - Simple
 
     @Test("Info - Simple notch style", .tags(.notchStyle))
     func dynamicNotchInfoSimpleNotchStyle() async throws {
         try await _dynamicNotchInfoSimple(with: .notch)
     }
-    
+
     @Test("Info - Simple floating style", .tags(.floatingStyle))
     func dynamicNotchInfoSimpleFloatingStyle() async throws {
         try await _dynamicNotchInfoSimple(with: .floating)
     }
-    
+
     func _dynamicNotchInfoSimple(with style: DynamicNotchStyle) async throws {
         let notch = DynamicNotchInfo(
             icon: .init(systemName: "info.circle"),
@@ -45,22 +44,22 @@ struct DynamicNotchKitTests {
         }
 
         try await Task.sleep(for: .seconds(4))
-        
+
         await notch.hide()
     }
-    
+
     // MARK: - DynamicNotchInfo - Advanced
-    
+
     @Test("Info - Advanced notch style", .tags(.notchStyle))
     func dynamicNotchInfoAdvancedNotchStyle() async throws {
         try await _dynamicNotchInfoAdvanced(with: .notch)
     }
-    
+
     @Test("Info - Advanced floating style", .tags(.floatingStyle))
     func dynamicNotchInfoAdvancedFloatingStyle() async throws {
         try await _dynamicNotchInfoAdvanced(with: .floating)
     }
-    
+
     func _dynamicNotchInfoAdvanced(with style: DynamicNotchStyle) async throws {
         let notch = DynamicNotchInfo(
             icon: .init(systemName: "info.circle"),
@@ -78,15 +77,15 @@ struct DynamicNotchKitTests {
             notch.title = "Like progress bars..."
             notch.description = nil
         }
-        
+
         try await Task.sleep(for: .seconds(4))
-        
+
         withAnimation {
             notch.icon = nil
             notch.title = "There's also a compact style like iOS!"
             notch.description = "Note: this doesn't work in the floating style."
         }
-        
+
         try await Task.sleep(for: .seconds(4))
 
         withAnimation {
@@ -95,34 +94,34 @@ struct DynamicNotchKitTests {
         await notch.compact()
 
         try await Task.sleep(for: .seconds(2))
-        
+
         withAnimation {
             notch.compactTrailing = .init(systemName: "eyes.inverse", color: .orange)
         }
 
         try await Task.sleep(for: .seconds(2))
-        
+
         withAnimation {
             notch.compactLeading = nil
         }
 
         try await Task.sleep(for: .seconds(2))
-        
+
         await notch.hide()
     }
-    
+
     // MARK: - DynamicNotchInfo - Custom
 
     @Test("Info - Custom notch style & gradient", .tags(.notchStyle))
     func dynamicNotchInfoCustomNotchStyle() async throws {
         try await _dynamicNotchInfoGradientCustomRadii(with: .notch(topCornerRadius: 10, bottomCornerRadius: 25))
     }
-    
+
     @Test("Info - Custom floating style & gradient", .tags(.floatingStyle), .disabled("Compact mode does not support floating windows"))
     func dynamicNotchInfoCustomFloatingStyle() async throws {
         try await _dynamicNotchInfoGradientCustomRadii(with: .floating(cornerRadius: 25))
     }
-    
+
     func _dynamicNotchInfoGradientCustomRadii(with style: DynamicNotchStyle) async throws {
         let notch = DynamicNotchInfo(
             icon: .init {
@@ -149,14 +148,14 @@ struct DynamicNotchKitTests {
         try await Task.sleep(for: .seconds(2))
         await notch.hide()
     }
-    
+
     // MARK: DynamicNotchInfo - App Icon
-    
+
     @Test("Info - Notch with custom icon", .tags(.notchStyle))
     func dynamicNotchInfoAppIcon() async throws {
         try await _testInfoWithAppIcon(with: .notch)
     }
-    
+
     @Test("Info - Floating with custom icon", .tags(.floatingStyle), .disabled("Compact mode does not support floating windows"))
     func dynamicNotchInfoAppIconFloating() async throws {
         try await _testInfoWithAppIcon(with: .floating)
@@ -181,12 +180,12 @@ struct DynamicNotchKitTests {
         try await Task.sleep(for: .seconds(2))
         await notch.hide()
     }
-    
+
     @Test("Info - Notch with changing compact icons", .tags(.notchStyle))
     func dynamicNotchInfoCompactIcons() async throws {
         try await _testDifferentCompactIcons(with: .notch)
     }
-    
+
     func _testDifferentCompactIcons(with style: DynamicNotchStyle) async throws {
         let notch = DynamicNotchInfo(
             icon: .init(systemName: "info.circle"),
@@ -223,21 +222,21 @@ struct DynamicNotchKitTests {
         try await Task.sleep(for: .seconds(2))
         await notch.hide()
     }
-    
+
     @Test("DynamicNotch - Usage showcase - Notch style", .tags(.notchStyle))
     func dynamicNotchShowcaseNotchStyle() async throws {
         try await _dynamicNotchShowcase(with: .notch)
     }
-    
+
     @Test("DynamicNotch - Usage showcase - Floating style", .tags(.floatingStyle))
     func dynamicNotchShowcaseFloatingStyle() async throws {
         try await _dynamicNotchShowcase(with: .floating)
     }
-    
+
     func _dynamicNotchShowcase(with style: DynamicNotchStyle) async throws {
         let notch = DynamicNotch(style: style) {
             VStack(spacing: 10) {
-                ForEach(0..<10) { i in
+                ForEach(0 ..< 10) { i in
                     Text("Hello World \(i)")
                 }
             }
