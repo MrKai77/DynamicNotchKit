@@ -27,12 +27,10 @@ import SwiftUI
 /// > Important Consideration: Macs without a physical notch do not support compact mode.
 /// > Calling ``compact(on:)`` on these devices will automatically hide the window.
 ///
-/// ## Example Usage
+/// ## Usage
 ///
 /// ```swift
-/// import SwiftUI
-///
-/// struct ContentView: View {
+/// Task {
 ///     let notch = DynamicNotch(style: style) {
 ///         VStack(spacing: 10) {
 ///             ForEach(0..<10) { i in
@@ -47,17 +45,11 @@ import SwiftUI
 ///             .foregroundStyle(.yellow)
 ///     }
 ///
-///     var body: some View {
-///         Button("Show Notch") {
-///             Task {
-///                 await notch.expand()
-///                 try await Task.sleep(for: .seconds(2))
-///                 await notch.compact()
-///                 try await Task.sleep(for: .seconds(2))
-///                 await notch.hide()
-///             }
-///         }
-///     }
+///     await notch.expand()
+///     try await Task.sleep(for: .seconds(2))
+///     await notch.compact()
+///     try await Task.sleep(for: .seconds(2))
+///     await notch.hide()
 /// }
 /// ```
 public final class DynamicNotch<Expanded, CompactLeading, CompactTrailing>: ObservableObject, DynamicNotchControllable where Expanded: View, CompactLeading: View, CompactTrailing: View {
@@ -66,9 +58,12 @@ public final class DynamicNotch<Expanded, CompactLeading, CompactTrailing>: Obse
 
     /// The window appearance, indicating the style of the notch.
     public let style: DynamicNotchStyle
-    
+
     /// Behavior of window when mouse enters.
     public let hoverBehavior: DynamicNotchHoverBehavior
+
+    /// Namespace for matched geometry effect. It is automatically generated if `nil` when the notch is first presented.
+    @Published public internal(set) var namespace: Namespace.ID?
 
     /// Content
     let expandedContent: Expanded
@@ -178,9 +173,9 @@ extension DynamicNotch {
                     withAnimation(style.closingAnimation) {
                         self.state = .hidden
                     }
-                    
+
                     guard self.state == .hidden else { return }
-                    
+
                     try? await Task.sleep(for: .seconds(0.25))
                 }
 
@@ -193,12 +188,12 @@ extension DynamicNotch {
                 }
             }
         }
-        
+
         // This is the time it takes for the animation to complete
         // See DynamicNotchStyle's animations
         try? await Task.sleep(for: .seconds(0.4))
     }
-    
+
     public func compact(on screen: NSScreen = NSScreen.screens[0]) async {
         await _compact(on: screen, skipHide: false)
     }
@@ -227,9 +222,9 @@ extension DynamicNotch {
                     withAnimation(style.closingAnimation) {
                         self.state = .hidden
                     }
-                    
+
                     try? await Task.sleep(for: .seconds(0.25))
-                    
+
                     guard self.state == .hidden else { return }
                 }
 
@@ -242,12 +237,12 @@ extension DynamicNotch {
                 }
             }
         }
-        
+
         // This is the time it takes for the animation to complete
         // See DynamicNotchStyle's animations
         try? await Task.sleep(for: .seconds(0.4))
     }
-    
+
     public func hide() async {
         await withCheckedContinuation { continuation in
             _hide {
@@ -255,7 +250,7 @@ extension DynamicNotch {
             }
         }
     }
-    
+
     /// Hides the popup, with a completion handler when the animation is completed.
     func _hide(completion: (() -> ())? = nil) {
         guard state != .hidden else {

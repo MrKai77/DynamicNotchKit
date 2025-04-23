@@ -43,7 +43,7 @@ public enum DynamicNotchStyle: Sendable {
 
     /// A preset notch style, made to look good in most cases.
     public static let notch: DynamicNotchStyle = .notch(topCornerRadius: 15, bottomCornerRadius: 20)
-    
+
     /// A preset floating style, made to look good in most cases.
     public static let floating: DynamicNotchStyle = .floating(cornerRadius: 20)
 

@@ -9,7 +9,6 @@ import SwiftUI
 
 struct NotchView<Expanded, CompactLeading, CompactTrailing>: View where Expanded: View, CompactLeading: View, CompactTrailing: View {
     @ObservedObject private var dynamicNotch: DynamicNotch<Expanded, CompactLeading, CompactTrailing>
-
     @State private var compactLeadingWidth: CGFloat = 0
     @State private var compactTrailingWidth: CGFloat = 0
     private let safeAreaInset: CGFloat = 15
@@ -153,4 +152,3 @@ struct NotchView<Expanded, CompactLeading, CompactTrailing>: View where Expanded
         .frame(minWidth: dynamicNotch.notchSize.width)
     }
 }
-

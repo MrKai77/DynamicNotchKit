@@ -21,14 +21,9 @@ extension DynamicNotchInfo {
                 .transition(.blur(intensity: 10).combined(with: .scale(scale: 0.8)).combined(with: .opacity))
                 .matchedGeometryEffect(
                     id: "info_icon",
-                    in: dynamicNotch.namespace ?? namespace,
+                    in: dynamicNotch.internalDynamicNotch.namespace ?? namespace,
                     isSource: dynamicNotch.internalDynamicNotch.state == .compact && dynamicNotch.shouldSkipHideWhenConverting
                 )
-                .onAppear {
-                    if dynamicNotch.namespace == nil {
-                        dynamicNotch.namespace = namespace
-                    }
-                }
         }
     }
 
@@ -60,7 +55,7 @@ extension DynamicNotchInfo {
                     icon
                         .matchedGeometryEffect(
                             id: "info_icon",
-                            in: dynamicNotch.namespace ?? namespace,
+                            in: dynamicNotch.internalDynamicNotch.namespace ?? namespace,
                             isSource: dynamicNotch.internalDynamicNotch.state == .expanded && dynamicNotch.shouldSkipHideWhenConverting
                         )
                 }
@@ -70,11 +65,6 @@ extension DynamicNotchInfo {
                 Spacer(minLength: 0)
             }
             .frame(height: 40)
-            .onAppear {
-                if dynamicNotch.namespace == nil {
-                    dynamicNotch.namespace = namespace
-                }
-            }
         }
 
         @ViewBuilder

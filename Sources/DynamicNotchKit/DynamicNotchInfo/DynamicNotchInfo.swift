@@ -11,7 +11,36 @@ import SwiftUI
 
 /// A preset `DynamicNotch` suited for seamlessly presenting information.
 ///
-/// This class is a wrapper around `DynamicNotch` that provides a simple way to present information to the user. It is designed to be easy to use and provide a clean and simple way to present information.
+/// This class is a wrapper around `DynamicNotch` that provides a simple way to present information to the user.
+/// It is designed to be easy to use and provide a clean and simple way to present information.
+///
+/// On top of this, it provides refined animations when transitioning between the expanded and compact states using `matchedGeometryEffect` (note that this is not in all cases; refer to your initializer for more details).
+///
+/// ## Compared to DynamicNotch
+///
+/// Instead of providing your own SwiftUI content, `DynamicNotchInfo` provides a set of predefined views that are automatically used in the expanded and compact states.
+/// This makes it easy to use and provides a consistent look and feel, as all predefined views are designed to both look and feel native.
+/// Refer to ``Label`` for available options for preset views.
+///
+/// ## Usage
+///
+/// ```swift
+/// Task {
+///     let notch = DynamicNotchInfo(
+///         icon: .init(systemName: "hand.wave"),
+///         title: "Hello There!",
+///         description: "This is a description.",
+///         compactLeading: .init(systemName: "wave.3.left", color: .blue),
+///         compactTrailing: .init(systemName: "wave.3.right", color: .blue)
+///     )
+///
+///     await notch.expand()
+///     try await Task.sleep(for: .seconds(2))
+///     await notch.compact()
+///     try await Task.sleep(for: .seconds(2))
+///     await notch.hide()
+/// }
+/// ```
 public final class DynamicNotchInfo: ObservableObject, DynamicNotchControllable {
     var internalDynamicNotch: DynamicNotch<InfoView, CompactLeadingView, CompactTrailingView>!
 
@@ -22,12 +51,12 @@ public final class DynamicNotchInfo: ObservableObject, DynamicNotchControllable 
     @Published public var compactLeading: DynamicNotchInfo.Label? {
         didSet { internalDynamicNotch.disableCompactLeading = compactLeading == nil }
     }
+
     @Published public var compactTrailing: DynamicNotchInfo.Label? {
         didSet { internalDynamicNotch.disableCompactTrailing = compactTrailing == nil }
     }
-    
+
     @Published var shouldSkipHideWhenConverting: Bool = false
-    @Published var namespace: Namespace.ID?
 
     /// Creates a new DynamicNotchInfo with a predefined content and style based on parameters.
     /// - Parameters:

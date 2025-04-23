@@ -34,7 +34,7 @@ extension AnyTransition {
             identity: BlurModifier(intensity: 0)
         )
     }
-    
+
     static func scale(x: CGFloat = 1, y: CGFloat = 1, anchor: UnitPoint = .center) -> AnyTransition {
         .modifier(
             active: ScaleModifier(xScale: x, yScale: y, anchor: anchor),

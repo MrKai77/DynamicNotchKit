@@ -7,20 +7,24 @@
 
 import SwiftUI
 
-extension DynamicNotchInfo {
+public extension DynamicNotchInfo {
     /// The label to display in a `DynamicNotchInfo`.
-    public struct Label: View {
+    ///
+    /// You can use this to display an image, a system image, or a progress bar.
+    /// If you require a custom view, you can use the ``init(content:)`` initializer, which is essentially a quick way to emulate the behavior of a ``DynamicNotch`` without needing to create all other components manually.
+    ///
+    struct Label: View {
         @Environment(\.notchStyle) private var notchStyle
         @Environment(\.notchSection) private var notchSection
         private let id: UUID = .init()
         private var iconStyle: Style
-        
+
         enum Style: Equatable {
             case image(image: Image)
             case systemImage(systemName: String, color: Color?)
             case progress(progress: Binding<CGFloat>, color: Color?, overlay: AnyView?)
             case customView(contentID: UUID, view: AnyView)
-            
+
             static func == (lhs: Label.Style, rhs: Label.Style) -> Bool {
                 switch (lhs, rhs) {
                 case let (.image(image1), .image(image2)):
@@ -36,13 +40,13 @@ extension DynamicNotchInfo {
                 }
             }
         }
-        
+
         /// An image to display in the `DynamicNotchInfo`.
         /// - Parameter image: the image to display.
         public init(image: Image) {
             self.iconStyle = .image(image: image)
         }
-        
+
         /// A system image to display in the `DynamicNotchInfo`.
         /// - Parameters:
         ///   - systemName: the name of the system image to display.
@@ -50,7 +54,7 @@ extension DynamicNotchInfo {
         public init(systemName: String, color: Color? = nil) {
             self.iconStyle = .systemImage(systemName: systemName, color: color)
         }
-        
+
         /// A progress bar to display in the `DynamicNotchInfo`. The progress should be a value between 0 and 1.
         /// - Parameters:
         ///  - progress: the progress to display.
@@ -63,13 +67,13 @@ extension DynamicNotchInfo {
                 overlay: overlay == nil ? nil : AnyView(overlay!())
             )
         }
-        
+
         /// A view to display in the` DynamicNotchInfo`.
         /// - Parameter content: the view to display.
         public init(@ViewBuilder content: () -> some View) {
             self.iconStyle = .customView(contentID: .init(), view: AnyView(content()))
         }
-        
+
         public var body: some View {
             Group {
                 switch iconStyle {
@@ -102,14 +106,14 @@ extension DynamicNotchInfo {
             }
             .id(id)
         }
-        
+
         struct ProgressRing: View {
             @Binding var target: CGFloat
             let color: Color
             let thickness: CGFloat
-            
+
             @State private var isLoaded = false
-            
+
             public init(
                 to target: Binding<CGFloat>,
                 color: Color = .white,
@@ -119,7 +123,7 @@ extension DynamicNotchInfo {
                 self.color = color
                 self.thickness = thickness
             }
-            
+
             public var body: some View {
                 Circle()
                     .stroke(style: StrokeStyle(lineWidth: thickness))

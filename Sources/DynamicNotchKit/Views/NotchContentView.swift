@@ -9,6 +9,7 @@ import SwiftUI
 
 struct NotchContentView<Expanded, CompactLeading, CompactTrailing>: View where Expanded: View, CompactLeading: View, CompactTrailing: View {
     @ObservedObject private var dynamicNotch: DynamicNotch<Expanded, CompactLeading, CompactTrailing>
+    @Namespace private var namespace
     private let style: DynamicNotchStyle
 
     init(dynamicNotch: DynamicNotch<Expanded, CompactLeading, CompactTrailing>, style: DynamicNotchStyle) {
@@ -52,5 +53,10 @@ struct NotchContentView<Expanded, CompactLeading, CompactTrailing>: View where E
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .environment(\.notchStyle, style)
         .animation(.snappy(duration: 0.4), value: dynamicNotch.isHovering)
+        .onAppear {
+            if dynamicNotch.namespace == nil {
+                dynamicNotch.namespace = namespace
+            }
+        }
     }
 }
