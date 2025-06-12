@@ -75,7 +75,7 @@ public final class DynamicNotchInfo: ObservableObject, DynamicNotchControllable 
         compactLeading: DynamicNotchInfo.Label? = nil,
         compactTrailing: DynamicNotchInfo.Label? = nil,
         hoverBehavior: DynamicNotchHoverBehavior = .all,
-        style: DynamicNotchStyle = .auto,
+        style: DynamicNotchStyle = .auto
     ) {
         self.icon = icon
         self.title = title

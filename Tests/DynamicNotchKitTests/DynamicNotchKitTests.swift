@@ -255,4 +255,17 @@ struct DynamicNotchKitTests {
         try await Task.sleep(for: .seconds(2))
         await notch.hide()
     }
+
+    @Test("DynamicNotch - Rapid Fire", .tags(.notchStyle))
+    func dynamicNotchRapidFire() async throws {
+        for i in 0 ..< 30 {
+            let notch = DynamicNotchInfo(
+                icon: .init(systemName: "gauge.with.dots.needle.100percent"),
+                title: "Rapid Fire Test \(i + 1)"
+            )
+
+            await notch.expand()
+            await notch.hide()
+        }
+    }
 }

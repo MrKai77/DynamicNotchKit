@@ -314,7 +314,6 @@ private extension DynamicNotch {
             defer: true
         )
         panel.contentView = view
-        panel.orderFrontRegardless()
 
         let size = NSSize(
             width: screen.frame.width / 2,
@@ -332,6 +331,9 @@ private extension DynamicNotch {
             ),
             display: false
         )
+
+        panel.layoutIfNeeded()
+        panel.orderFrontRegardless()
 
         windowController = .init(window: panel)
     }
