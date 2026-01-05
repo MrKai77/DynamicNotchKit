@@ -166,12 +166,23 @@ extension DynamicNotch {
         guard state != .expanded else { return }
 
         closePanelTask?.cancel()
-        if state == .hidden || windowController?.window?.screen != screen {
-            initializeWindow(screen: screen)
-        }
 
-        Task { @MainActor in
-            if state != .hidden {
+        let needsNewWindow = state == .hidden || windowController?.window?.screen != screen
+
+        if needsNewWindow {
+            // Create window but don't show it yet
+            initializeWindow(screen: screen, orderFront: false)
+
+            // Start animation BEFORE showing window - this eliminates the stutter
+            withAnimation(style.openingAnimation) {
+                self.state = .expanded
+            }
+
+            // Now show window with animation already in progress
+            showWindow()
+        } else {
+            // Window exists and we're transitioning from compact state
+            Task { @MainActor in
                 if !skipHide {
                     withAnimation(style.closingAnimation) {
                         self.state = .hidden
@@ -183,10 +194,6 @@ extension DynamicNotch {
                 }
 
                 withAnimation(style.conversionAnimation) {
-                    self.state = .expanded
-                }
-            } else {
-                withAnimation(style.openingAnimation) {
                     self.state = .expanded
                 }
             }
@@ -215,12 +222,23 @@ extension DynamicNotch {
         }
 
         closePanelTask?.cancel()
-        if state == .hidden || windowController?.window?.screen != screen {
-            initializeWindow(screen: screen)
-        }
 
-        Task { @MainActor in
-            if state != .hidden {
+        let needsNewWindow = state == .hidden || windowController?.window?.screen != screen
+
+        if needsNewWindow {
+            // Create window but don't show it yet
+            initializeWindow(screen: screen, orderFront: false)
+
+            // Start animation BEFORE showing window - this eliminates the stutter
+            withAnimation(style.openingAnimation) {
+                self.state = .compact
+            }
+
+            // Now show window with animation already in progress
+            showWindow()
+        } else {
+            // Window exists and we're transitioning from expanded state
+            Task { @MainActor in
                 if !skipHide {
                     withAnimation(style.closingAnimation) {
                         self.state = .hidden
@@ -232,10 +250,6 @@ extension DynamicNotch {
                 }
 
                 withAnimation(style.conversionAnimation) {
-                    self.state = .compact
-                }
-            } else {
-                withAnimation(style.openingAnimation) {
                     self.state = .compact
                 }
             }
@@ -299,7 +313,8 @@ private extension DynamicNotch {
 
     /// Initializes the window for the DynamicNotch.
     /// - Parameter screen: the screen to initialize the window on.
-    func initializeWindow(screen: NSScreen) {
+    /// - Parameter orderFront: whether to order the window front immediately (default: true)
+    func initializeWindow(screen: NSScreen, orderFront: Bool = true) {
         // so that we don't have a duplicate window
         deinitializeWindow()
 
@@ -335,9 +350,28 @@ private extension DynamicNotch {
         )
 
         panel.layoutIfNeeded()
-        panel.orderFrontRegardless()
+
+        if orderFront {
+            panel.orderFrontRegardless()
+        }
 
         windowController = .init(window: panel)
+    }
+
+    /// Shows the window if it exists but hasn't been ordered front yet.
+    func showWindow() {
+        guard let window = windowController?.window else { return }
+
+        // Start invisible to hide any initial frame glitches
+        window.alphaValue = 0
+        window.orderFrontRegardless()
+
+        // Fade in smoothly
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = 0.15
+            context.timingFunction = CAMediaTimingFunction(name: .easeOut)
+            window.animator().alphaValue = 1
+        }
     }
 
     /// Deinitializes the window and removes it from the screen.
