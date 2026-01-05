@@ -290,10 +290,31 @@ extension DynamicNotch {
 
         closePanelTask?.cancel()
         closePanelTask = Task {
-            try? await Task.sleep(for: .seconds(0.4)) // Wait for animation to complete
+            try? await Task.sleep(for: .seconds(0.25)) // Wait for most of animation
+            guard Task.isCancelled != true else { return }
+
+            // Fade out window to hide any closing glitches
+            await fadeOutWindow()
+
             guard Task.isCancelled != true else { return }
             deinitializeWindow()
             completion?()
+        }
+    }
+
+    /// Fades out the window smoothly before closing.
+    @MainActor
+    private func fadeOutWindow() async {
+        guard let window = windowController?.window else { return }
+
+        await withCheckedContinuation { continuation in
+            NSAnimationContext.runAnimationGroup { context in
+                context.duration = 0.15
+                context.timingFunction = CAMediaTimingFunction(name: .easeIn)
+                window.animator().alphaValue = 0
+            } completionHandler: {
+                continuation.resume()
+            }
         }
     }
 }
