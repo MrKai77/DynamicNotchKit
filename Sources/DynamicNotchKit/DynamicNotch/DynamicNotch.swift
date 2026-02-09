@@ -173,7 +173,7 @@ extension DynamicNotch {
             // Create window but don't show it yet
             initializeWindow(screen: screen, orderFront: false)
 
-            // Start animation BEFORE showing window - this eliminates the stutter
+            // Start animation BEFORE showing window - this eliminates stutter
             withAnimation(style.openingAnimation) {
                 self.state = .expanded
             }
@@ -229,7 +229,7 @@ extension DynamicNotch {
             // Create window but don't show it yet
             initializeWindow(screen: screen, orderFront: false)
 
-            // Start animation BEFORE showing window - this eliminates the stutter
+            // Start animation BEFORE showing window - this eliminates stutter
             withAnimation(style.openingAnimation) {
                 self.state = .compact
             }
