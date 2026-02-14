@@ -68,18 +68,8 @@ public final class DynamicNotch<Expanded, CompactLeading, CompactTrailing>: Obse
     /// Namespace for matched geometry effect. It is automatically generated if `nil` when the notch is first presented.
     @Published public internal(set) var namespace: Namespace.ID?
 
-    /// Optional animation overrides. When `nil`, falls back to the style's default animation.
-    public var openingAnimation: Animation?
-
-    /// Optional animation override for the closing transition. When `nil`, falls back to the style's default.
-    public var closingAnimation: Animation?
-
-    /// Optional animation override for compact ↔ expanded conversion. When `nil`, falls back to the style's default.
-    public var conversionAnimation: Animation?
-
-    /// When `true`, transitions between compact and expanded states skip the intermediate
-    /// hide step, resulting in a faster, more direct animation. Defaults to `false`.
-    public var smoothTransition: Bool = false
+    /// Configuration for customizing transition animations and behavior.
+    public var transitionConfiguration = DynamicNotchTransitionConfiguration()
 
     /// Content
     let expandedContent: Expanded
@@ -142,13 +132,13 @@ public final class DynamicNotch<Expanded, CompactLeading, CompactTrailing>: Obse
     }
 
     /// Resolves the effective opening animation (custom override or style default).
-    var effectiveOpeningAnimation: Animation { openingAnimation ?? style.openingAnimation }
+    var effectiveOpeningAnimation: Animation { transitionConfiguration.openingAnimation ?? style.openingAnimation }
 
     /// Resolves the effective closing animation (custom override or style default).
-    var effectiveClosingAnimation: Animation { closingAnimation ?? style.closingAnimation }
+    var effectiveClosingAnimation: Animation { transitionConfiguration.closingAnimation ?? style.closingAnimation }
 
     /// Resolves the effective conversion animation (custom override or style default).
-    var effectiveConversionAnimation: Animation { conversionAnimation ?? style.conversionAnimation }
+    var effectiveConversionAnimation: Animation { transitionConfiguration.conversionAnimation ?? style.conversionAnimation }
 
     /// Observes screen parameters changes and re-initializes the window if necessary.
     private func observeScreenParameters() {
@@ -181,7 +171,7 @@ public final class DynamicNotch<Expanded, CompactLeading, CompactTrailing>: Obse
 
 extension DynamicNotch {
     public func expand(on screen: NSScreen = NSScreen.screens[0]) async {
-        await _expand(on: screen, skipHide: smoothTransition)
+        await _expand(on: screen, skipHide: transitionConfiguration.skipIntermediateHides)
     }
 
     func _expand(on screen: NSScreen = NSScreen.screens[0], skipHide: Bool) async {
@@ -227,7 +217,7 @@ extension DynamicNotch {
     }
 
     public func compact(on screen: NSScreen = NSScreen.screens[0]) async {
-        await _compact(on: screen, skipHide: smoothTransition)
+        await _compact(on: screen, skipHide: transitionConfiguration.skipIntermediateHides)
     }
 
     func _compact(on screen: NSScreen = NSScreen.screens[0], skipHide: Bool) async {
